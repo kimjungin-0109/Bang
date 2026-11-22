@@ -70,7 +70,7 @@
     .bullet-rail-container {
       position: absolute;
       top: 0;
-      left: 112px; /* Aligned directly behind Slot 2 (Character card) */
+      left: 112px;
       width: 82px;
       height: 100px;
       z-index: 1;
@@ -163,7 +163,7 @@
       filter: brightness(1.1);
     }
 
-    /* Authentic BANG! Card Styling (White outer rim + Brown/Blue inner frame) */
+    /* Authentic BANG! Card Styling */
     .bang-card {
       background: #fdfbf7;
       border-radius: 10px;
@@ -304,14 +304,15 @@
     <div class="max-w-4xl w-full mx-auto my-auto bg-stone-950/90 border-2 border-amber-700/70 rounded-3xl p-6 sm:p-8 shadow-2xl">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-900/60 pb-5 mb-6">
         <div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 flex-wrap">
             <h1 class="font-western text-4xl sm:text-5xl text-amber-400 tracking-wider drop-shadow">BANG!</h1>
             <span class="px-2.5 py-1 text-xs font-bold bg-amber-900/60 text-amber-200 border border-amber-600/50 rounded-full">서부의 사나이 · 기본판</span>
+            <span id="net-status-badge" class="px-2.5 py-1 text-xs font-bold bg-stone-800 text-stone-300 border border-stone-600 rounded-full">🔄 서버 연결 중...</span>
           </div>
-          <p class="text-stone-400 text-sm mt-1">4~7인 서부 총격 심리전 · 80장 공식 덱 · 16인 인물 능력 완비</p>
+          <p class="text-stone-400 text-sm mt-1">4~7인 서부 총격 심리전 · 80장 공식 덱 · 16인 인물 능력 완비 · 실시간 멀티플레이어</p>
         </div>
         <div class="flex items-center gap-2">
-          <input id="lobby-nickname" type="text" value="나 (방장)" maxlength="12"
+          <input id="lobby-nickname" type="text" value="총잡이" maxlength="12"
             class="bg-stone-900 border border-amber-800/80 rounded-xl px-3 py-2 text-sm text-amber-100 w-32 focus:outline-none focus:border-amber-400"
             placeholder="닉네임" />
           <button onclick="openCreateRoomModal()"
@@ -321,9 +322,9 @@
         </div>
       </div>
 
-      <!-- Room List Container (Starts Empty as requested) -->
+      <!-- Room List Container -->
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-amber-300">🚪 살롱 방 목록</h2>
+        <h2 class="text-lg font-bold text-amber-300">🚪 살롱 방 목록 (실시간)</h2>
         <span id="room-count-badge" class="text-xs text-stone-400">총 0개의 방</span>
       </div>
       <div id="room-list-container" class="space-y-3 min-h-[210px] flex flex-col justify-center"></div>
@@ -357,7 +358,7 @@
       <div id="wait-slots-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
 
       <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-stone-800">
-        <button onclick="fillEmptySlotsWithAI()"
+        <button id="btn-fill-ai" onclick="fillEmptySlotsWithAI()"
           class="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-amber-300 font-bold text-sm rounded-xl border border-amber-700/60 transition">
           🤖 빈 자리 AI 채우기
         </button>
@@ -377,7 +378,7 @@
         <h2 class="text-2xl sm:text-3xl font-black text-amber-400 mb-2">🃏 1단계: 비밀 직업 카드 뽑기</h2>
         <p class="text-sm text-stone-300 mb-6">아래 카드를 클릭하여 이번 판의 비밀 직업을 확인하세요.</p>
         <div class="flex justify-center mb-6">
-          <div onclick="flipRoleCard()" class="flip-perspective w-48 h-68 cursor-pointer group" style="height: 272px;">
+          <div onclick="flipRoleCard()" class="flip-perspective w-48 cursor-pointer group" style="height: 272px;">
             <div id="ceremony-role-flipper" class="flip-card-inner">
               <!-- Front (Back of Role Card) -->
               <div class="flip-face bang-card card-role-back shadow-2xl group-hover:scale-105 transition">
@@ -400,7 +401,7 @@
       <!-- Step 2: Character 2-Choose-1 -->
       <div id="ceremony-step-char" class="hidden">
         <h2 class="text-2xl sm:text-3xl font-black text-amber-400 mb-2">🤠 2단계: 인물 카드 선택</h2>
-        <p class="text-sm text-stone-300 mb-6">2명의 인물 중 1명을 선택하세요. 남은 1장은 뒤집혀 5발 총알 체력 카드로 판 아래에 세팅됩니다.</p>
+        <p id="ceremony-char-sub" class="text-sm text-stone-300 mb-6">2명의 인물 중 1명을 선택하세요. 남은 1장은 뒤집혀 5발 총알 체력 카드로 판 아래에 세팅됩니다.</p>
         <div id="ceremony-char-choices" class="flex flex-wrap justify-center gap-6 mb-4"></div>
       </div>
     </div>
@@ -409,7 +410,7 @@
   <!-- ==================== 4. MAIN GAME SCREEN ==================== -->
   <div id="screen-game" class="hidden h-screen w-screen flex flex-col overflow-hidden">
 
-    <!-- TOP MAHOGANY HUD BAR (Fixed 48px, whitespace-nowrap) -->
+    <!-- TOP MAHOGANY HUD BAR -->
     <header class="h-12 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-900/70 px-3 sm:px-4 flex items-center justify-between gap-2 z-30 shadow-lg">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="font-western text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
@@ -437,7 +438,7 @@
       </div>
     </header>
 
-    <!-- MIDDLE TABLE VIEWPORT (Auto-Fit Scaling Emerald Oval Table) -->
+    <!-- MIDDLE TABLE VIEWPORT -->
     <main id="table-viewport" class="flex-1 relative overflow-hidden">
       <div id="table-world">
         <div class="felt-oval">
@@ -447,7 +448,6 @@
         <!-- Central Drop Zone + Draw Deck + Discard Pile -->
         <div id="central-drop-zone"
           class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[220px] rounded-3xl border-2 border-dashed border-amber-400/20 flex items-center justify-center gap-7 z-10 transition-all">
-          <!-- Draw Deck -->
           <div onclick="handleDeckClick()" class="flex flex-col items-center cursor-pointer group">
             <div class="bang-card card-role-back w-24 h-36 group-hover:scale-105 transition">
               <div class="bang-card-inner items-center justify-center">
@@ -459,7 +459,6 @@
             <span id="deck-count-label" class="mt-2 px-2.5 py-0.5 bg-stone-950/85 border border-amber-700/60 rounded-full text-xs font-bold text-amber-300">덱 80장</span>
           </div>
 
-          <!-- Discard Pile -->
           <div class="flex flex-col items-center">
             <div id="discard-top-slot" class="w-24 h-36 rounded-xl border-2 border-dashed border-amber-400/35 bg-black/25 flex items-center justify-center text-center p-2 text-xs text-amber-200/50">
               버림 더미
@@ -467,13 +466,12 @@
             <span id="discard-count-label" class="mt-2 px-2.5 py-0.5 bg-stone-950/85 border border-stone-700 rounded-full text-xs font-bold text-stone-300">버림 0장</span>
           </div>
 
-          <!-- Drag Prompt Overlay -->
           <div id="drop-zone-label" class="hidden absolute -bottom-9 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-amber-500 text-stone-950 text-xs font-black rounded-full shadow-lg whitespace-nowrap">
             🃏 여기에 놓으면 카드가 발동됩니다!
           </div>
         </div>
 
-        <!-- Player Seats Layer (Built once so CSS transitions work!) -->
+        <!-- Player Seats Layer -->
         <div id="seats-layer" class="absolute inset-0 pointer-events-none"></div>
 
         <!-- FX Animation Layer -->
@@ -503,7 +501,7 @@
       </aside>
     </main>
 
-    <!-- BOTTOM MAHOGANY HAND DOCK (214px tall -> ZERO card clipping!) -->
+    <!-- BOTTOM MAHOGANY HAND DOCK -->
     <footer class="h-[214px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/70 px-4 pt-2 pb-2 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative">
       <!-- Floating Quick-Action Pill for Selected Card -->
       <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-40 bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2.5">
@@ -540,7 +538,7 @@
         </div>
       </div>
 
-      <!-- Hand Cards Rail (Generous top padding so raised cards never clip!) -->
+      <!-- Hand Cards Rail -->
       <div id="hand-rail" class="flex-1 flex items-end gap-2.5 overflow-x-auto thin-scroll pt-6 pb-1 px-2" style="justify-content: safe center;"></div>
     </footer>
   </div>
@@ -607,7 +605,7 @@
     </div>
   </div>
 
-  <!-- Generic Choice Modal (General Store, Kit Carlson, Lucky Duke, Panic, Cat Balou, Jesse, Pedro) -->
+  <!-- Generic Choice Modal -->
   <div id="modal-choice" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-6 max-w-2xl w-full shadow-2xl text-center">
       <h3 id="choice-modal-title" class="text-xl font-black text-amber-400 mb-1">선택하세요</h3>
@@ -616,7 +614,7 @@
     </div>
   </div>
 
-  <!-- Exit Confirmation Modal (No native confirm!) -->
+  <!-- Exit Confirmation Modal -->
   <div id="modal-exit-confirm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-red-700 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
       <h3 class="text-lg font-black text-amber-300 mb-2">로비로 나가시겠습니까?</h3>
@@ -641,10 +639,372 @@
     </div>
   </div>
 
-  <!-- Toast Banner (No native alert!) -->
+  <!-- Toast Banner -->
   <div id="toast-banner" class="hidden fixed top-16 left-1/2 -translate-x-1/2 z-[60] bg-stone-950/95 border-2 border-amber-400 text-amber-100 px-5 py-2.5 rounded-xl shadow-2xl text-xs font-bold pointer-events-none"></div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /* ===================================================================
+       0. REAL-TIME FIREBASE MULTIPLAYER SYNC ENGINE (Project: bang-3a072)
+       =================================================================== */
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCjNLhGMnbjKmLcuPpRkT80bmGSTwoB3Ak",
+      authDomain: "bang-3a072.firebaseapp.com",
+      projectId: "bang-3a072",
+      storageBucket: "bang-3a072.firebasestorage.app",
+      messagingSenderId: "874130342072",
+      appId: "1:874130342072:web:ac82c290a5c16209e6f44d",
+      measurementId: "G-95PLHT7FNC"
+    };
+
+    const SESSION_KEY = Math.random().toString(36).slice(2, 8);
+    const Net = {
+      online: false,
+      app: null,
+      auth: null,
+      db: null,
+      uid: `local_${SESSION_KEY}`,
+      clientId: `local_${SESSION_KEY}`,
+      appId: typeof __app_id !== 'undefined' ? __app_id : 'bang-3a072',
+      isHost: true,
+      lastActionSeq: 0,
+      lastFxId: null,
+      handledPromptId: null,
+      pendingHostPrompt: null,
+      ceremonyStartedMatch: null,
+      syncTimer: null
+    };
+
+    function getRoomsCollection() {
+      return collection(Net.db, 'artifacts', Net.appId, 'public', 'data', 'bang_saloon_rooms');
+    }
+    function getRoomRef(roomId) {
+      return doc(Net.db, 'artifacts', Net.appId, 'public', 'data', 'bang_saloon_rooms', roomId);
+    }
+
+    async function bootNetwork() {
+      const badge = document.getElementById('net-status-badge');
+      try {
+        const cfg = (typeof __firebase_config !== 'undefined' && __firebase_config)
+          ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
+          : DEFAULT_FIREBASE_CONFIG;
+        if (!cfg || !cfg.apiKey) throw new Error('no-config');
+
+        Net.app = initializeApp(cfg);
+        Net.auth = getAuth(Net.app);
+        Net.db = getFirestore(Net.app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(Net.auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(Net.auth);
+        }
+        if (!Net.auth.currentUser) throw new Error('auth-failed');
+
+        Net.uid = Net.auth.currentUser.uid;
+        Net.clientId = `${Net.uid}_${SESSION_KEY}`;
+        Net.online = true;
+
+        badge.className = 'px-2.5 py-1 text-xs font-bold bg-emerald-900/70 text-emerald-300 border border-emerald-500 rounded-full';
+        badge.innerText = '🟢 실시간 멀티플레이어 연결됨';
+
+        onSnapshot(getRoomsCollection(), (snap) => {
+          const list = [];
+          snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          lobby.rooms = list;
+          handleRealtimeRoomSync();
+        }, (err) => {
+          console.error('Snapshot error:', err);
+          badge.className = 'px-2.5 py-1 text-xs font-bold bg-amber-900/70 text-amber-300 border border-amber-600 rounded-full';
+          badge.innerText = '🟡 Firestore 권한 확인 필요 (로컬 모드)';
+        });
+      } catch (e) {
+        Net.online = false;
+        badge.className = 'px-2.5 py-1 text-xs font-bold bg-amber-900/70 text-amber-300 border border-amber-600 rounded-full';
+        badge.innerText = '🟡 로컬 단독 모드 (AI 대전)';
+        renderRoomList();
+      }
+    }
+
+    async function patchRoom(roomId, data) {
+      if (!Net.online || !roomId) return;
+      try { await updateDoc(getRoomRef(roomId), data); } catch (e) { console.error(e); }
+    }
+
+    function broadcastGameState(immediate = false) {
+      if (!Net.online || !Net.isHost || !lobby.activeRoomId || G.players.length === 0) return;
+      const run = () => {
+        Net.syncTimer = null;
+        const snap = {
+          players: G.players,
+          drawCount: G.drawPile.length,
+          discardPile: G.discardPile,
+          turnIndex: G.turnIndex,
+          bangsPlayedThisTurn: G.bangsPlayedThisTurn,
+          isBusy: G.isBusy,
+          autoTargetIndex: G.autoTargetIndex
+        };
+        patchRoom(lobby.activeRoomId, { stateJson: JSON.stringify(snap), updatedAt: Date.now() });
+      };
+      if (immediate) {
+        if (Net.syncTimer) { clearTimeout(Net.syncTimer); Net.syncTimer = null; }
+        run();
+      } else if (!Net.syncTimer) {
+        Net.syncTimer = setTimeout(run, 80);
+      }
+    }
+
+    function emitFX(type, payload) {
+      if (!Net.online || !Net.isHost || !lobby.activeRoomId) return;
+      const ev = { id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, type, payload };
+      Net.lastFxId = ev.id;
+      patchRoom(lobby.activeRoomId, { fxJson: JSON.stringify(ev) });
+    }
+
+    async function sendGuestAction(action) {
+      if (!Net.online || !lobby.activeRoomId) return;
+      await patchRoom(lobby.activeRoomId, {
+        guestActionJson: JSON.stringify({ seq: Date.now() + Math.random(), fromIdx: G.mySeatIndex, ...action })
+      });
+    }
+
+    async function promptRemoteSeat(seatIdx, kind, title, desc, options, timeoutMs = 10000) {
+      const promptId = `p_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+      await patchRoom(lobby.activeRoomId, {
+        promptJson: JSON.stringify({ id: promptId, seatIdx, kind, title, desc, options, timeoutMs }),
+        replyJson: null
+      });
+      return new Promise((resolve) => {
+        let done = false;
+        const finish = (val) => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          Net.pendingHostPrompt = null;
+          patchRoom(lobby.activeRoomId, { promptJson: null, replyJson: null });
+          resolve(val);
+        };
+        Net.pendingHostPrompt = { promptId, resolve: finish };
+        const timer = setTimeout(() => finish(kind === 'reaction' ? false : (options[0]?.value ?? null)), timeoutMs + 2000);
+      });
+    }
+
+    async function handleRealtimeRoomSync() {
+      if (!document.getElementById('screen-lobby').classList.contains('hidden')) {
+        renderRoomList();
+      }
+      if (!lobby.activeRoomId) return;
+      const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
+      if (!room) {
+        showToast('방장이 방을 닫았습니다.');
+        executeExitToLobby(true);
+        return;
+      }
+      Net.isHost = room.hostClientId === Net.clientId;
+
+      if (room.status === 'waiting') {
+        renderWaitingRoom();
+        return;
+      }
+
+      if (room.status === 'ceremony' && room.ceremonyJson) {
+        const cData = JSON.parse(room.ceremonyJson);
+        const mySeat = cData.slots.findIndex(s => !s.isAI && s.clientId === Net.clientId);
+        if (mySeat >= 0) {
+          G.mySeatIndex = mySeat;
+          if (Net.ceremonyStartedMatch !== cData.matchId) {
+            Net.ceremonyStartedMatch = cData.matchId;
+            ceremony.activeSlots = cData.slots;
+            ceremony.roles = cData.roles;
+            ceremony.p0CharOptions = cData.charPairs[mySeat];
+            ceremony.aiChars = cData.aiChars;
+            ceremony.roleFlipped = false;
+
+            const myRole = cData.roles[mySeat];
+            document.getElementById('ceremony-role-revealed').innerHTML = `
+              <div class="bang-card-inner items-center justify-between py-4 px-3">
+                <div class="text-xs font-black tracking-widest text-amber-800">${myRole.en}</div>
+                <div class="text-6xl">${myRole.icon}</div>
+                <div>
+                  <div class="text-xl font-black text-stone-900">${myRole.name}</div>
+                  <div class="text-[11px] text-stone-700 mt-1 leading-tight">${myRole.desc}</div>
+                </div>
+              </div>`;
+            document.getElementById('ceremony-role-flipper').classList.remove('flipped');
+            document.getElementById('btn-to-char-step').classList.add('hidden');
+            document.getElementById('ceremony-step-role').classList.remove('hidden');
+            document.getElementById('ceremony-step-char').classList.add('hidden');
+            document.getElementById('screen-waiting').classList.add('hidden');
+            document.getElementById('screen-ceremony').classList.remove('hidden');
+          }
+        }
+        if (Net.isHost && G.players.length === 0) {
+          const allReady = cData.slots.every((s, idx) => s.isAI || !!room[`pick_${idx}`]);
+          if (allReady) {
+            const picks = {};
+            cData.slots.forEach((s, idx) => {
+              if (!s.isAI) picks[idx] = CHARACTERS.find(c => c.id === room[`pick_${idx}`]) || cData.charPairs[idx][0];
+            });
+            await patchRoom(room.id, { status: 'playing' });
+            initGameBoardOnline(cData, picks);
+          }
+        }
+        return;
+      }
+
+      if (room.status === 'playing' || room.status === 'gameover') {
+        if (Net.isHost) {
+          if (Net.pendingHostPrompt && room.replyJson) {
+            const rep = JSON.parse(room.replyJson);
+            if (rep.promptId === Net.pendingHostPrompt.promptId) {
+              Net.pendingHostPrompt.resolve(rep.value);
+            }
+          }
+          if (room.guestActionJson) {
+            const act = JSON.parse(room.guestActionJson);
+            if (act.seq && act.seq !== Net.lastActionSeq) {
+              Net.lastActionSeq = act.seq;
+              patchRoom(room.id, { guestActionJson: null });
+              processGuestActionOnHost(act);
+            }
+          }
+        } else {
+          if (room.stateJson) {
+            applyGuestState(JSON.parse(room.stateJson));
+          }
+          if (room.fxJson) {
+            const fx = JSON.parse(room.fxJson);
+            if (fx.id && fx.id !== Net.lastFxId) {
+              Net.lastFxId = fx.id;
+              replayGuestFX(fx);
+            }
+          }
+          if (room.promptJson) {
+            const pr = JSON.parse(room.promptJson);
+            if (pr.seatIdx === G.mySeatIndex && pr.id !== Net.handledPromptId) {
+              Net.handledPromptId = pr.id;
+              handleGuestPrompt(pr, room.id);
+            }
+          }
+          if (room.status === 'gameover' && room.gameOverJson) {
+            const go = JSON.parse(room.gameOverJson);
+            showGameOver(go.title, go.desc, false);
+          }
+        }
+      }
+    }
+
+    function applyGuestState(snap) {
+      const wasHidden = document.getElementById('screen-game').classList.contains('hidden');
+      const seatIdx = snap.players.findIndex(p => !p.isAI && p.clientId === Net.clientId);
+      if (seatIdx >= 0) G.mySeatIndex = seatIdx;
+
+      G.players = snap.players;
+      G.drawPile = Array(snap.drawCount || 0).fill(null);
+      G.discardPile = snap.discardPile || [];
+      G.turnIndex = snap.turnIndex;
+      G.bangsPlayedThisTurn = snap.bangsPlayedThisTurn || 0;
+      G.isBusy = snap.isBusy;
+      G.autoTargetIndex = snap.autoTargetIndex ?? null;
+
+      if (wasHidden && G.players.length > 0) {
+        document.getElementById('screen-ceremony').classList.add('hidden');
+        document.getElementById('screen-waiting').classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('hidden');
+        buildSeatButtonsHUD();
+        buildPlayerSeatsOnce();
+        initCentralDropZone();
+        computeFitScale();
+        setCameraMode('auto');
+      }
+      document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
+      syncAllBoards();
+      renderHand();
+      if (G.cameraMode === 'auto') applyCameraTransform();
+    }
+
+    async function replayGuestFX(fx) {
+      const p = fx.payload || {};
+      if (fx.type === 'TURN_BANNER') await FX.playTurnBanner(p.text, false);
+      else if (fx.type === 'BANG_HIT') await FX.playBangHit(p.card, p.attackerIdx, p.targetIdx, p.isGatling, false);
+      else if (fx.type === 'BANG_BLOCKED') await FX.playBangBlocked(p.attackCard, p.attackerIdx, p.targetIdx, false);
+      else if (fx.type === 'BEER') await FX.playBeer(p.card, p.playerIdx, false);
+      else if (fx.type === 'EQUIP') await FX.playEquip(p.card, p.targetIdx, false);
+      else if (fx.type === 'INDIANS') await FX.playIndians(p.card, false);
+      else if (fx.type === 'GATLING') await FX.playGatling(p.card, false);
+      else if (fx.type === 'FLOAT_TEXT') FX.showFloatText(p.playerIdx, p.text, p.color, false);
+      else if (fx.type === 'LOG') logBattle(p.msg, false);
+    }
+
+    async function handleGuestPrompt(pr, roomId) {
+      let answer = false;
+      if (pr.kind === 'reaction') {
+        const myP = G.players[G.mySeatIndex];
+        const matching = myP ? myP.hand.filter(c => pr.options.cardIds.includes(c.id)) : [];
+        G.glowHandCardIds = new Set(pr.options.cardIds);
+        renderHand();
+        answer = await showLocalReactionModal(pr.desc, pr.options.requiredCode, matching);
+        G.glowHandCardIds.clear();
+        renderHand();
+      } else {
+        answer = await openChoiceModal(pr.title, pr.desc, pr.options);
+      }
+      await patchRoom(roomId, { replyJson: JSON.stringify({ promptId: pr.id, value: answer }) });
+    }
+
+    async function processGuestActionOnHost(act) {
+      const actor = G.players[act.fromIdx];
+      if (!actor || !actor.isAlive || G.turnIndex !== act.fromIdx) return;
+
+      if (act.type === 'PLAY_CARD') {
+        const card = actor.hand.find(c => c.id === act.cardId);
+        if (!card) return;
+        if (act.targetId !== undefined && act.targetId !== null) {
+          G.isBusy = true;
+          actor.hand = actor.hand.filter(c => c.id !== card.id);
+          const target = G.players[act.targetId];
+          if (card.code === 'MISSED' && actor.character.id === 'CALAMITY_JANET') {
+            actor.abilityRevealed = true;
+            logBattle(`💃 캘러미티 재닛 능력 발동! [빗나감!]을 [뱅!]으로 사용합니다.`);
+          }
+          checkSuzyLafayette(actor);
+          const isEffBang = card.code === 'BANG' || (card.code === 'MISSED' && actor.character.id === 'CALAMITY_JANET');
+          await executeTargetedCard(actor, target, card, isEffBang);
+          G.isBusy = false;
+          syncAllBoards();
+          broadcastGameState(true);
+        } else {
+          await playCardAction(actor, card);
+          broadcastGameState(true);
+        }
+      } else if (act.type === 'END_TURN') {
+        if (actor.hand.length <= Math.max(0, actor.hp)) nextTurn();
+      } else if (act.type === 'DISCARD') {
+        const setIds = new Set(act.cardIds || []);
+        actor.hand = actor.hand.filter(c => { if (setIds.has(c.id)) { G.discardPile.push(c); return false; } return true; });
+        checkSuzyLafayette(actor);
+        syncAllBoards();
+        broadcastGameState(true);
+        if (actor.hand.length <= Math.max(0, actor.hp)) nextTurn();
+      } else if (act.type === 'SID_HEAL') {
+        const setIds = new Set(act.cardIds || []);
+        if (setIds.size === 2 && actor.character.id === 'SID_KETCHUM' && actor.hp < actor.maxHp) {
+          actor.abilityRevealed = true;
+          actor.hand = actor.hand.filter(c => { if (setIds.has(c.id)) { G.discardPile.push(c); return false; } return true; });
+          actor.hp = Math.min(actor.maxHp, actor.hp + 1);
+          FX.showFloatText(actor.id, '+1 HP 💉', '#4ade80');
+          logBattle(`💉 ${actor.name} 시드 케첨 능력 발동! 2장을 버리고 체력 +1 회복.`);
+          checkSuzyLafayette(actor);
+          syncAllBoards();
+          broadcastGameState(true);
+        }
+      }
+    }
+
     /* ===================================================================
        1. WEB AUDIO SYNTHESIZED SFX ENGINE (No external URLs)
        =================================================================== */
@@ -826,46 +1186,31 @@
       { id: 'WILLY_THE_KID',  name: '윌리 더 키드',  hp: 4, icon: '🔫', desc: '한 턴에 뱅!을 횟수 제한 없이 사용 가능합니다.' }
     ];
 
-    // Exact 80-Card Base Deck (63 Brown + 17 Blue)
     function buildOfficial80Deck() {
       const specs = [
-        // 25 BANG!
         ...['♠A','♦A','♦2','♦3','♦4','♦5','♦6','♦7','♦8','♦9','♦10','♦J','♦Q','♦K','♣2','♣3','♣4','♣5','♣6','♣7','♣8','♣9','♥Q','♥K','♥A'].map(sr => ({
           code: 'BANG', name: '뱅!', type: 'brown', icon: '🎯', desc: '사거리 내 대상 1 피해', sr
         })),
-        // 12 MISSED!
         ...['♠2','♠3','♠4','♠5','♠6','♠7','♠8','♣10','♣J','♣Q','♣K','♣A'].map(sr => ({
           code: 'MISSED', name: '빗나감!', type: 'brown', icon: '🛡️', desc: '뱅! 공격을 회피', sr
         })),
-        // 6 BEER
         ...['♥6','♥7','♥8','♥9','♥10','♥J'].map(sr => ({
           code: 'BEER', name: '맥주', type: 'brown', icon: '🍺', desc: '체력 +1 회복 (2인 불가)', sr
         })),
-        // 1 SALOON
         { code: 'SALOON', name: '주점', type: 'brown', icon: '🍻', desc: '생존자 전원 체력 +1', sr: '♥5' },
-        // 2 STAGECOACH
         ...['♠9','♠9'].map(sr => ({ code: 'STAGECOACH', name: '역마차', type: 'brown', icon: '🐴', desc: '카드 2장 뽑기', sr })),
-        // 1 WELLS FARGO
         { code: 'WELLS_FARGO', name: '웰스 파고', type: 'brown', icon: '💰', desc: '카드 3장 뽑기', sr: '♥3' },
-        // 4 PANIC!
         ...['♥J','♥Q','♥A','♦8'].map(sr => ({ code: 'PANIC', name: '강탈', type: 'brown', icon: '🤏', desc: '거리 1 이내 카드 1장 강탈', sr })),
-        // 4 CAT BALOU
         ...['♥K','♦9','♦10','♦J'].map(sr => ({ code: 'CAT_BALOU', name: '캣 벌로우', type: 'brown', icon: '🔥', desc: '아무 대상 카드 1장 제거', sr })),
-        // 3 DUEL
         ...['♦Q','♠J','♣8'].map(sr => ({ code: 'DUEL', name: '결투', type: 'brown', icon: '⚔️', desc: '번갈아 뱅! 제출 승부', sr })),
-        // 2 INDIANS!
         ...['♦K','♦A'].map(sr => ({ code: 'INDIANS', name: '인디언', type: 'brown', icon: '🪓', desc: '타인 전원 뱅! 미제출 시 1 피해', sr })),
-        // 1 GATLING
         { code: 'GATLING', name: '기관총', type: 'brown', icon: '💣', desc: '타인 전원에게 뱅! 난사', sr: '♥10' },
-        // 2 GENERAL STORE
         ...['♣9','♠Q'].map(sr => ({ code: 'GENERAL_STORE', name: '잡화점', type: 'brown', icon: '🎪', desc: '공개 카드 1장씩 획득', sr })),
-        // 8 WEAPONS (Blue)
         ...['♠10','♣10'].map(sr => ({ code: 'WEAPON', name: '볼캐닉', type: 'blue', range: 1, volcanic: true, icon: '💥', desc: '사거리 1 · 뱅! 무제한', sr })),
         ...['♣J','♣Q','♠K'].map(sr => ({ code: 'WEAPON', name: '스코필드', type: 'blue', range: 2, icon: '🔫', desc: '사거리 2 권총', sr })),
         { code: 'WEAPON', name: '레밍턴', type: 'blue', range: 3, icon: '🔫', desc: '사거리 3 소총', sr: '♣K' },
         { code: 'WEAPON', name: '카빈', type: 'blue', range: 4, icon: '🔫', desc: '사거리 4 소총', sr: '♣A' },
         { code: 'WEAPON', name: '윈체스터', type: 'blue', range: 5, icon: '🔫', desc: '사거리 5 장총', sr: '♠8' },
-        // 9 BLUE EQUIPMENT
         ...['♠Q','♠K'].map(sr => ({ code: 'BARREL', name: '술통', type: 'blue', icon: '🛢️', desc: '피격 시 ♥ 판정이면 회피', sr })),
         ...['♥8','♥9'].map(sr => ({ code: 'MUSTANG', name: '야생마', type: 'blue', icon: '🐎', desc: '남들이 나를 볼 때 거리 +1', sr })),
         { code: 'SCOPE', name: '조준경', type: 'blue', icon: '🔎', desc: '내가 남을 볼 때 거리 -1', sr: '♠A' },
@@ -881,7 +1226,7 @@
     }
 
     /* ===================================================================
-       3. LOBBY & WAITING ROOM STATE (Starts Empty, No Auto-AI on Create)
+       3. LOBBY & WAITING ROOM STATE (Real-time + Local Fallback)
        =================================================================== */
     const lobby = { rooms: [], activeRoomId: null, pendingJoinId: null };
 
@@ -910,6 +1255,8 @@
       }
       lobby.rooms.forEach(room => {
         const filled = room.slots.filter(Boolean).length;
+        const isPlaying = room.status && room.status !== 'waiting';
+        const isFull = filled >= room.maxPlayers;
         const row = document.createElement('div');
         row.className = 'bg-stone-900/90 border border-amber-800/60 hover:border-amber-500 rounded-2xl p-4 flex items-center justify-between gap-3 transition';
         row.innerHTML = `
@@ -918,9 +1265,11 @@
               <span class="text-xs px-2 py-0.5 rounded-full ${room.password ? 'bg-amber-900/80 text-amber-300' : 'bg-emerald-900/70 text-emerald-300'}">${room.password ? '🔒 비공개' : '🔓 공개방'}</span>
               <span class="font-black text-amber-200">${room.title}</span>
             </div>
-            <div class="text-xs text-stone-400 mt-1">${getRoleBreakdownText(room.maxPlayers)} · 현재 ${filled}/${room.maxPlayers}명</div>
+            <div class="text-xs text-stone-400 mt-1">${getRoleBreakdownText(room.maxPlayers)} · 현재 ${filled}/${room.maxPlayers}명 · ${isPlaying ? '게임 진행 중' : '대기 중'}</div>
           </div>
-          <button onclick="attemptJoinRoom('${room.id}')" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs rounded-xl whitespace-nowrap">입장하기</button>
+          <button onclick="attemptJoinRoom('${room.id}')" ${isPlaying || isFull ? 'disabled' : ''} class="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-stone-950 font-black text-xs rounded-xl whitespace-nowrap">
+            ${isPlaying ? '진행 중' : isFull ? '만원' : '입장하기'}
+          </button>
         `;
         wrap.appendChild(row);
       });
@@ -929,40 +1278,72 @@
     function openCreateRoomModal() { document.getElementById('modal-create-room').classList.remove('hidden'); }
     function closeCreateRoomModal() { document.getElementById('modal-create-room').classList.add('hidden'); }
 
-    function createRoomSubmit() {
+    async function createRoomSubmit() {
       const title = document.getElementById('input-room-title').value.trim() || '서부 개척지 결투방';
       const maxPlayers = parseInt(document.getElementById('input-room-max').value, 10) || 5;
       const password = document.getElementById('input-room-pw').value.trim();
-      const nick = document.getElementById('lobby-nickname').value.trim() || '나 (방장)';
+      const nick = document.getElementById('lobby-nickname').value.trim() || '총잡이';
       const slots = Array(maxPlayers).fill(null);
-      slots[0] = { name: nick, isAI: false, isHost: true }; // ONLY Host! No auto-AI!
+      slots[0] = { name: `${nick} (방장)`, isAI: false, isHost: true, clientId: Net.clientId };
 
-      const room = { id: `room_${Date.now()}`, title, maxPlayers, password, slots };
+      const room = {
+        id: `room_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+        title,
+        maxPlayers,
+        password,
+        hostClientId: Net.clientId,
+        status: 'waiting',
+        createdAt: Date.now(),
+        slots
+      };
+      closeCreateRoomModal();
+
+      if (Net.online) {
+        await setDoc(getRoomRef(room.id), room);
+      }
       lobby.rooms.unshift(room);
       lobby.activeRoomId = room.id;
-      closeCreateRoomModal();
+      Net.isHost = true;
       renderRoomList();
       enterWaitingRoom(room.id);
     }
 
-    function attemptJoinRoom(roomId) {
+    async function attemptJoinRoom(roomId) {
       const room = lobby.rooms.find(r => r.id === roomId);
       if (!room) return;
+      if (room.status && room.status !== 'waiting') { showToast('이미 게임이 진행 중인 방입니다.'); return; }
       if (room.password) {
         lobby.pendingJoinId = roomId;
         document.getElementById('input-join-pw').value = '';
         document.getElementById('modal-pw').classList.remove('hidden');
       } else {
-        enterWaitingRoom(roomId);
+        await joinSeatInRoom(roomId);
       }
     }
     function closePwModal() { document.getElementById('modal-pw').classList.add('hidden'); lobby.pendingJoinId = null; }
-    function confirmJoinWithPw() {
+    async function confirmJoinWithPw() {
       const room = lobby.rooms.find(r => r.id === lobby.pendingJoinId);
       const pw = document.getElementById('input-join-pw').value.trim();
       if (!room || room.password !== pw) { showToast('비밀번호가 일치하지 않습니다.'); return; }
       closePwModal();
-      enterWaitingRoom(room.id);
+      await joinSeatInRoom(room.id);
+    }
+
+    async function joinSeatInRoom(roomId) {
+      const room = lobby.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      const nick = document.getElementById('lobby-nickname').value.trim() || '총잡이';
+      const existingIdx = room.slots.findIndex(s => s && !s.isAI && s.clientId === Net.clientId);
+      if (existingIdx < 0) {
+        const emptyIdx = room.slots.findIndex(s => !s);
+        if (emptyIdx < 0) { showToast('빈 자리가 없습니다.'); return; }
+        const newSlots = [...room.slots];
+        newSlots[emptyIdx] = { name: nick, isAI: false, isHost: false, clientId: Net.clientId };
+        room.slots = newSlots;
+        if (Net.online) await patchRoom(room.id, { slots: newSlots });
+      }
+      Net.isHost = room.hostClientId === Net.clientId;
+      enterWaitingRoom(roomId);
     }
 
     function enterWaitingRoom(roomId) {
@@ -971,17 +1352,32 @@
       document.getElementById('screen-waiting').classList.remove('hidden');
       renderWaitingRoom();
     }
-    function leaveWaitingRoom() {
+
+    async function leaveWaitingRoom() {
+      const roomId = lobby.activeRoomId;
+      const room = lobby.rooms.find(r => r.id === roomId);
+      lobby.activeRoomId = null;
       document.getElementById('screen-waiting').classList.add('hidden');
       document.getElementById('screen-lobby').classList.remove('hidden');
+
+      if (room) {
+        if (room.hostClientId === Net.clientId) {
+          lobby.rooms = lobby.rooms.filter(r => r.id !== roomId);
+          if (Net.online) { try { await deleteDoc(getRoomRef(roomId)); } catch (e) {} }
+        } else {
+          const newSlots = room.slots.map(s => (s && !s.isAI && s.clientId === Net.clientId) ? null : s);
+          if (Net.online) await patchRoom(roomId, { slots: newSlots });
+        }
+      }
       renderRoomList();
     }
 
     function renderWaitingRoom() {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
       if (!room) return;
+      const amHost = room.hostClientId === Net.clientId;
       document.getElementById('wait-room-title').innerText = room.title;
-      document.getElementById('wait-role-info').innerText = getRoleBreakdownText(room.maxPlayers);
+      document.getElementById('wait-role-info').innerText = getRoleBreakdownText(room.maxPlayers) + (amHost ? ' · 내가 방장' : ' · 방장 시작 대기 중');
       document.getElementById('wait-lock-badge').innerText = room.password ? '🔒 비공개' : '🔓 공개방';
 
       const grid = document.getElementById('wait-slots-grid');
@@ -990,15 +1386,16 @@
         const card = document.createElement('div');
         card.className = 'bg-stone-900/90 border border-amber-900/70 rounded-2xl p-3.5 flex items-center justify-between';
         if (slot) {
+          const isMe = !slot.isAI && slot.clientId === Net.clientId;
           card.innerHTML = `
             <div class="flex items-center gap-2.5">
               <span class="w-8 h-8 rounded-full bg-amber-900/60 border border-amber-600 flex items-center justify-center text-sm font-black text-amber-300">${idx + 1}P</span>
               <div>
-                <div class="text-sm font-bold text-amber-100">${slot.name}</div>
-                <div class="text-[11px] text-stone-400">${slot.isHost ? '👑 방장 (플레이어)' : '🤖 AI 총잡이'}</div>
+                <div class="text-sm font-bold text-amber-100">${slot.name}${isMe ? ' (나)' : ''}</div>
+                <div class="text-[11px] text-stone-400">${slot.isHost ? '👑 방장 (플레이어)' : slot.isAI ? '🤖 AI 총잡이' : '🤠 온라인 플레이어'}</div>
               </div>
             </div>
-            ${slot.isAI ? `<button onclick="removeAISlot(${idx})" class="px-2.5 py-1 bg-red-950 hover:bg-red-900 text-red-300 text-xs font-bold rounded-lg border border-red-800">AI 제거</button>` : '<span class="text-xs text-emerald-400 font-bold">준비 완료</span>'}
+            ${(slot.isAI && amHost) ? `<button onclick="removeAISlot(${idx})" class="px-2.5 py-1 bg-red-950 hover:bg-red-900 text-red-300 text-xs font-bold rounded-lg border border-red-800">AI 제거</button>` : '<span class="text-xs text-emerald-400 font-bold">준비 완료</span>'}
           `;
         } else {
           card.innerHTML = `
@@ -1006,34 +1403,51 @@
               <span class="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-sm font-bold text-stone-400">${idx + 1}P</span>
               <div class="text-xs text-stone-400">빈 자리</div>
             </div>
-            <button onclick="addAISlot(${idx})" class="px-3 py-1 bg-amber-700/80 hover:bg-amber-600 text-amber-100 text-xs font-bold rounded-lg">+ AI 추가</button>
+            ${amHost ? `<button onclick="addAISlot(${idx})" class="px-3 py-1 bg-amber-700/80 hover:bg-amber-600 text-amber-100 text-xs font-bold rounded-lg">+ AI 추가</button>` : '<span class="text-[11px] text-stone-500">대기 중</span>'}
           `;
         }
         grid.appendChild(card);
       });
 
+      const fillBtn = document.getElementById('btn-fill-ai');
+      if (fillBtn) fillBtn.classList.toggle('hidden', !amHost);
+
       const filledCount = room.slots.filter(Boolean).length;
-      document.getElementById('btn-start-match').disabled = filledCount < 4;
+      const startBtn = document.getElementById('btn-start-match');
+      if (startBtn) {
+        startBtn.disabled = !amHost || filledCount < 4;
+        startBtn.innerText = amHost
+          ? (filledCount < 4 ? `🔫 대결 시작 (${filledCount}/4명 필요)` : '🔫 대결 시작하기')
+          : '⏳ 방장이 시작하기를 기다리는 중...';
+      }
     }
 
-    function addAISlot(idx) {
+    async function addAISlot(idx) {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
-      if (!room || room.slots[idx]) return;
-      room.slots[idx] = { name: `AI 총잡이 ${idx + 1}P`, isAI: true, isHost: false };
+      if (!room || room.slots[idx] || room.hostClientId !== Net.clientId) return;
+      const newSlots = [...room.slots];
+      newSlots[idx] = { name: `AI 총잡이 ${idx + 1}P`, isAI: true, isHost: false };
+      room.slots = newSlots;
+      if (Net.online) await patchRoom(room.id, { slots: newSlots });
       renderWaitingRoom();
     }
-    function removeAISlot(idx) {
+
+    async function removeAISlot(idx) {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
-      if (!room || !room.slots[idx]?.isAI) return;
-      room.slots[idx] = null;
+      if (!room || !room.slots[idx]?.isAI || room.hostClientId !== Net.clientId) return;
+      const newSlots = [...room.slots];
+      newSlots[idx] = null;
+      room.slots = newSlots;
+      if (Net.online) await patchRoom(room.id, { slots: newSlots });
       renderWaitingRoom();
     }
-    function fillEmptySlotsWithAI() {
+
+    async function fillEmptySlotsWithAI() {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
-      if (!room) return;
-      room.slots.forEach((s, idx) => {
-        if (!s) room.slots[idx] = { name: `AI 총잡이 ${idx + 1}P`, isAI: true, isHost: false };
-      });
+      if (!room || room.hostClientId !== Net.clientId) return;
+      const newSlots = room.slots.map((s, idx) => s || { name: `AI 총잡이 ${idx + 1}P`, isAI: true, isHost: false });
+      room.slots = newSlots;
+      if (Net.online) await patchRoom(room.id, { slots: newSlots });
       renderWaitingRoom();
     }
 
@@ -1042,9 +1456,10 @@
        =================================================================== */
     const ceremony = { roles: [], p0CharOptions: [], aiChars: [], activeSlots: [], roleFlipped: false };
 
-    function startOpeningCeremony() {
+    async function startOpeningCeremony() {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
       if (!room) return;
+      if (room.hostClientId !== Net.clientId) { showToast('방장만 게임을 시작할 수 있습니다.'); return; }
       const activeSlots = room.slots.filter(Boolean);
       if (activeSlots.length < 4) { showToast('최소 4명 이상 필요합니다.'); return; }
 
@@ -1054,14 +1469,46 @@
       if (N >= 6) rolePool.push(ROLES.OUTLAW);
       if (N >= 7) rolePool.push(ROLES.DEPUTY);
 
-      ceremony.activeSlots = activeSlots;
-      ceremony.roles = rolePool.sort(() => Math.random() - 0.5);
+      const shuffledRoles = rolePool.sort(() => Math.random() - 0.5);
       const shuffledChars = [...CHARACTERS].sort(() => Math.random() - 0.5);
-      ceremony.p0CharOptions = shuffledChars.slice(0, 2);
-      ceremony.aiChars = shuffledChars.slice(2, 2 + N - 1);
+
+      let cursor = 0;
+      const charPairs = {};
+      const aiChars = [];
+      activeSlots.forEach((slot, idx) => {
+        if (!slot.isAI) {
+          charPairs[idx] = [shuffledChars[cursor], shuffledChars[cursor + 1]];
+          cursor += 2;
+        } else {
+          aiChars.push(shuffledChars[cursor]);
+          cursor += 1;
+        }
+      });
+
+      if (Net.online) {
+        const matchId = `match_${Date.now()}`;
+        const cData = { matchId, slots: activeSlots, roles: shuffledRoles, charPairs, aiChars };
+        await patchRoom(room.id, {
+          status: 'ceremony',
+          ceremonyJson: JSON.stringify(cData),
+          stateJson: null,
+          fxJson: null,
+          promptJson: null,
+          replyJson: null,
+          guestActionJson: null,
+          gameOverJson: null
+        });
+        return;
+      }
+
+      // Local Offline Solo Mode
+      G.mySeatIndex = 0;
+      ceremony.activeSlots = activeSlots;
+      ceremony.roles = shuffledRoles;
+      ceremony.p0CharOptions = charPairs[0];
+      ceremony.aiChars = aiChars;
       ceremony.roleFlipped = false;
 
-      // Prepare Role Card Back
       const p0Role = ceremony.roles[0];
       const revealedEl = document.getElementById('ceremony-role-revealed');
       revealedEl.innerHTML = `
@@ -1094,9 +1541,11 @@
       SFX.playCardDraw();
       document.getElementById('ceremony-step-role').classList.add('hidden');
       document.getElementById('ceremony-step-char').classList.remove('hidden');
+      document.getElementById('ceremony-char-sub').innerText = '2명의 인물 중 1명을 선택하세요. 남은 1장은 뒤집혀 5발 총알 체력 카드로 판 아래에 세팅됩니다.';
       const wrap = document.getElementById('ceremony-char-choices');
       wrap.innerHTML = '';
-      const isSheriff = ceremony.roles[0].id === 'SHERIFF';
+      const myRole = ceremony.roles[G.mySeatIndex];
+      const isSheriff = myRole && myRole.id === 'SHERIFF';
       ceremony.p0CharOptions.forEach((ch, idx) => {
         const finalHp = ch.hp + (isSheriff ? 1 : 0);
         const btn = document.createElement('button');
@@ -1115,9 +1564,17 @@
       });
     }
 
-    function selectP0Character(chosenIdx) {
+    async function selectP0Character(chosenIdx) {
       SFX.playEquip();
       const chosenChar = ceremony.p0CharOptions[chosenIdx];
+      if (Net.online && lobby.activeRoomId) {
+        document.getElementById('ceremony-char-choices').innerHTML = `
+          <div class="py-10 text-amber-300 font-bold text-sm animate-pulse">
+            🤠 [${chosenChar.name}] 선택 완료! 다른 플레이어가 인물을 고를 때까지 기다리는 중...
+          </div>`;
+        await patchRoom(lobby.activeRoomId, { [`pick_${G.mySeatIndex}`]: chosenChar.id });
+        return;
+      }
       document.getElementById('screen-ceremony').classList.add('hidden');
       initGameBoard(chosenChar);
     }
@@ -1126,6 +1583,7 @@
        5. CORE GAME STATE & BOARD INITIALIZATION
        =================================================================== */
     const G = {
+      mySeatIndex: 0,
       players: [],
       drawPile: [],
       discardPile: [],
@@ -1134,7 +1592,7 @@
       isBusy: false,
       cameraMode: 'auto', // 'auto' | 'overview' | 'focus'
       focusPlayerIndex: 0,
-      autoTargetIndex: null, // Dynamic target focus during attack/defense!
+      autoTargetIndex: null,
       fitScale: 0.6,
       userZoom: 1.0,
       panX: 0,
@@ -1147,6 +1605,7 @@
     };
 
     function initGameBoard(p0Char) {
+      G.mySeatIndex = 0;
       G.drawPile = buildOfficial80Deck();
       G.discardPile = [];
       G.bangsPlayedThisTurn = 0;
@@ -1175,6 +1634,7 @@
           id: idx,
           name: slot.name,
           isAI: slot.isAI,
+          clientId: slot.clientId || null,
           role,
           character,
           hp: maxHp,
@@ -1202,9 +1662,69 @@
       startTurnPhase();
     }
 
-    // Player 0 ALWAYS anchored at exact Bottom Center (1000, 1065, rotation: 0)
-    // Opponents symmetrically placed left/top/right facing inward toward the center deck.
+    function initGameBoardOnline(cData, picksMap) {
+      G.drawPile = buildOfficial80Deck();
+      G.discardPile = [];
+      G.bangsPlayedThisTurn = 0;
+      G.isBusy = false;
+      G.cameraMode = 'auto';
+      G.focusPlayerIndex = G.mySeatIndex;
+      G.autoTargetIndex = null;
+      G.userZoom = 1.0;
+      G.panX = 0;
+      G.panY = 0;
+      G.selectedHandCardId = null;
+      G.selectionMode = null;
+      G.selectedCardIds.clear();
+      G.glowHandCardIds.clear();
+      document.getElementById('log-list').innerHTML = '';
+
+      let aiIdx = 0;
+      G.players = cData.slots.map((slot, idx) => {
+        const role = cData.roles[idx];
+        const character = slot.isAI ? cData.aiChars[aiIdx++] : picksMap[idx];
+        const maxHp = character.hp + (role.id === 'SHERIFF' ? 1 : 0);
+        const hand = [];
+        for (let i = 0; i < maxHp; i++) {
+          if (G.drawPile.length > 0) hand.push(G.drawPile.pop());
+        }
+        return {
+          id: idx,
+          name: slot.name,
+          isAI: slot.isAI,
+          clientId: slot.clientId || null,
+          role,
+          character,
+          hp: maxHp,
+          maxHp,
+          hand,
+          equipment: [],
+          isAlive: true,
+          abilityRevealed: false
+        };
+      });
+
+      const sheriffIdx = G.players.findIndex(p => p.role.id === 'SHERIFF');
+      G.turnIndex = sheriffIdx >= 0 ? sheriffIdx : 0;
+
+      document.getElementById('screen-ceremony').classList.add('hidden');
+      document.getElementById('screen-game').classList.remove('hidden');
+      buildSeatButtonsHUD();
+      buildPlayerSeatsOnce();
+      initCentralDropZone();
+      computeFitScale();
+      syncAllBoards();
+      renderHand();
+      setCameraMode('auto');
+
+      logBattle(`🌵 ${G.players.length}인 온라인 서부 대결 시작! 보안관 [${G.players[G.turnIndex].name}]부터 시작합니다.`);
+      broadcastGameState(true);
+      startTurnPhase();
+    }
+
+    // Current user (G.mySeatIndex) is ALWAYS anchored at Bottom Center (1000, 1065, rotation: 0)
     function getSeatGeometry(idx, total) {
+      const visualIdx = (idx - G.mySeatIndex + total) % total;
       const layouts = {
         4: [
           { x: 1000, y: 1065, rotation: 0 },
@@ -1237,9 +1757,9 @@
           { x: 1695, y: 910,  rotation: 310 }
         ]
       };
-      if (layouts[total] && layouts[total][idx]) return layouts[total][idx];
-      if (idx === 0) return { x: 1000, y: 1065, rotation: 0 };
-      const angleDeg = (90 + (360 / total) * idx) % 360;
+      if (layouts[total] && layouts[total][visualIdx]) return layouts[total][visualIdx];
+      if (visualIdx === 0) return { x: 1000, y: 1065, rotation: 0 };
+      const angleDeg = (90 + (360 / total) * visualIdx) % 360;
       const rad = (angleDeg * Math.PI) / 180;
       return { x: 1000 + Math.cos(rad) * 735, y: 630 + Math.sin(rad) * 435, rotation: angleDeg - 90 };
     }
@@ -1252,12 +1772,11 @@
         btn.id = `cam-btn-p${idx}`;
         btn.onclick = () => setCameraMode('focus', idx);
         btn.className = 'px-2 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition bg-stone-800 text-stone-300 hover:bg-stone-700';
-        btn.innerText = idx === 0 ? '나 1' : `${idx + 1}P`;
+        btn.innerText = idx === G.mySeatIndex ? `나 ${idx + 1}` : `${idx + 1}P`;
         wrap.appendChild(btn);
       });
     }
 
-    // Build all 4-slot parchment boards ONCE so CSS transitions animate smoothly!
     function buildPlayerSeatsOnce() {
       const layer = document.getElementById('seats-layer');
       layer.innerHTML = '';
@@ -1271,7 +1790,6 @@
         wrap.style.transform = `translate(-50%, -50%) rotate(${geo.rotation}deg)`;
 
         wrap.innerHTML = `
-          <!-- Under-Board Moving 5-Bullet Card (z-index: 1 behind parchment) -->
           <div class="bullet-rail-container">
             <div id="p-bullet-card-${idx}" class="bullet-backing-card">
               <div class="bullet-row"><div class="brass-bullet"></div></div>
@@ -1282,11 +1800,10 @@
             </div>
           </div>
 
-          <!-- Classic 4-Slot Parchment Board (z-index: 2) -->
           <div id="player-board-${idx}" class="parchment-board">
             <div class="flex items-center justify-between gap-1 mb-1 px-0.5">
               <div class="flex items-center gap-1 min-w-0">
-                <span class="text-[11px] font-black text-stone-900 truncate">${idx + 1}P · ${p.name}</span>
+                <span class="text-[11px] font-black text-stone-900 truncate">${idx + 1}P · ${p.name}${idx === G.mySeatIndex ? ' (나)' : ''}</span>
                 <span id="p-team-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 같은 팀</span>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0">
@@ -1306,21 +1823,20 @@
         layer.appendChild(wrap);
       });
 
-      // Self-Equip Drop Target on Player 0's own board
-      const mySeat = document.getElementById('seat-wrapper-0');
+      const mySeat = document.getElementById(`seat-wrapper-${G.mySeatIndex}`);
       if (mySeat) {
         mySeat.addEventListener('dragover', (e) => {
-          const card = G.players[0]?.hand.find(c => c.id === G.draggedCardId);
+          const card = G.players[G.mySeatIndex]?.hand.find(c => c.id === G.draggedCardId);
           if (isSelfEquipCard(card)) { e.preventDefault(); mySeat.classList.add('equip-drop-hover'); }
         });
         mySeat.addEventListener('dragleave', () => mySeat.classList.remove('equip-drop-hover'));
         mySeat.addEventListener('drop', (e) => {
-          const card = G.players[0]?.hand.find(c => c.id === G.draggedCardId);
+          const card = G.players[G.mySeatIndex]?.hand.find(c => c.id === G.draggedCardId);
           mySeat.classList.remove('equip-drop-hover', 'equip-drop-ready');
           if (isSelfEquipCard(card)) {
             e.preventDefault();
             G.draggedCardId = null;
-            playCardAction(G.players[0], card);
+            playCardAction(G.players[G.mySeatIndex], card);
           }
         });
       }
@@ -1336,6 +1852,7 @@
     }
 
     function syncAllBoards() {
+      const me = G.mySeatIndex;
       document.getElementById('deck-count-label').innerText = `덱 ${G.drawPile.length}장`;
       document.getElementById('discard-count-label').innerText = `버림 ${G.discardPile.length}장`;
 
@@ -1362,7 +1879,6 @@
         wrap.classList.toggle('is-dead', !p.isAlive);
         board.classList.toggle('active-turn', idx === G.turnIndex && p.isAlive);
 
-        // Under-Board Moving 5-Bullet Card (Mathematically exact: 18px per bullet!)
         const clampedHp = Math.max(0, Math.min(5, p.hp));
         const bulletCard = document.getElementById(`p-bullet-card-${idx}`);
         if (bulletCard) {
@@ -1370,25 +1886,23 @@
           bulletCard.style.transform = `translateY(${slideY}px)`;
         }
 
-        // Header Badges
         const hpBadge = document.getElementById(`p-hp-badge-${idx}`);
         hpBadge.innerText = p.isAlive ? `🔫 ${p.hp}/${p.maxHp}` : '☠️ 탈락';
         document.getElementById(`p-hand-badge-${idx}`).innerText = `🃏 ${p.hand.length}`;
 
-        const distTag = idx === 0
+        const distTag = idx === me
           ? `사거리 ${getWeaponRange(p)}`
-          : `거리 ${calculateDistance(0, idx)}`;
+          : `거리 ${calculateDistance(me, idx)}`;
         document.getElementById(`p-range-badge-${idx}`).innerText = distTag;
 
         const teamTag = document.getElementById(`p-team-tag-${idx}`);
-        const isSameTeam = idx !== 0 && p.isAlive && G.players[0] &&
-          ((G.players[0].role.team === 'LAW' && p.role.team === 'LAW') ||
-           (G.players[0].role.team === 'OUT' && p.role.team === 'OUT'));
+        const isSameTeam = idx !== me && p.isAlive && G.players[me] &&
+          ((G.players[me].role.team === 'LAW' && p.role.team === 'LAW') ||
+           (G.players[me].role.team === 'OUT' && p.role.team === 'OUT'));
         teamTag.classList.toggle('hidden', !isSameTeam);
 
-        // Slot 1: Role Card
         const roleSlot = document.getElementById(`p-slot-role-${idx}`);
-        if (canSeeRole(0, p)) {
+        if (canSeeRole(me, p)) {
           roleSlot.innerHTML = `
             <div class="bang-card w-full h-full">
               <div class="bang-card-inner items-center justify-between text-center py-1">
@@ -1407,9 +1921,8 @@
             </div>`;
         }
 
-        // Slot 2: Character Card (with base HP pips & permanent ability reveal)
         const charSlot = document.getElementById(`p-slot-char-${idx}`);
-        const showAbility = p.abilityRevealed || idx === 0;
+        const showAbility = p.abilityRevealed || idx === me;
         charSlot.innerHTML = `
           <div class="bang-card card-char w-full h-full">
             <div class="bang-card-inner justify-between p-1">
@@ -1424,7 +1937,6 @@
             </div>
           </div>`;
 
-        // Slot 3: Weapon Card
         const weaponSlot = document.getElementById(`p-slot-weapon-${idx}`);
         const weapon = p.equipment.find(e => e.code === 'WEAPON');
         if (weapon) {
@@ -1444,7 +1956,6 @@
             </div>`;
         }
 
-        // Slot 4: Front Blue Equipment Cards (Barrel, Mustang, Scope, Jail, Dynamite)
         const frontSlot = document.getElementById(`p-slot-front-${idx}`);
         const blues = p.equipment.filter(e => e.code !== 'WEAPON');
         if (blues.length > 0) {
@@ -1482,7 +1993,6 @@
       G.panX = 0;
       G.panY = 0;
 
-      // Update HUD Button Highlights
       const autoBtn = document.getElementById('cam-btn-auto');
       const overBtn = document.getElementById('cam-btn-overview');
       if (autoBtn) autoBtn.className = `px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition ${mode === 'auto' ? 'bg-amber-500 text-stone-950' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'}`;
@@ -1508,95 +2018,43 @@
         ? G.focusPlayerIndex
         : (G.cameraMode === 'auto' ? (G.autoTargetIndex !== null ? G.autoTargetIndex : G.turnIndex) : -1);
 
-      // Un-rotate the currently focused/peeking player board to 0deg for crisp reading
       G.players.forEach((p, idx) => {
         const wrap = document.getElementById(`seat-wrapper-${idx}`);
         if (!wrap) return;
         const geo = getSeatGeometry(idx, G.players.length);
         const shouldUnrotate = (G.cameraMode === 'focus' && idx === G.focusPlayerIndex) ||
-                               (G.cameraMode === 'auto' && idx === activeFocusIdx && idx !== 0);
+                               (G.cameraMode === 'auto' && idx === activeFocusIdx && idx !== G.mySeatIndex);
         wrap.classList.toggle('is-focused', shouldUnrotate);
         wrap.style.transform = `translate(-50%, -50%) rotate(${shouldUnrotate ? 0 : geo.rotation}deg)`;
       });
 
-      // 1. OVERVIEW MODE (Key 0)
       if (G.cameraMode === 'overview') {
         const scale = G.fitScale * G.userZoom;
         world.style.transform = `translate(${G.panX}px, ${G.panY}px) scale(${scale})`;
         return;
       }
 
-      // 2. USER-FRIENDLY AUTO MODE (Key A) — Crisp ~1.48x zoom framing active/target player + center deck!
       if (G.cameraMode === 'auto') {
         const focusIdx = G.autoTargetIndex !== null ? G.autoTargetIndex : G.turnIndex;
         const geo = getSeatGeometry(focusIdx, G.players.length);
         const scale = G.fitScale * 1.48 * G.userZoom;
-        // Blend between focus player and center deck so both board text and central cards stay visible
-        const midX = focusIdx === 0 ? 1000 : (geo.x * 0.64 + 1000 * 0.36);
-        const midY = focusIdx === 0 ? 855 : (geo.y * 0.64 + 630 * 0.36);
+        const midX = focusIdx === G.mySeatIndex ? 1000 : (geo.x * 0.64 + 1000 * 0.36);
+        const midY = focusIdx === G.mySeatIndex ? 855 : (geo.y * 0.64 + 630 * 0.36);
         const dx = (1000 - midX) * scale + G.panX;
         const dy = (630 - midY) * scale + G.panY;
         world.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
         return;
       }
 
-      // 3. EXPLICIT PEEK / FOCUS MODE (Keys 1~7 / Top Buttons) — Deep 2.35x Zoom Centered on Selected Player Board!
       const targetIdx = G.focusPlayerIndex;
       const geo = getSeatGeometry(targetIdx, G.players.length);
       const scale = G.fitScale * 2.35 * G.userZoom;
       const targetX = geo.x;
-      const targetY = geo.y - 32; // Offset slightly upward so protruding 5-bullet card is framed cleanly too
+      const targetY = geo.y - 32;
       const dx = (1000 - targetX) * scale + G.panX;
       const dy = (630 - targetY) * scale + G.panY;
       world.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     }
-
-    // ResizeObserver + Keyboard Shortcuts + Wheel/Drag Pan
-    window.addEventListener('DOMContentLoaded', () => {
-      renderRoomList();
-      const vp = document.getElementById('table-viewport');
-      if (vp && typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(() => computeFitScale()).observe(vp);
-      }
-      window.addEventListener('resize', computeFitScale);
-
-      // Mouse wheel zoom on table
-      vp.addEventListener('wheel', (e) => {
-        if (document.getElementById('screen-game').classList.contains('hidden')) return;
-        e.preventDefault();
-        adjustZoom(e.deltaY < 0 ? 0.1 : -0.1);
-      }, { passive: false });
-
-      // Drag pan on table background
-      let panning = false, startX = 0, startY = 0;
-      vp.addEventListener('mousedown', (e) => {
-        if (e.target.closest('.parchment-board') || e.target.closest('#central-drop-zone')) return;
-        panning = true; startX = e.clientX - G.panX; startY = e.clientY - G.panY;
-        document.getElementById('table-world').classList.add('dragging-pan');
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (!panning) return;
-        G.panX = e.clientX - startX; G.panY = e.clientY - startY;
-        applyCameraTransform();
-      });
-      window.addEventListener('mouseup', () => {
-        if (!panning) return;
-        panning = false;
-        document.getElementById('table-world').classList.remove('dragging-pan');
-      });
-
-      // Keyboard Camera Hotkeys (1~7, 0, A)
-      window.addEventListener('keydown', (e) => {
-        if (document.getElementById('screen-game').classList.contains('hidden')) return;
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-        if (e.key === '0') setCameraMode('overview');
-        else if (e.key === 'a' || e.key === 'A') setCameraMode('auto');
-        else if (e.key >= '1' && e.key <= '7') {
-          const idx = parseInt(e.key, 10) - 1;
-          if (idx < G.players.length) setCameraMode('focus', idx);
-        }
-      });
-    });
 
     /* ===================================================================
        7. HAND RENDERING & DUAL INPUT (Drag-and-Drop + Click/Double-Click)
@@ -1606,16 +2064,15 @@
     }
 
     function renderHand() {
-      const p0 = G.players[0];
+      const me = G.mySeatIndex;
+      const p0 = G.players[me];
       if (!p0) return;
       document.getElementById('my-hand-count').innerText = p0.hand.length;
       document.getElementById('my-hp-limit').innerText = Math.max(0, p0.hp);
 
-      // Sid Ketchum Heal Button
-      const canSid = p0.isAlive && G.turnIndex === 0 && !G.isBusy && p0.character.id === 'SID_KETCHUM' && p0.hp < p0.maxHp && p0.hand.length >= 2 && !G.selectionMode;
+      const canSid = p0.isAlive && G.turnIndex === me && !G.isBusy && p0.character.id === 'SID_KETCHUM' && p0.hp < p0.maxHp && p0.hand.length >= 2 && !G.selectionMode;
       document.getElementById('btn-sid-heal').classList.toggle('hidden', !canSid);
 
-      // Selection Mode UI
       const inSel = G.selectionMode === 'discard' || G.selectionMode === 'sid';
       document.getElementById('discard-mode-hint').classList.toggle('hidden', !inSel);
       document.getElementById('btn-confirm-selection').classList.toggle('hidden', !inSel);
@@ -1627,14 +2084,12 @@
         document.getElementById('discard-mode-hint').innerText = `💉 시드 케첨: 버릴 카드 2장 선택 (${G.selectedCardIds.size}/2)`;
       }
 
-      // End Turn Button
       const endBtn = document.getElementById('btn-end-turn');
-      endBtn.disabled = G.turnIndex !== 0 || G.isBusy || !p0.isAlive || !!G.selectionMode;
+      endBtn.disabled = G.turnIndex !== me || G.isBusy || !p0.isAlive || !!G.selectionMode;
 
-      // Floating Action Pill
       const pill = document.getElementById('card-action-pill');
       const selCard = p0.hand.find(c => c.id === G.selectedHandCardId);
-      if (!selCard || G.turnIndex !== 0 || G.isBusy || G.selectionMode) {
+      if (!selCard || G.turnIndex !== me || G.isBusy || G.selectionMode) {
         G.selectedHandCardId = null;
         pill.classList.add('hidden');
       } else {
@@ -1650,7 +2105,7 @@
         const isSel = G.selectedHandCardId === card.id;
         const isDiscSel = G.selectedCardIds.has(card.id);
         const isGlowing = G.glowHandCardIds.has(card.id);
-        const canDrag = G.turnIndex === 0 && !G.isBusy && p0.isAlive && !G.selectionMode;
+        const canDrag = G.turnIndex === me && !G.isBusy && p0.isAlive && !G.selectionMode;
 
         const el = document.createElement('div');
         el.className = `bang-card hand-card-item ${isBlue ? 'card-blue' : ''} ${isSel ? 'card-selected' : ''} ${isDiscSel ? 'discard-selected' : ''} ${isGlowing ? 'glow-playable' : ''}`;
@@ -1673,7 +2128,7 @@
 
         el.onclick = () => handleHandCardClick(card);
         el.ondblclick = () => {
-          if (G.turnIndex === 0 && !G.isBusy && !G.selectionMode) {
+          if (G.turnIndex === me && !G.isBusy && !G.selectionMode) {
             G.selectedHandCardId = null;
             playCardAction(p0, card);
           }
@@ -1690,7 +2145,7 @@
           dzLabel.classList.remove('hidden');
           if (isSelfEquipCard(card)) {
             dzLabel.innerText = '🛡️ 내 판에 내려놓아 장착 (또는 중앙에 놓기)';
-            document.getElementById('seat-wrapper-0')?.classList.add('equip-drop-ready');
+            document.getElementById(`seat-wrapper-${me}`)?.classList.add('equip-drop-ready');
           } else {
             dzLabel.innerText = '🃏 여기에 놓으면 카드가 발동됩니다!';
           }
@@ -1700,7 +2155,7 @@
           const dz = document.getElementById('central-drop-zone');
           dz.classList.remove('border-amber-400', 'bg-amber-400/15', 'scale-105');
           document.getElementById('drop-zone-label').classList.add('hidden');
-          document.getElementById('seat-wrapper-0')?.classList.remove('equip-drop-ready', 'equip-drop-hover');
+          document.getElementById(`seat-wrapper-${me}`)?.classList.remove('equip-drop-ready', 'equip-drop-hover');
         });
 
         rail.appendChild(el);
@@ -1721,14 +2176,16 @@
         e.preventDefault();
         dz.classList.remove('scale-105');
         if (!G.draggedCardId) return;
-        const card = G.players[0]?.hand.find(c => c.id === G.draggedCardId);
+        const p0 = G.players[G.mySeatIndex];
+        const card = p0?.hand.find(c => c.id === G.draggedCardId);
         G.draggedCardId = null;
-        if (card) playCardAction(G.players[0], card);
+        if (card) playCardAction(p0, card);
       });
     }
 
     function handleHandCardClick(card) {
-      const p0 = G.players[0];
+      const me = G.mySeatIndex;
+      const p0 = G.players[me];
       if (!p0 || !p0.isAlive) return;
       if (G.selectionMode === 'discard' || G.selectionMode === 'sid') {
         if (G.selectedCardIds.has(card.id)) G.selectedCardIds.delete(card.id);
@@ -1736,14 +2193,14 @@
         renderHand();
         return;
       }
-      if (G.turnIndex !== 0 || G.isBusy) return;
+      if (G.turnIndex !== me || G.isBusy) return;
       G.selectedHandCardId = G.selectedHandCardId === card.id ? null : card.id;
       renderHand();
     }
 
     function clearSelectedHandCard() { G.selectedHandCardId = null; renderHand(); }
     function playSelectedHandCard() {
-      const p0 = G.players[0];
+      const p0 = G.players[G.mySeatIndex];
       const card = p0?.hand.find(c => c.id === G.selectedHandCardId);
       G.selectedHandCardId = null;
       renderHand();
@@ -1783,6 +2240,13 @@
       }
     }
 
+    async function askSeatChoice(player, title, desc, options) {
+      if (Net.online && Net.isHost && !player.isAI && player.id !== G.mySeatIndex) {
+        return promptRemoteSeat(player.id, 'choice', title, desc, options, 22000);
+      }
+      return openChoiceModal(title, desc, options);
+    }
+
     async function performDrawCheck(player, label, successFn) {
       const isLucky = player.character.id === 'LUCKY_DUKE';
       const count = isLucky ? 2 : 1;
@@ -1800,11 +2264,13 @@
         player.abilityRevealed = true;
         if (player.isAI) chosen = drawn.find(c => successFn(c)) || drawn[0];
         else {
-          chosen = await openChoiceModal(
+          chosen = await askSeatChoice(
+            player,
             `🍀 럭키 듀크 판정 (${label})`,
             '2장의 판정 카드 중 적용할 1장을 선택하세요!',
             drawn.map(c => ({ card: c, value: c }))
           );
+          if (!chosen) chosen = drawn[0];
         }
         logBattle(`🍀 럭키 듀크 능력 발동! [${drawn[0].suit}${drawn[0].rank}, ${drawn[1].suit}${drawn[1].rank}] 중 [${chosen.suit}${chosen.rank}] 선택!`);
       }
@@ -1819,26 +2285,39 @@
       const isEffectiveBang = card.code === 'BANG' || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET');
 
       if (card.code === 'MISSED' && player.character.id !== 'CALAMITY_JANET') {
-        if (!player.isAI) showToast('빗나감!은 공격받을 때 방어용으로만 사용할 수 있습니다.');
+        if (player.id === G.mySeatIndex) showToast('빗나감!은 공격받을 때 방어용으로만 사용할 수 있습니다.');
         return;
       }
       if (isEffectiveBang) {
         const maxBangs = (player.equipment.some(e => e.volcanic) || player.character.id === 'WILLY_THE_KID') ? 99 : 1;
         if (G.bangsPlayedThisTurn >= maxBangs) {
-          if (!player.isAI) showToast('한 턴에 뱅!은 1번만 사용할 수 있습니다! (볼캐닉/윌리 더 키드 제외)');
+          if (player.id === G.mySeatIndex) showToast('한 턴에 뱅!은 1번만 사용할 수 있습니다! (볼캐닉/윌리 더 키드 제외)');
           return;
         }
       }
       if (card.code === 'BEER') {
         const aliveCount = G.players.filter(p => p.isAlive).length;
-        if (aliveCount <= 2) { if (!player.isAI) showToast('2인 생존 상황에서는 맥주 회복 효과가 없습니다.'); return; }
-        if (player.hp >= player.maxHp) { if (!player.isAI) showToast('이미 체력이 가득 차 있습니다.'); return; }
+        if (aliveCount <= 2) { if (player.id === G.mySeatIndex) showToast('2인 생존 상황에서는 맥주 회복 효과가 없습니다.'); return; }
+        if (player.hp >= player.maxHp) { if (player.id === G.mySeatIndex) showToast('이미 체력이 가득 차 있습니다.'); return; }
       }
       if (card.type === 'blue' && card.code !== 'WEAPON' && card.code !== 'JAIL') {
         if (player.equipment.some(e => e.code === card.code)) {
-          if (!player.isAI) showToast(`이미 [${card.name}] 카드가 장착되어 있습니다. (중복 장착 불가)`);
+          if (player.id === G.mySeatIndex) showToast(`이미 [${card.name}] 카드가 장착되어 있습니다. (중복 장착 불가)`);
           return;
         }
+      }
+
+      // Guest Client sends action to Host
+      if (Net.online && !Net.isHost && player.id === G.mySeatIndex) {
+        const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL'].includes(card.code);
+        if (needsTarget) {
+          const target = await selectTargetPlayer(player, card, isEffectiveBang);
+          if (!target) return;
+          await sendGuestAction({ type: 'PLAY_CARD', cardId: card.id, targetId: target.id });
+        } else {
+          await sendGuestAction({ type: 'PLAY_CARD', cardId: card.id });
+        }
+        return;
       }
 
       G.isBusy = true;
@@ -1907,7 +2386,7 @@
           for (let off = 1; off < G.players.length; off++) {
             const p = G.players[(player.id + off) % G.players.length];
             if (p.isAlive) {
-              G.autoTargetIndex = p.id; applyCameraTransform();
+              G.autoTargetIndex = p.id; applyCameraTransform(); broadcastGameState();
               const res = await requestReaction(p, 'MISSED', `${player.name}의 기관총 공격! 빗나감!으로 방어하세요.`, true);
               if (!(res === true || res?.defended)) {
                 await FX.playBangHit(card, player.id, p.id, true);
@@ -1925,7 +2404,7 @@
           for (let off = 1; off < G.players.length; off++) {
             const p = G.players[(player.id + off) % G.players.length];
             if (p.isAlive) {
-              G.autoTargetIndex = p.id; applyCameraTransform();
+              G.autoTargetIndex = p.id; applyCameraTransform(); broadcastGameState();
               const res = await requestReaction(p, 'BANG', `${player.name}의 인디언 습격! 뱅!을 제출해 방어하세요.`, false);
               if (!(res === true || res?.defended)) applyDamage(p, 1, player);
             }
@@ -1944,6 +2423,7 @@
         applyCameraTransform();
         syncAllBoards();
         renderHand();
+        broadcastGameState(true);
       }
     }
 
@@ -1962,7 +2442,6 @@
           else if (card.code === 'CAT_BALOU') valid = (p.hand.length > 0 || p.equipment.length > 0);
           else if (card.code === 'JAIL') valid = p.role.id !== 'SHERIFF' && !p.equipment.some(e => e.code === 'JAIL');
 
-          // Reveal Paul Regret's passive +1 distance if he blocks range/Panic
           if (!valid && p.character.id === 'PAUL_REGRET' && !p.abilityRevealed && (isEffectiveBang || card.code === 'PANIC')) {
             p.abilityRevealed = true;
             logBattle(`🐎 폴 리그렛 능력 공개! (상대가 볼 때 거리 +1)`);
@@ -2013,6 +2492,7 @@
     async function executeTargetedCard(attacker, target, card, isEffectiveBang = false) {
       G.autoTargetIndex = target.id;
       applyCameraTransform();
+      broadcastGameState();
 
       if (card.code === 'JAIL') {
         await FX.playEquip(card, target.id);
@@ -2081,53 +2561,7 @@
     /* ===================================================================
        9. REACTION TIMER (10s ONLY WHEN COUNTER EXISTS + GLOWING HAND)
        =================================================================== */
-    async function requestReaction(targetPlayer, requiredCode, messageDesc, allowBarrel = false, flags = {}) {
-      let barrelUsed = !!flags.barrelUsed;
-      let jourdonnaisUsed = !!flags.jourdonnaisUsed;
-
-      if (allowBarrel && requiredCode === 'MISSED' && targetPlayer.character.id === 'JOURDONNAIS' && !jourdonnaisUsed) {
-        jourdonnaisUsed = true;
-        targetPlayer.abilityRevealed = true;
-        const res = await performDrawCheck(targetPlayer, '주르도네 술통 판정', c => c.suit === '♥');
-        if (res.success) {
-          logBattle(`✨ 주르도네 판정 성공(♥)! 공격 회피!`);
-          return { defended: true, barrelUsed, jourdonnaisUsed };
-        }
-      }
-      if (allowBarrel && requiredCode === 'MISSED' && targetPlayer.equipment.some(e => e.code === 'BARREL') && !barrelUsed) {
-        barrelUsed = true;
-        const res = await performDrawCheck(targetPlayer, '술통 판정', c => c.suit === '♥');
-        if (res.success) {
-          logBattle(`✨ ${targetPlayer.name} 술통 판정 성공(♥)! 공격 회피!`);
-          return { defended: true, barrelUsed, jourdonnaisUsed };
-        }
-      }
-
-      const matchFn = (c) => c.code === requiredCode || (targetPlayer.character.id === 'CALAMITY_JANET' && (c.code === 'BANG' || c.code === 'MISSED'));
-      // Prefer exact matching card first before Calamity Janet's substitution
-      const matchingCards = targetPlayer.hand
-        .filter(matchFn)
-        .sort((a, b) => (a.code === requiredCode ? 0 : 1) - (b.code === requiredCode ? 0 : 1));
-      if (matchingCards.length === 0) return false;
-
-      if (targetPlayer.isAI) {
-        await sleep(380);
-        const played = matchingCards[0];
-        targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
-        if (played.code !== requiredCode && targetPlayer.character.id === 'CALAMITY_JANET') targetPlayer.abilityRevealed = true;
-        G.discardPile.push(played);
-        await FX.flyCard(played, targetPlayer.id, 'discard', 300);
-        SFX.playRicochet();
-        logBattle(`🛡️ ${targetPlayer.name}(AI)이(가) [${played.name}]으로 방어했습니다.`);
-        checkSuzyLafayette(targetPlayer);
-        syncAllBoards();
-        return { defended: true, barrelUsed, jourdonnaisUsed };
-      }
-
-      // Human P0 10-Second Reaction Modal + Glowing Playable Cards
-      G.glowHandCardIds = new Set(matchingCards.map(c => c.id));
-      renderHand();
-
+    function showLocalReactionModal(messageDesc, requiredCode, matchingCards) {
       return new Promise((resolve) => {
         const modal = document.getElementById('modal-reaction');
         document.getElementById('reaction-desc').innerText = messageDesc;
@@ -2151,40 +2585,109 @@
           if (left <= 0) {
             clearInterval(timer);
             modal.classList.add('hidden');
-            G.glowHandCardIds.clear();
-            renderHand();
             resolve(false);
           }
         }, 1000);
 
-        window.handleReactionResponse = async (useCard) => {
+        window.handleReactionResponse = (useCard) => {
           clearInterval(timer);
           modal.classList.add('hidden');
-          G.glowHandCardIds.clear();
-          if (useCard) {
-            const played = matchingCards[0];
-            targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
-            if (played.code !== requiredCode && targetPlayer.character.id === 'CALAMITY_JANET') targetPlayer.abilityRevealed = true;
-            G.discardPile.push(played);
-            await FX.flyCard(played, targetPlayer.id, 'discard', 300);
-            SFX.playRicochet();
-            logBattle(`🛡️ ${targetPlayer.name}이(가) [${played.name}]으로 방어했습니다.`);
-            checkSuzyLafayette(targetPlayer);
-            renderHand(); syncAllBoards();
-            resolve({ defended: true, barrelUsed, jourdonnaisUsed });
-          } else {
-            renderHand();
-            resolve(false);
-          }
+          resolve(!!useCard);
         };
       });
+    }
+
+    async function requestReaction(targetPlayer, requiredCode, messageDesc, allowBarrel = false, flags = {}) {
+      let barrelUsed = !!flags.barrelUsed;
+      let jourdonnaisUsed = !!flags.jourdonnaisUsed;
+
+      if (allowBarrel && requiredCode === 'MISSED' && targetPlayer.character.id === 'JOURDONNAIS' && !jourdonnaisUsed) {
+        jourdonnaisUsed = true;
+        targetPlayer.abilityRevealed = true;
+        const res = await performDrawCheck(targetPlayer, '주르도네 술통 판정', c => c.suit === '♥');
+        if (res.success) {
+          logBattle(`✨ 주르도네 판정 성공(♥)! 공격 회피!`);
+          return { defended: true, barrelUsed, jourdonnaisUsed };
+        }
+      }
+      if (allowBarrel && requiredCode === 'MISSED' && targetPlayer.equipment.some(e => e.code === 'BARREL') && !barrelUsed) {
+        barrelUsed = true;
+        const res = await performDrawCheck(targetPlayer, '술통 판정', c => c.suit === '♥');
+        if (res.success) {
+          logBattle(`✨ ${targetPlayer.name} 술통 판정 성공(♥)! 공격 회피!`);
+          return { defended: true, barrelUsed, jourdonnaisUsed };
+        }
+      }
+
+      const matchFn = (c) => c.code === requiredCode || (targetPlayer.character.id === 'CALAMITY_JANET' && (c.code === 'BANG' || c.code === 'MISSED'));
+      const matchingCards = targetPlayer.hand
+        .filter(matchFn)
+        .sort((a, b) => (a.code === requiredCode ? 0 : 1) - (b.code === requiredCode ? 0 : 1));
+      if (matchingCards.length === 0) return false;
+
+      if (targetPlayer.isAI) {
+        await sleep(380);
+        const played = matchingCards[0];
+        targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
+        if (played.code !== requiredCode && targetPlayer.character.id === 'CALAMITY_JANET') targetPlayer.abilityRevealed = true;
+        G.discardPile.push(played);
+        await FX.flyCard(played, targetPlayer.id, 'discard', 300);
+        SFX.playRicochet();
+        logBattle(`🛡️ ${targetPlayer.name}(AI)이(가) [${played.name}]으로 방어했습니다.`);
+        checkSuzyLafayette(targetPlayer);
+        syncAllBoards();
+        return { defended: true, barrelUsed, jourdonnaisUsed };
+      }
+
+      // Remote Human Guest Reaction
+      if (Net.online && Net.isHost && targetPlayer.id !== G.mySeatIndex) {
+        broadcastGameState(true);
+        const useCard = await promptRemoteSeat(
+          targetPlayer.id, 'reaction', '긴급 대응', messageDesc,
+          { requiredCode, cardIds: matchingCards.map(c => c.id) }, 10000
+        );
+        if (useCard) {
+          const played = matchingCards[0];
+          targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
+          if (played.code !== requiredCode && targetPlayer.character.id === 'CALAMITY_JANET') targetPlayer.abilityRevealed = true;
+          G.discardPile.push(played);
+          await FX.flyCard(played, targetPlayer.id, 'discard', 300);
+          SFX.playRicochet();
+          logBattle(`🛡️ ${targetPlayer.name}이(가) [${played.name}]으로 방어했습니다.`);
+          checkSuzyLafayette(targetPlayer);
+          syncAllBoards();
+          return { defended: true, barrelUsed, jourdonnaisUsed };
+        }
+        return false;
+      }
+
+      // Local Host Human Reaction
+      G.glowHandCardIds = new Set(matchingCards.map(c => c.id));
+      renderHand();
+      const useCard = await showLocalReactionModal(messageDesc, requiredCode, matchingCards);
+      G.glowHandCardIds.clear();
+
+      if (useCard) {
+        const played = matchingCards[0];
+        targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
+        if (played.code !== requiredCode && targetPlayer.character.id === 'CALAMITY_JANET') targetPlayer.abilityRevealed = true;
+        G.discardPile.push(played);
+        await FX.flyCard(played, targetPlayer.id, 'discard', 300);
+        SFX.playRicochet();
+        logBattle(`🛡️ ${targetPlayer.name}이(가) [${played.name}]으로 방어했습니다.`);
+        checkSuzyLafayette(targetPlayer);
+        renderHand(); syncAllBoards();
+        return { defended: true, barrelUsed, jourdonnaisUsed };
+      }
+      renderHand();
+      return false;
     }
 
     async function executeDuel(attacker, target) {
       let cur = target;
       while (cur.isAlive) {
         const opp = cur.id === attacker.id ? target : attacker;
-        G.autoTargetIndex = cur.id; applyCameraTransform();
+        G.autoTargetIndex = cur.id; applyCameraTransform(); broadcastGameState();
         const res = await requestReaction(cur, 'BANG', `⚔️ ${opp.name}과(와) 결투 중! 뱅!을 제출하세요.`, false);
         if (res === true || res?.defended) cur = opp;
         else {
@@ -2215,17 +2718,19 @@
           picked = pool.shift();
           logBattle(`🎪 ${p.name}(AI)이(가) 잡화점에서 [${picked.name}]을 선택했습니다.`);
         } else {
-          picked = await openChoiceModal(
+          picked = await askSeatChoice(
+            p,
             '🎪 잡화점 — 카드 1장 선택',
             '공개된 카드 중 가져갈 1장을 클릭하세요.',
             pool.map(c => ({ card: c, value: c }))
           );
+          if (!picked) picked = pool[0];
           pool = pool.filter(c => c.id !== picked.id);
           logBattle(`🎪 ${p.name}이(가) 잡화점에서 [${picked.name}]을 가져왔습니다.`);
         }
         p.hand.push(picked);
         await FX.flyCard(picked, 'center', p.id, 340);
-        syncAllBoards(); renderHand();
+        syncAllBoards(); renderHand(); broadcastGameState();
       }
     }
 
@@ -2239,7 +2744,6 @@
       FX.showFloatText(player.id, `-${amount} HP 💥`, '#ef4444');
       logBattle(`💥 ${player.name} 피해 -${amount} (현재 HP: ${Math.max(0, player.hp)}/${player.maxHp})`);
 
-      // Near-death Beer rescue (if >2 alive players) & Sid Ketchum 2-card rescue
       if (player.hp <= 0) {
         const aliveCount = G.players.filter(p => p.isAlive).length;
         while (player.hp <= 0 && aliveCount > 2) {
@@ -2254,7 +2758,6 @@
           checkSuzyLafayette(player);
         }
 
-        // Sid Ketchum near-death rescue: discard 2 cards to gain +1 HP
         while (player.hp <= 0 && player.character.id === 'SID_KETCHUM' && player.hand.length >= 2) {
           player.abilityRevealed = true;
           const d1 = player.hand.pop();
@@ -2272,7 +2775,7 @@
         if (player.hp <= 0) {
           player.hp = 0;
           handlePlayerDeath(player, attacker);
-          syncAllBoards(); renderHand();
+          syncAllBoards(); renderHand(); broadcastGameState(true);
           return;
         }
       }
@@ -2293,7 +2796,7 @@
         }
         logBattle(`🌵 엘 그링고 능력 발동! ${attacker.name}의 손패를 빼앗았습니다.`);
       }
-      syncAllBoards(); renderHand();
+      syncAllBoards(); renderHand(); broadcastGameState(true);
     }
 
     function handlePlayerDeath(victim, killer) {
@@ -2316,12 +2819,10 @@
       victim.hand = [];
       victim.equipment = [];
 
-      // Outlaw kill reward (+3 cards)
       if (victim.role.id === 'OUTLAW' && killer && killer.isAlive && killer.id !== victim.id) {
         drawCards(killer, 3, true);
         logBattle(`💰 무법자 처치 보상! ${killer.name}이(가) 카드 3장을 획득했습니다.`);
       }
-      // Sheriff kills Deputy penalty (lose all cards & equipment)
       if (victim.role.id === 'DEPUTY' && killer && killer.isAlive && killer.role.id === 'SHERIFF') {
         G.discardPile.push(...killer.hand, ...killer.equipment);
         killer.hand = [];
@@ -2352,7 +2853,10 @@
       return false;
     }
 
-    function showGameOver(title, desc) {
+    function showGameOver(title, desc, broadcast = true) {
+      if (broadcast && Net.online && Net.isHost && lobby.activeRoomId) {
+        patchRoom(lobby.activeRoomId, { status: 'gameover', gameOverJson: JSON.stringify({ title, desc }) });
+      }
       document.getElementById('gameover-title').innerText = title;
       document.getElementById('gameover-desc').innerText = desc;
       const roster = document.getElementById('gameover-roster');
@@ -2387,11 +2891,11 @@
         applyCameraTransform();
         document.getElementById('hud-turn-player').innerText = `${curP.name} (${curP.id + 1}P)`;
         syncAllBoards();
+        broadcastGameState(true);
 
-        // 1. Left -> Right 1.7s Turn Banner
         await FX.playTurnBanner(`${curP.name} (${curP.character.name})의 턴!`);
 
-        // 2. Dynamite Check
+        // Dynamite Check
         const dynIdx = curP.equipment.findIndex(e => e.code === 'DYNAMITE');
         if (dynIdx >= 0) {
           const res = await performDrawCheck(curP, '다이너마이트 판정', c => !(c.suit === '♠' && ['2','3','4','5','6','7','8','9'].includes(c.rank)));
@@ -2412,7 +2916,7 @@
           syncAllBoards();
         }
 
-        // 3. Jail Check
+        // Jail Check
         const jailIdx = curP.equipment.findIndex(e => e.code === 'JAIL');
         if (jailIdx >= 0) {
           const jailCard = curP.equipment.splice(jailIdx, 1)[0];
@@ -2426,7 +2930,7 @@
           syncAllBoards();
         }
 
-        // 4. Turn Start Draw (All Character Draw Abilities!)
+        // Turn Start Draw
         if (curP.character.id === 'KIT_CARLSON') {
           curP.abilityRevealed = true;
           const top3 = [];
@@ -2438,9 +2942,10 @@
             if (top3.length === 3) G.drawPile.push(top3.pop());
             top3.forEach(c => curP.hand.push(c));
           } else {
-            const putBack = await openChoiceModal('🔍 킷 칼슨 — 덱 위로 돌려놓을 1장 선택', '선택한 1장을 덱에 돌려놓고 나머지 2장을 가져갑니다.', top3.map(c => ({ card: c, value: c })));
-            G.drawPile.push(putBack);
-            top3.filter(c => c.id !== putBack.id).forEach(c => curP.hand.push(c));
+            const putBack = await askSeatChoice(curP, '🔍 킷 칼슨 — 덱 위로 돌려놓을 1장 선택', '선택한 1장을 덱에 돌려놓고 나머지 2장을 가져갑니다.', top3.map(c => ({ card: c, value: c })));
+            const chosenBack = putBack || top3[0];
+            G.drawPile.push(chosenBack);
+            top3.filter(c => c.id !== chosenBack.id).forEach(c => curP.hand.push(c));
           }
           SFX.playCardDraw();
           logBattle(`🔍 킷 칼슨 능력 발동! 3장 중 2장을 선택했습니다.`);
@@ -2448,7 +2953,7 @@
           let useDisc = curP.isAI;
           if (!curP.isAI) {
             const top = G.discardPile[G.discardPile.length - 1];
-            useDisc = await openChoiceModal('⚰️ 페드로 라미레스 능력', `첫 카드를 버림 더미 [${top.name}]에서 가져오시겠습니까?`, [
+            useDisc = await askSeatChoice(curP, '⚰️ 페드로 라미레스 능력', `첫 카드를 버림 더미 [${top.name}]에서 가져오시겠습니까?`, [
               { label: `⚰️ 버림 더미 [${top.name}] 가져오기`, value: true },
               { label: '🃏 덱에서 2장 뽑기', value: false }
             ]);
@@ -2463,21 +2968,22 @@
           } else drawCards(curP, 2, true);
         } else if (curP.character.id === 'JESSE_JONES' && G.players.some(p => p.id !== curP.id && p.isAlive && p.hand.length > 0)) {
           const victims = G.players.filter(p => p.id !== curP.id && p.isAlive && p.hand.length > 0);
-          let victim = curP.isAI ? victims[Math.floor(Math.random() * victims.length)] : await openChoiceModal(
-            '💰 제시 존스 능력', '첫 카드를 타인의 손패에서 뽑아오시겠습니까?', [
+          let victim = curP.isAI ? victims[Math.floor(Math.random() * victims.length)] : await askSeatChoice(
+            curP, '💰 제시 존스 능력', '첫 카드를 타인의 손패에서 뽑아오시겠습니까?', [
               ...victims.map(v => ({ label: `💰 ${v.name} 손패에서 1장 (${v.hand.length}장)`, value: v })),
               { label: '🃏 덱에서 2장 뽑기', value: null }
             ]
           );
           if (victim) {
+            const realVictim = G.players[victim.id] || victim;
             curP.abilityRevealed = true;
-            const rIdx = Math.floor(Math.random() * victim.hand.length);
-            const stolen = victim.hand.splice(rIdx, 1)[0];
+            const rIdx = Math.floor(Math.random() * realVictim.hand.length);
+            const stolen = realVictim.hand.splice(rIdx, 1)[0];
             curP.hand.push(stolen);
-            await FX.flyCard(stolen, victim.id, curP.id, 360, true);
-            checkSuzyLafayette(victim);
+            await FX.flyCard(stolen, realVictim.id, curP.id, 360, true);
+            checkSuzyLafayette(realVictim);
             drawCards(curP, 1, true);
-            logBattle(`💰 제시 존스 능력 발동! ${victim.name}의 손패에서 1장 획득.`);
+            logBattle(`💰 제시 존스 능력 발동! ${realVictim.name}의 손패에서 1장 획득.`);
           } else drawCards(curP, 2, true);
         } else {
           const drawn = drawCards(curP, 2, true);
@@ -2495,6 +3001,7 @@
         G.isBusy = false;
         syncAllBoards();
         renderHand();
+        broadcastGameState(true);
       }
 
       if (curP.isAI && curP.isAlive) await runAITurn(curP);
@@ -2518,7 +3025,6 @@
           await sleep(420);
         }
 
-        // AI Sid Ketchum Ability: discard 2 cards to heal +1 HP when hurt
         while (ai.character.id === 'SID_KETCHUM' && ai.hp < ai.maxHp && ai.hand.length >= 2) {
           ai.abilityRevealed = true;
           const d1 = ai.hand.pop();
@@ -2570,7 +3076,6 @@
         const maxBangs = (ai.equipment.some(e => e.volcanic) || ai.character.id === 'WILLY_THE_KID') ? 99 : 1;
         while (G.bangsPlayedThisTurn < maxBangs && ai.isAlive) {
           let bang = ai.hand.find(c => c.code === 'BANG');
-          // Calamity Janet AI can substitute an extra MISSED! as BANG!
           if (!bang && ai.character.id === 'CALAMITY_JANET') {
             const missedList = ai.hand.filter(c => c.code === 'MISSED');
             if (missedList.length >= 2) bang = missedList[0];
@@ -2612,6 +3117,7 @@
         applyCameraTransform();
         syncAllBoards();
         renderHand();
+        broadcastGameState(true);
       }
       if (G.players.filter(p => p.isAlive).length > 1 && document.getElementById('modal-game-over').classList.contains('hidden')) {
         nextTurn();
@@ -2619,14 +3125,19 @@
     }
 
     function handleEndTurnClick() {
-      const p0 = G.players[0];
-      if (!p0 || G.turnIndex !== 0 || G.isBusy) return;
+      const me = G.mySeatIndex;
+      const p0 = G.players[me];
+      if (!p0 || G.turnIndex !== me || G.isBusy) return;
       if (p0.hand.length > Math.max(0, p0.hp)) {
         G.selectionMode = 'discard';
         G.selectedCardIds.clear();
         G.selectedHandCardId = null;
         renderHand();
         showToast(`손패가 체력(${p0.hp})보다 많습니다. 초과분 ${p0.hand.length - p0.hp}장을 선택해 버려주세요.`);
+        return;
+      }
+      if (Net.online && !Net.isHost) {
+        sendGuestAction({ type: 'END_TURN' });
         return;
       }
       nextTurn();
@@ -2645,33 +3156,46 @@
       renderHand();
     }
 
-    function confirmSelectionMode() {
-      const p0 = G.players[0];
+    async function confirmSelectionMode() {
+      const me = G.mySeatIndex;
+      const p0 = G.players[me];
       if (!p0) return;
       if (G.selectionMode === 'discard') {
         const need = Math.max(0, p0.hand.length - Math.max(0, p0.hp));
         if (G.selectedCardIds.size !== need) { showToast(`정확히 ${need}장의 카드를 선택하세요.`); return; }
-        const disc = [];
-        p0.hand = p0.hand.filter(c => { if (G.selectedCardIds.has(c.id)) { G.discardPile.push(c); disc.push(c); return false; } return true; });
-        disc.forEach(c => FX.flyCard(c, 0, 'discard', 280));
-        SFX.playCardDraw();
+        const ids = Array.from(G.selectedCardIds);
         G.selectionMode = null; G.selectedCardIds.clear();
+        if (Net.online && !Net.isHost) {
+          await sendGuestAction({ type: 'DISCARD', cardIds: ids });
+          renderHand();
+          return;
+        }
+        const disc = [];
+        p0.hand = p0.hand.filter(c => { if (ids.includes(c.id)) { G.discardPile.push(c); disc.push(c); return false; } return true; });
+        disc.forEach(c => FX.flyCard(c, me, 'discard', 280));
+        SFX.playCardDraw();
         checkSuzyLafayette(p0);
-        syncAllBoards(); renderHand();
+        syncAllBoards(); renderHand(); broadcastGameState(true);
         nextTurn();
       } else if (G.selectionMode === 'sid') {
         if (G.selectedCardIds.size !== 2) { showToast('버릴 카드 2장을 선택하세요.'); return; }
+        const ids = Array.from(G.selectedCardIds);
+        G.selectionMode = null; G.selectedCardIds.clear();
+        if (Net.online && !Net.isHost) {
+          await sendGuestAction({ type: 'SID_HEAL', cardIds: ids });
+          renderHand();
+          return;
+        }
         p0.abilityRevealed = true;
         const disc = [];
-        p0.hand = p0.hand.filter(c => { if (G.selectedCardIds.has(c.id)) { G.discardPile.push(c); disc.push(c); return false; } return true; });
-        disc.forEach(c => FX.flyCard(c, 0, 'discard', 280));
+        p0.hand = p0.hand.filter(c => { if (ids.includes(c.id)) { G.discardPile.push(c); disc.push(c); return false; } return true; });
+        disc.forEach(c => FX.flyCard(c, me, 'discard', 280));
         p0.hp = Math.min(p0.maxHp, p0.hp + 1);
         SFX.playGulp();
-        FX.showFloatText(0, '+1 HP 💉', '#4ade80');
+        FX.showFloatText(me, '+1 HP 💉', '#4ade80');
         logBattle(`💉 시드 케첨 능력 발동! 2장을 버리고 체력을 1 회복했습니다.`);
-        G.selectionMode = null; G.selectedCardIds.clear();
         checkSuzyLafayette(p0);
-        syncAllBoards(); renderHand();
+        syncAllBoards(); renderHand(); broadcastGameState(true);
       }
     }
 
@@ -2700,9 +3224,9 @@
         const opts = [];
         if (victim.hand.length > 0) opts.push({ label: `🃏 손패 무작위 1장 (${victim.hand.length}장)`, value: { from: 'hand' } });
         victim.equipment.forEach((eq, idx) => opts.push({ label: `${eq.icon} 장착 [${eq.name}]`, value: { from: 'equip', idx } }));
-        const pick = await openChoiceModal(`🤏 ${victim.name} 카드 강탈`, '빼앗아올 카드를 선택하세요.', opts);
-        if (pick.from === 'hand' && victim.hand.length > 0) stolen = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
-        else if (pick.from === 'equip') stolen = victim.equipment.splice(pick.idx, 1)[0];
+        const pick = await askSeatChoice(thief, `🤏 ${victim.name} 카드 강탈`, '빼앗아올 카드를 선택하세요.', opts);
+        if (pick?.from === 'hand' && victim.hand.length > 0) stolen = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
+        else if (pick?.from === 'equip') stolen = victim.equipment.splice(pick.idx, 1)[0];
       } else {
         if (victim.hand.length > 0) stolen = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
         else if (victim.equipment.length > 0) stolen = victim.equipment.pop();
@@ -2714,15 +3238,15 @@
       }
     }
 
-    async function discardCardFromPlayer(victim, askHuman = false) {
+    async function discardCardFromPlayer(victim, askHuman = false, actor = null) {
       let disc = null;
-      if (askHuman && (victim.hand.length > 0 || victim.equipment.length > 0)) {
+      if (askHuman && actor && (victim.hand.length > 0 || victim.equipment.length > 0)) {
         const opts = [];
         if (victim.hand.length > 0) opts.push({ label: `🃏 손패 무작위 1장 (${victim.hand.length}장)`, value: { from: 'hand' } });
         victim.equipment.forEach((eq, idx) => opts.push({ label: `${eq.icon} 장착 [${eq.name}]`, value: { from: 'equip', idx } }));
-        const pick = await openChoiceModal(`🔥 ${victim.name} 카드 제거 (캣 벌로우)`, '버리게 할 카드를 선택하세요.', opts);
-        if (pick.from === 'hand' && victim.hand.length > 0) disc = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
-        else if (pick.from === 'equip') disc = victim.equipment.splice(pick.idx, 1)[0];
+        const pick = await askSeatChoice(actor, `🔥 ${victim.name} 카드 제거 (캣 벌로우)`, '버리게 할 카드를 선택하세요.', opts);
+        if (pick?.from === 'hand' && victim.hand.length > 0) disc = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
+        else if (pick?.from === 'equip') disc = victim.equipment.splice(pick.idx, 1)[0];
       } else {
         if (victim.hand.length > 0) disc = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
         else if (victim.equipment.length > 0) disc = victim.equipment.pop();
@@ -2750,7 +3274,7 @@
       },
       createCardEl(card, faceDown = false) {
         const el = document.createElement('div');
-        if (faceDown) {
+        if (faceDown || !card) {
           el.className = 'bang-card card-role-back w-24 h-36 absolute shadow-2xl pointer-events-none';
           el.innerHTML = `<div class="bang-card-inner items-center justify-center"><span class="text-2xl">🤠</span><span class="font-western text-xs">BANG!</span></div>`;
         } else {
@@ -2770,7 +3294,8 @@
         vp.classList.add('shake-active');
         setTimeout(() => vp.classList.remove('shake-active'), duration);
       },
-      showFloatText(playerIdx, text, color = '#fbbf24') {
+      showFloatText(playerIdx, text, color = '#fbbf24', broadcast = true) {
+        if (broadcast) emitFX('FLOAT_TEXT', { playerIdx, text, color });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const pt = this.getPoint(playerIdx);
@@ -2781,7 +3306,8 @@
         layer.appendChild(el);
         setTimeout(() => el.remove(), 1200);
       },
-      async playTurnBanner(text) {
+      async playTurnBanner(text, broadcast = true) {
+        if (broadcast) emitFX('TURN_BANNER', { text });
         const b = document.getElementById('turn-banner');
         const lbl = document.getElementById('turn-banner-text');
         if (!b || !lbl) return;
@@ -2833,13 +3359,15 @@
         await sleep(580);
         el.remove();
       },
-      async playBangHit(card, attackerIdx, targetIdx, isGatling = false) {
+      async playBangHit(card, attackerIdx, targetIdx, isGatling = false, broadcast = true) {
+        if (broadcast) emitFX('BANG_HIT', { card, attackerIdx, targetIdx, isGatling });
         SFX.playGunshot();
         if (!isGatling) await this.flyCard(card, attackerIdx, targetIdx, 260, false);
         this.triggerScreenShake(320);
         if (!isGatling) await this.flyCard(card, targetIdx, 'discard', 340, false);
       },
-      async playBangBlocked(attackCard, attackerIdx, targetIdx) {
+      async playBangBlocked(attackCard, attackerIdx, targetIdx, broadcast = true) {
+        if (broadcast) emitFX('BANG_BLOCKED', { attackCard, attackerIdx, targetIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const targetPt = this.getPoint(targetIdx);
@@ -2859,7 +3387,8 @@
         shieldEl.remove();
         await this.flyCard(attackCard, targetIdx, 'discard', 280, false);
       },
-      async playBeer(card, playerIdx) {
+      async playBeer(card, playerIdx, broadcast = true) {
+        if (broadcast) emitFX('BEER', { card, playerIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const pt = this.getPoint(playerIdx);
@@ -2872,7 +3401,8 @@
         el.remove();
         await this.flyCard(card, playerIdx, 'discard', 260, false);
       },
-      async playEquip(card, targetIdx) {
+      async playEquip(card, targetIdx, broadcast = true) {
+        if (broadcast) emitFX('EQUIP', { card, targetIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center'), target = this.getPoint(targetIdx);
@@ -2888,7 +3418,8 @@
         await sleep(430);
         el.remove();
       },
-      async playIndians(card) {
+      async playIndians(card, broadcast = true) {
+        if (broadcast) emitFX('INDIANS', { card });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center');
@@ -2902,7 +3433,8 @@
         el.remove();
         await this.flyCard(card, 'center', 'discard', 280, false);
       },
-      async playGatling(card) {
+      async playGatling(card, broadcast = true) {
+        if (broadcast) emitFX('GATLING', { card });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center');
@@ -2938,7 +3470,7 @@
     };
 
     /* ===================================================================
-       13. UI UTILITIES (Modals, Toast, Log, Mute, Exit)
+       13. UI UTILITIES (Modals, Toast, Log, Mute, Exit) & BOOT
        =================================================================== */
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -2980,7 +3512,8 @@
       toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
     }
 
-    function logBattle(msg) {
+    function logBattle(msg, broadcast = true) {
+      if (broadcast) emitFX('LOG', { msg });
       const list = document.getElementById('log-list');
       if (!list) return;
       const item = document.createElement('div');
@@ -3002,15 +3535,103 @@
     }
     function openExitConfirm() { document.getElementById('modal-exit-confirm').classList.remove('hidden'); }
     function closeExitConfirm() { document.getElementById('modal-exit-confirm').classList.add('hidden'); }
-    function executeExitToLobby() {
+
+    async function executeExitToLobby(remoteClosed = false) {
       closeExitConfirm();
+      const prevRoomId = lobby.activeRoomId;
+      const wasHost = Net.isHost;
+      lobby.activeRoomId = null;
+      G.players = [];
+      Net.ceremonyStartedMatch = null;
+
       document.getElementById('modal-game-over').classList.add('hidden');
       document.getElementById('screen-game').classList.add('hidden');
       document.getElementById('screen-waiting').classList.add('hidden');
       document.getElementById('screen-ceremony').classList.add('hidden');
       document.getElementById('screen-lobby').classList.remove('hidden');
+
+      if (!remoteClosed && prevRoomId && wasHost && Net.online) {
+        try { await deleteDoc(getRoomRef(prevRoomId)); } catch (e) {}
+      }
       renderRoomList();
     }
+
+    // Expose inline HTML onclick handlers from module scope
+    Object.assign(window, {
+      openCreateRoomModal,
+      closeCreateRoomModal,
+      createRoomSubmit,
+      attemptJoinRoom,
+      closePwModal,
+      confirmJoinWithPw,
+      leaveWaitingRoom,
+      addAISlot,
+      removeAISlot,
+      fillEmptySlotsWithAI,
+      startOpeningCeremony,
+      flipRoleCard,
+      goToCharStep,
+      selectP0Character,
+      setCameraMode,
+      adjustZoom,
+      toggleMute,
+      toggleLogDrawer,
+      openExitConfirm,
+      closeExitConfirm,
+      executeExitToLobby,
+      handleDeckClick,
+      playSelectedHandCard,
+      clearSelectedHandCard,
+      startSidHealMode,
+      confirmSelectionMode,
+      cancelSelectionMode,
+      handleEndTurnClick
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderRoomList();
+      bootNetwork();
+
+      const vp = document.getElementById('table-viewport');
+      if (vp && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => computeFitScale()).observe(vp);
+      }
+      window.addEventListener('resize', computeFitScale);
+
+      vp.addEventListener('wheel', (e) => {
+        if (document.getElementById('screen-game').classList.contains('hidden')) return;
+        e.preventDefault();
+        adjustZoom(e.deltaY < 0 ? 0.1 : -0.1);
+      }, { passive: false });
+
+      let panning = false, startX = 0, startY = 0;
+      vp.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.parchment-board') || e.target.closest('#central-drop-zone')) return;
+        panning = true; startX = e.clientX - G.panX; startY = e.clientY - G.panY;
+        document.getElementById('table-world').classList.add('dragging-pan');
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!panning) return;
+        G.panX = e.clientX - startX; G.panY = e.clientY - startY;
+        applyCameraTransform();
+      });
+      window.addEventListener('mouseup', () => {
+        if (!panning) return;
+        panning = false;
+        document.getElementById('table-world').classList.remove('dragging-pan');
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (document.getElementById('screen-game').classList.contains('hidden')) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === '0') setCameraMode('overview');
+        else if (e.key === 'a' || e.key === 'A') setCameraMode('auto');
+        else if (e.key >= '1' && e.key <= '7') {
+          const idx = parseInt(e.key, 10) - 1;
+          if (idx < G.players.length) setCameraMode('focus', idx);
+        }
+      });
+    });
   </script>
 </body>
 </html>

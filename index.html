@@ -1927,11 +1927,11 @@
 
       const charPool = getCharacterPool(s.expansions);
       const shuffledChars = [...charPool].sort(() => Math.random() - 0.5);
-      const charOptionsBySeat = [];
+            const charOptionsBySeat = {};
       const initialPicks = {};
       for (let i = 0; i < N; i++) {
         const pair = [shuffledChars[i * 2], shuffledChars[i * 2 + 1]];
-        charOptionsBySeat.push(pair);
+        charOptionsBySeat[String(i)] = pair;
         if (activeSlots[i].isAI) {
           initialPicks[String(i)] = pair[0].id;
         }

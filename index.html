@@ -650,6 +650,29 @@
   </div>
 
   <!-- ==================== MODALS ==================== -->
+  <!-- First-Visit Forced Play Mode Selection Modal (No Close Button) -->
+  <div id="modal-first-playmode" class="hidden fixed inset-0 z-[70] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-amber-500 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl text-center">
+      <div class="text-4xl mb-2">🃏</div>
+      <h3 class="text-xl font-black text-amber-400 mb-1.5">카드를 내는 방식을 선택하세요</h3>
+      <p class="text-xs text-stone-300 mb-5">선택한 방식은 기기에 저장되며, 언제든 ⚙️ 설정에서 변경할 수 있습니다.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button onclick="selectFirstPlayMode('select')"
+          class="py-4 px-4 rounded-2xl border-2 border-amber-500/80 bg-stone-900 hover:bg-amber-500/20 text-amber-200 font-black transition active:scale-95">
+          <div class="text-2xl mb-1">👆</div>
+          <div class="text-sm">터치 방식</div>
+          <div class="text-[11px] font-normal text-stone-400 mt-1">카드를 터치 후 사용하기 버튼</div>
+        </button>
+        <button onclick="selectFirstPlayMode('drag')"
+          class="py-4 px-4 rounded-2xl border-2 border-amber-500/80 bg-stone-900 hover:bg-amber-500/20 text-amber-200 font-black transition active:scale-95">
+          <div class="text-2xl mb-1">🖐️</div>
+          <div class="text-sm">드래그 방식</div>
+          <div class="text-[11px] font-normal text-stone-400 mt-1">카드를 테이블로 끌어다 놓기</div>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- User Preferences Modal (Volume & Card Play Mode) -->
   <div id="modal-settings" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-6 max-w-md w-full shadow-2xl">
@@ -689,8 +712,7 @@
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">확인</button>
     </div>
   </div>
-
-  <!-- Create Room Modal (With 6 Custom Settings + Expansion Packs) -->
+    <!-- Create Room Modal (With 6 Custom Settings + Expansion Packs) -->
   <div id="modal-create-room" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-stone-950 border-2 border-amber-600 rounded-2xl p-6 max-w-lg w-full shadow-2xl my-auto max-h-[92vh] overflow-y-auto thin-scroll">
       <h3 class="text-xl font-black text-amber-400 mb-4">🏠 새 살롱 방 만들기</h3>
@@ -703,7 +725,9 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-stone-300 mb-1">최대 인원</label>
-            <select id="input-room-max" class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
+            <select id="input-room-max" onchange="onRoomMaxChange()" class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500">
+              <option value="2">2인 (1대1 결투 · 직업 자동 OFF)</option>
+              <option value="3">3인 (보안관1 · 배신자1 · 무법자1)</option>
               <option value="4">4인 (보안관1 · 배신자1 · 무법자2)</option>
               <option value="5" selected>5인 (보안관1 · 부관1 · 배신자1 · 무법자2)</option>
               <option value="6">6인 (보안관1 · 부관1 · 배신자1 · 무법자3)</option>
@@ -745,10 +769,6 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
             <label class="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 cursor-pointer">
-              <span class="font-bold text-stone-200">⚔️ 1대1 모드</span>
-              <input id="opt-one-vs-one" type="checkbox" onchange="onToggleOneVsOne()" class="accent-amber-500 w-4 h-4" />
-            </label>
-            <label class="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 cursor-pointer">
               <span class="font-bold text-stone-200">🎭 직업 사용</span>
               <input id="opt-use-roles" type="checkbox" checked class="accent-amber-500 w-4 h-4" />
             </label>
@@ -783,6 +803,13 @@
                 <div class="text-[10px] text-stone-400 mt-0.5">매 라운드 특수 이벤트 발동 (축복·저주·총격전·매복·저격수·최종 하이눈 등)</div>
               </div>
               <input id="exp-high-noon-set" type="checkbox" value="HIGH_NOON_SET" class="exp-pack-checkbox accent-orange-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+            </label>
+            <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-purple-800/50 hover:border-purple-500 rounded-lg px-3 py-2.5 cursor-pointer transition">
+              <div>
+                <div class="font-black text-purple-300">🌑 그림자 계곡 (The Valley of Shadows)</div>
+                <div class="text-[10px] text-stone-400 mt-0.5">신규 카드 12종(토마호크·조준·역화·방울뱀·현상금 등) · 그림자 계곡 인물 8인 추가</div>
+              </div>
+              <input id="exp-shadow-valley" type="checkbox" value="SHADOW_VALLEY" class="exp-pack-checkbox accent-purple-500 w-4 h-4 mt-0.5 flex-shrink-0" />
             </label>
           </div>
         </div>
@@ -863,7 +890,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import {
       getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc,
       onSnapshot, runTransaction
@@ -926,11 +953,17 @@
             subscribeRoomList();
           }
         });
-        await signInAnonymously(Net.auth);
+        try {
+          await signInAnonymously(Net.auth);
+        } catch (authErr) {
+          console.warn('Default persistence signIn failed, retrying with inMemoryPersistence:', authErr);
+          await setPersistence(Net.auth, inMemoryPersistence);
+          await signInAnonymously(Net.auth);
+        }
       } catch (err) {
         console.warn('Firebase init fallback:', err);
         Net.online = false;
-        setNetBadge(false, '🟡 로컬 단독 모드');
+        setNetBadge(false, `🟡 로컬 모드 (${err.code || '오류'})`);
         renderRoomList();
       }
     }
@@ -1077,7 +1110,7 @@
        =================================================================== */
     const Prefs = {
       volume: parseInt(localStorage.getItem('bang_volume') ?? '100', 10),
-      playMode: localStorage.getItem('bang_play_mode') || 'drag' // 'drag' | 'select'
+      playMode: localStorage.getItem('bang_play_mode') // null (first visit) | 'drag' | 'select'
     };
 
     function openSettingsModal() {
@@ -1110,6 +1143,11 @@
       if (!document.getElementById('screen-game').classList.contains('hidden')) {
         renderHand();
       }
+    }
+
+    function selectFirstPlayMode(mode) {
+      setCardPlayMode(mode);
+      document.getElementById('modal-first-playmode')?.classList.add('hidden');
     }
 
     function updatePlayModeButtons() {
@@ -1327,15 +1365,28 @@
       { id: 'VERA_CUSTER',    name: '베라 커스터',   hp: 3, icon: '🪞', exp: 'DODGE_CITY', desc: '매 턴 시작 시 생존자 1명의 능력을 복사합니다.' }
     ];
 
+    const SHADOW_VALLEY_CHARACTERS = [
+      { id: 'BLACK_FLOWER',          name: '블랙 플라워',           hp: 4, icon: '🌺', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 클로버(♣) 카드를 추가 뱅!으로 사용 가능.' },
+      { id: 'COLORADO_BILL',         name: '콜로라도 빌',           hp: 4, icon: '🤠', exp: 'SHADOW_VALLEY', desc: '뱅! 발사 시 판정해 ♠가 나오면 회피할 수 없습니다.' },
+      { id: 'DER_SPOT_BURST_RINGER', name: '더 스팟 버스트 링거',   hp: 4, icon: '💥', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 뱅!을 기관총(타인 전원 공격)으로 사용 가능.' },
+      { id: 'EVELYN_SHEBANG',        name: '에블린 쉬뱅',           hp: 4, icon: '🎯', exp: 'SHADOW_VALLEY', desc: '턴 시작 드로우를 1장 줄이는 대신 사거리 내 무료 뱅! 사격.' },
+      { id: 'HENRY_BLOCK',           name: '헨리 블록',             hp: 4, icon: '🥊', exp: 'SHADOW_VALLEY', desc: '누군가 내 카드를 강탈·제거하면 즉시 뱅!으로 반격합니다.' },
+      { id: 'LEMONADE_JIM',          name: '레모네이드 짐',         hp: 4, icon: '🍋', exp: 'SHADOW_VALLEY', desc: '타인이 맥주를 쓰면 손패 1장을 버리고 체력 +1 회복.' },
+      { id: 'MICK_DEFENDER',         name: '믹 디펜더',             hp: 4, icon: '🛡️', exp: 'SHADOW_VALLEY', desc: '나만 지목하는 갈색 카드를 빗나감!으로 무효화할 수 있음.' },
+      { id: 'TUCO_FRANZISKANER',     name: '투코 프란치스카너',     hp: 5, icon: '🏜️', exp: 'SHADOW_VALLEY', desc: '턴 시작 시 장착한 파란 카드가 없으면 2장 추가 드로우.' }
+    ];
+
     function getCharacterPool(expansions = []) {
       const pool = [...BASE_CHARACTERS];
       if (Array.isArray(expansions) && expansions.includes('DODGE_CITY')) {
         pool.push(...DODGE_CITY_CHARACTERS);
       }
+      if (Array.isArray(expansions) && expansions.includes('SHADOW_VALLEY')) {
+        pool.push(...SHADOW_VALLEY_CHARACTERS);
+      }
       return pool;
     }
-
-    function buildOfficial80Deck(expansions = []) {
+        function buildOfficial80Deck(expansions = []) {
       const specs = [
         // 25 BANG!
         ...['♠A','♦A','♦2','♦3','♦4','♦5','♦6','♦7','♦8','♦9','♦10','♦J','♦Q','♦K','♣2','♣3','♣4','♣5','♣6','♣7','♣8','♣9','♥Q','♥K','♥A'].map(sr => ({
@@ -1420,17 +1471,36 @@
         );
       }
 
+      // The Valley of Shadows Expansion Cards (12 New Card Types)
+      if (Array.isArray(expansions) && expansions.includes('SHADOW_VALLEY')) {
+        specs.push(
+          { code: 'TOMAHAWK',    name: '토마호크',   type: 'brown', icon: '🪓', desc: '거리 2 이내 대상에게 1 피해', sr: '♦A' },
+          { code: 'LAST_CALL',   name: '라스트 콜',  type: 'brown', icon: '🥃', desc: '2인 생존 시에도 체력 +1 회복', sr: '♥8' },
+          { code: 'AIM',         name: '조준',       type: 'brown', icon: '🎯', desc: '뱅! 1장 추가 소모해 사거리 내 2 피해', sr: '♣6' },
+          { code: 'BACKFIRE',    name: '역화',       type: 'brown', icon: '🔥', desc: '빗나감!으로 방어 + 공격자에게 반격 뱅!', sr: '♣Q' },
+          { code: 'ESCAPE',      name: '구출 회피',  type: 'brown', icon: '🏃', desc: '단일 대상 갈색 카드 무효화 / 빗나감! 대체', sr: '♥3' },
+          { code: 'TORNADO',     name: '토네이도',   type: 'brown', icon: '🌪️', desc: '모든 생존자 1장 버리고 2장 드로우', sr: '♣A' },
+          { code: 'POKER',       name: '포커',       type: 'brown', icon: '🃏', desc: '타인 1장씩 공개 · A 없으면 최대 2장 획득', sr: '♥J' },
+          { code: 'BANDIDOS',    name: '산적단',     type: 'brown', icon: '🏴‍☠️', desc: '타인 전원 카드 2장 버리거나 1 피해', sr: '♦Q' },
+          { code: 'WEAPON',      name: '산탄총',     type: 'blue', range: 1, shotgun: true, icon: '🔫', desc: '사거리 1 · 뱅! 명중 시 대상 카드 1장 제거', sr: '♠K' },
+          { code: 'WEAPON',      name: '르매트 권총',type: 'blue', range: 1, lemat: true, icon: '🔫', desc: '사거리 1 · 방어/특수 카드를 뱅!으로 사용 가능', sr: '♦4' },
+          { code: 'RATTLESNAKE', name: '방울뱀',     type: 'blue', icon: '🐍', desc: '대상 앞 배치 · 매 턴 ♠ 판정 시 1 피해', sr: '♥7' },
+          { code: 'BOUNTY',      name: '현상금',     type: 'blue', icon: '💰', desc: '대상 앞 배치 · 뱅! 명중 시 공격자 1장 드로우', sr: '♣7' }
+        );
+      }
+
       return specs.map((sp, i) => ({
         id: `c_${i}_${Math.random().toString(36).slice(2, 6)}`,
         code: sp.code, name: sp.name, type: sp.type, icon: sp.icon, desc: sp.desc,
-        range: sp.range || null, volcanic: !!sp.volcanic, ready: false,
+        range: sp.range || null, volcanic: !!sp.volcanic, shotgun: !!sp.shotgun, lemat: !!sp.lemat, ready: false,
         suit: sp.sr[0], rank: sp.sr.slice(1)
       })).sort(() => Math.random() - 0.5);
     }
 
     const EXPANSION_LABELS = {
       DODGE_CITY: '🌵닷지시티',
-      HIGH_NOON_SET: '☀️하이눈&한줌'
+      HIGH_NOON_SET: '☀️하이눈&한줌',
+      SHADOW_VALLEY: '🌑그림자계곡'
     };
 
     // High Noon & A Fistful of Cards (Combined Set) Round Events
@@ -1481,7 +1551,6 @@
       bonusHp: 0,
       sheriffBonusHp: 1,
       allowDuplicateBlue: false,
-      oneVsOne: false,
       allowBeerAtTwo: false,
       useRoles: true,
       expansions: []
@@ -1489,27 +1558,26 @@
 
     const lobby = { rooms: [], activeRoomId: null, pendingJoinId: null };
 
-    function normalizeSettings(raw) {
+    function normalizeSettings(raw, playerCount = null) {
       const s = { ...DEFAULT_SETTINGS, ...(raw || {}) };
       s.bonusHp = Math.max(0, Math.min(5, parseInt(s.bonusHp, 10) || 0));
       s.sheriffBonusHp = Math.max(1, Math.min(3, parseInt(s.sheriffBonusHp, 10) || 1));
       s.allowDuplicateBlue = !!s.allowDuplicateBlue;
-      s.oneVsOne = !!s.oneVsOne;
       s.allowBeerAtTwo = !!s.allowBeerAtTwo;
-      s.useRoles = s.oneVsOne ? false : (raw && raw.useRoles !== undefined ? !!raw.useRoles : true);
+      const count = playerCount !== null ? parseInt(playerCount, 10) : (raw?.maxPlayers ? parseInt(raw.maxPlayers, 10) : null);
+      s.useRoles = count === 2 ? false : (raw && raw.useRoles !== undefined ? !!raw.useRoles : true);
       s.expansions = Array.isArray(raw?.expansions) ? [...new Set(raw.expansions)] : [];
       return s;
     }
 
-    function formatSettingsBadges(rawSettings) {
-      const s = normalizeSettings(rawSettings);
+    function formatSettingsBadges(rawSettings, maxPlayers = null) {
+      const s = normalizeSettings(rawSettings, maxPlayers);
       const tags = [];
       if (s.expansions.length > 0) {
         s.expansions.forEach(exp => tags.push(EXPANSION_LABELS[exp] || exp));
       } else {
         tags.push('기본판');
       }
-      if (s.oneVsOne) tags.push('⚔️1대1');
       if (!s.useRoles) tags.push('🎭직업OFF');
       if (s.bonusHp > 0) tags.push(`❤️기본HP+${s.bonusHp}`);
       if (s.useRoles && s.sheriffBonusHp !== 1) tags.push(`⭐보안관HP+${s.sheriffBonusHp}`);
@@ -1519,10 +1587,11 @@
     }
 
     function getRoleBreakdownText(n, rawSettings) {
-      const s = normalizeSettings(rawSettings);
-      if (s.oneVsOne || n === 2) return '2인 1대1 결투: 직업 없이 최후의 1인 승부';
+      const s = normalizeSettings(rawSettings, n);
+      if (n === 2) return '2인 1대1 결투: 직업 없이 최후의 1인 승부';
       if (!s.useRoles) return `${n}인 자유 난투전: 직업 없이 최후의 1인 승부`;
       const map = {
+        3: '3인: 보안관 1 · 배신자 1 · 무법자 1',
         4: '4인: 보안관 1 · 배신자 1 · 무법자 2',
         5: '5인: 보안관 1 · 부관 1 · 배신자 1 · 무법자 2',
         6: '6인: 보안관 1 · 부관 1 · 배신자 1 · 무법자 3',
@@ -1548,7 +1617,7 @@
         const slots = room.slots || [];
         const filled = slots.filter(Boolean).length;
         const isPlaying = room.status && room.status !== 'WAITING';
-        const badges = formatSettingsBadges(room.settings)
+        const badges = formatSettingsBadges(room.settings, room.maxPlayers)
           .map(t => `<span class="text-[10px] px-2 py-0.5 rounded bg-stone-800 text-amber-300/90 border border-amber-800/50">${t}</span>`)
           .join('');
         const row = document.createElement('div');
@@ -1573,21 +1642,16 @@
     }
 
     function openCreateRoomModal() {
-      onToggleOneVsOne();
+      onRoomMaxChange();
       document.getElementById('modal-create-room').classList.remove('hidden');
     }
     function closeCreateRoomModal() { document.getElementById('modal-create-room').classList.add('hidden'); }
 
-    function onToggleOneVsOne() {
-      const is1v1 = !!document.getElementById('opt-one-vs-one')?.checked;
-      const sel = document.getElementById('input-room-max');
+    function onRoomMaxChange() {
+      const maxVal = parseInt(document.getElementById('input-room-max')?.value, 10) || 5;
       const roleChk = document.getElementById('opt-use-roles');
-      if (sel) {
-        sel.disabled = is1v1;
-        sel.classList.toggle('opacity-50', is1v1);
-      }
       if (roleChk) {
-        if (is1v1) {
+        if (maxVal === 2) {
           roleChk.checked = false;
           roleChk.disabled = true;
         } else {
@@ -1598,8 +1662,7 @@
 
     async function createRoomSubmit() {
       const title = document.getElementById('input-room-title').value.trim() || '서부 개척지 결투방';
-      const is1v1 = !!document.getElementById('opt-one-vs-one').checked;
-      const maxPlayers = is1v1 ? 2 : (parseInt(document.getElementById('input-room-max').value, 10) || 5);
+      const maxPlayers = parseInt(document.getElementById('input-room-max').value, 10) || 5;
       const password = document.getElementById('input-room-pw').value.trim();
       const nick = document.getElementById('lobby-nickname').value.trim() || '총잡이';
 
@@ -1607,12 +1670,11 @@
       const settings = normalizeSettings({
         bonusHp: document.getElementById('opt-bonus-hp').value,
         sheriffBonusHp: document.getElementById('opt-sheriff-hp').value,
-        oneVsOne: is1v1,
         useRoles: document.getElementById('opt-use-roles').checked,
         allowDuplicateBlue: document.getElementById('opt-dup-blue').checked,
         allowBeerAtTwo: document.getElementById('opt-beer-two').checked,
         expansions
-      });
+      }, maxPlayers);
 
       const slots = Array(maxPlayers).fill(null);
       slots[0] = { name: nick, isAI: false, isHost: true, clientId: Net.clientId };
@@ -1745,14 +1807,14 @@
     function renderWaitingRoom() {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
       if (!room) return;
-      const s = normalizeSettings(room.settings);
+      const s = normalizeSettings(room.settings, room.maxPlayers);
       document.getElementById('wait-room-title').innerText = room.title;
       document.getElementById('wait-role-info').innerText = getRoleBreakdownText(room.maxPlayers, s);
       document.getElementById('wait-lock-badge').innerText = room.password ? '🔒 비공개' : '🔓 공개방';
 
       const tagsEl = document.getElementById('wait-settings-tags');
       if (tagsEl) {
-        tagsEl.innerHTML = formatSettingsBadges(s)
+        tagsEl.innerHTML = formatSettingsBadges(s, room.maxPlayers)
           .map(t => `<span class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-950/90 text-amber-300 border border-amber-700/60 font-bold">${t}</span>`)
           .join('');
       }
@@ -1795,7 +1857,7 @@
       });
 
       const filledCount = (room.slots || []).filter(Boolean).length;
-      const minRequired = s.oneVsOne ? 2 : 4;
+      const minRequired = room.maxPlayers <= 3 ? room.maxPlayers : 4;
       document.getElementById('btn-start-match').disabled = filledCount < minRequired;
     }
 
@@ -1841,18 +1903,20 @@
     async function startOpeningCeremony() {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
       if (!room) return;
-      const s = normalizeSettings(room.settings);
       const activeSlots = (room.slots || []).filter(Boolean);
-      const minRequired = s.oneVsOne ? 2 : 4;
+      const minRequired = room.maxPlayers <= 3 ? room.maxPlayers : 4;
       if (activeSlots.length < minRequired) {
         showToast(`최소 ${minRequired}명 이상 필요합니다.`);
         return;
       }
 
       const N = activeSlots.length;
+      const s = normalizeSettings(room.settings, N);
       let roles;
-      if (!s.useRoles || s.oneVsOne) {
+      if (!s.useRoles || N === 2) {
         roles = Array(N).fill(ROLES.FREE);
+      } else if (N === 3) {
+        roles = [ROLES.SHERIFF, ROLES.RENEGADE, ROLES.OUTLAW].sort(() => Math.random() - 0.5);
       } else {
         const rolePool = [ROLES.SHERIFF, ROLES.RENEGADE, ROLES.OUTLAW, ROLES.OUTLAW];
         if (N >= 5) rolePool.push(ROLES.DEPUTY);
@@ -2000,8 +2064,7 @@
         initGameBoardSolo(chosenChar);
       }
     }
-
-    /* ===================================================================
+        /* ===================================================================
        5. CORE GAME STATE & MULTIPLAYER BOARD INITIALIZATION
        =================================================================== */
     const G = {
@@ -2265,6 +2328,11 @@
         2: [
           { x: 1000, y: 1065, rotation: 0 },
           { x: 1000, y: 205,  rotation: 180 }
+        ],
+        3: [
+          { x: 1000, y: 1065, rotation: 0 },
+          { x: 430,  y: 280,  rotation: 135 },
+          { x: 1570, y: 280,  rotation: 225 }
         ],
         4: [
           { x: 1000, y: 1065, rotation: 0 },
@@ -2620,6 +2688,10 @@
       renderRoomList();
       initRealtimeBackend();
 
+      if (!Prefs.playMode) {
+        document.getElementById('modal-first-playmode')?.classList.remove('hidden');
+      }
+
       const muteBtn = document.getElementById('btn-mute');
       if (muteBtn) muteBtn.innerText = SFX.muted ? '🔇' : '🔊';
 
@@ -2671,12 +2743,11 @@
     } else {
       bootApp();
     }
-
-    /* ===================================================================
+       /* ===================================================================
        8. HAND RENDERING, GREEN CARDS & DUAL INPUT (DRAG / SELECT)
        =================================================================== */
     function isSelfEquipCard(card) {
-      return !!card && ((card.type === 'blue' && card.code !== 'JAIL') || card.type === 'green');
+      return !!card && ((card.type === 'blue' && !['JAIL', 'RATTLESNAKE', 'BOUNTY'].includes(card.code)) || card.type === 'green');
     }
 
     function isGreenDefenseCard(code) {
@@ -2791,6 +2862,113 @@
           document.getElementById(`seat-wrapper-${G.mySeatIndex}`)?.classList.remove('equip-drop-ready', 'equip-drop-hover');
         });
 
+        // Mobile Touch Drag (out of horizontal-scroll hand dock)
+        if (canDrag) {
+          let touchStartX = 0, touchStartY = 0;
+          let touchDragging = false, touchScrolling = false;
+          let ghostEl = null;
+
+          const cleanupTouchDrag = () => {
+            if (ghostEl) { ghostEl.remove(); ghostEl = null; }
+            el.style.opacity = '';
+            G.draggedCardId = null;
+            const dz = document.getElementById('central-drop-zone');
+            dz?.classList.remove('border-amber-400', 'bg-amber-400/15', 'scale-105');
+            document.getElementById('drop-zone-label')?.classList.add('hidden');
+            document.getElementById(`seat-wrapper-${G.mySeatIndex}`)?.classList.remove('equip-drop-ready', 'equip-drop-hover');
+          };
+
+          el.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchDragging = false;
+            touchScrolling = false;
+          }, { passive: true });
+
+          el.addEventListener('touchmove', (e) => {
+            if (touchScrolling || e.touches.length !== 1) return;
+            const t = e.touches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+
+            if (!touchDragging) {
+              if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+                touchScrolling = true;
+                return;
+              }
+              if (dy <= -24) {
+                touchDragging = true;
+                G.draggedCardId = card.id;
+                G.selectedHandCardId = null;
+                pill.classList.add('hidden');
+
+                const dz = document.getElementById('central-drop-zone');
+                const dzLabel = document.getElementById('drop-zone-label');
+                dz?.classList.add('border-amber-400', 'bg-amber-400/15');
+                dzLabel?.classList.remove('hidden');
+                if (isSelfEquipCard(card)) {
+                  if (dzLabel) {
+                    dzLabel.innerText = card.type === 'green'
+                      ? '🌿 내 판에 내려놓아 배치 (다음 턴부터 발동)'
+                      : '🛡️ 내 판에 내려놓아 장착 (또는 중앙에 놓기)';
+                  }
+                  document.getElementById(`seat-wrapper-${G.mySeatIndex}`)?.classList.add('equip-drop-ready');
+                } else if (dzLabel) {
+                  dzLabel.innerText = '🃏 여기에 놓으면 카드가 발동됩니다!';
+                }
+
+                ghostEl = el.cloneNode(true);
+                ghostEl.style.position = 'fixed';
+                ghostEl.style.zIndex = '9999';
+                ghostEl.style.pointerEvents = 'none';
+                ghostEl.style.opacity = '0.85';
+                ghostEl.style.margin = '0';
+                ghostEl.style.left = `${t.clientX}px`;
+                ghostEl.style.top = `${t.clientY}px`;
+                ghostEl.style.transform = 'translate(-50%, -50%) scale(1.08)';
+                document.body.appendChild(ghostEl);
+                el.style.opacity = '0.35';
+              } else {
+                return;
+              }
+            }
+
+            e.preventDefault();
+            if (ghostEl) {
+              ghostEl.style.left = `${t.clientX}px`;
+              ghostEl.style.top = `${t.clientY}px`;
+            }
+
+            const under = document.elementFromPoint(t.clientX, t.clientY);
+            const dz = document.getElementById('central-drop-zone');
+            const mySeatEl = document.getElementById(`seat-wrapper-${G.mySeatIndex}`);
+            dz?.classList.toggle('scale-105', !!under?.closest('#central-drop-zone'));
+            if (isSelfEquipCard(card)) {
+              mySeatEl?.classList.toggle('equip-drop-hover', !!under?.closest(`#seat-wrapper-${G.mySeatIndex}`));
+            }
+          }, { passive: false });
+
+          el.addEventListener('touchend', (e) => {
+            if (!touchDragging) return;
+            const t = e.changedTouches[0];
+            cleanupTouchDrag();
+            if (!t) return;
+            const under = document.elementFromPoint(t.clientX, t.clientY);
+            const onMyBoard = !!under?.closest(`#seat-wrapper-${G.mySeatIndex}`);
+            const onCenter = !!under?.closest('#central-drop-zone') ||
+              (!!under?.closest('#table-viewport') && !under?.closest('#dock-chat-widget'));
+            if ((onMyBoard && isSelfEquipCard(card)) || onCenter) {
+              dispatchOrPlayCard(me, card);
+            }
+          });
+
+          el.addEventListener('touchcancel', () => {
+            if (touchDragging) cleanupTouchDrag();
+          });
+        }
+
         rail.appendChild(el);
       });
     }
@@ -2841,8 +3019,11 @@
 
     async function dispatchOrPlayCard(player, card) {
       if (Net.online && !Net.isHost) {
-        const isEffectiveBang = card.code === 'BANG' || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET');
-        const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME'].includes(card.code);
+        const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
+        const isEffectiveBang = card.code === 'BANG'
+          || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET')
+          || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code));
+        const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME', 'TOMAHAWK', 'AIM', 'RATTLESNAKE', 'BOUNTY'].includes(card.code);
         let targetSeat = null;
         if (needsTarget) {
           const target = await selectTargetPlayer(player, card, isEffectiveBang);
@@ -3061,7 +3242,8 @@
       if (card.code === 'TEQUILA') return p.hp < p.maxHp;
       if (p.id === attacker.id) return false;
       const dist = calculateDistance(attacker.id, p.id);
-      if (isEffectiveBang || card.code === 'PEPPERBOX') return dist <= getWeaponRange(attacker);
+      if (isEffectiveBang || card.code === 'PEPPERBOX' || card.code === 'AIM') return dist <= getWeaponRange(attacker);
+      if (card.code === 'TOMAHAWK') return dist <= 2;
       if (card.code === 'PANIC') return dist <= 1 && (p.hand.length > 0 || p.equipment.length > 0);
       if (card.code === 'CAT_BALOU' || card.code === 'RAG_TIME' || card.code === 'CAN_CAN' || card.code === 'CONESTOGA') {
         return p.hand.length > 0 || p.equipment.length > 0;
@@ -3069,6 +3251,8 @@
       if (card.code === 'PUNCH' || card.code === 'DERRINGER' || card.code === 'KNIFE') return dist <= 1;
       if (card.code === 'SPRINGFIELD' || card.code === 'BUFFALO_RIFLE' || card.code === 'DUEL') return true;
       if (card.code === 'JAIL') return (!G.settings.useRoles || p.role.id !== 'SHERIFF') && !p.equipment.some(e => e.code === 'JAIL');
+      if (card.code === 'RATTLESNAKE') return !p.equipment.some(e => e.code === 'RATTLESNAKE');
+      if (card.code === 'BOUNTY') return !p.equipment.some(e => e.code === 'BOUNTY');
       return true;
     }
 
@@ -3093,20 +3277,31 @@
       }
       return false;
     }
-
-    async function playCardAction(player, card, presetTargetSeat = null) {
+        async function playCardAction(player, card, presetTargetSeat = null) {
       if (G.isBusy || !player.isAlive) return;
-      const isEffectiveBang = card.code === 'BANG' || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET');
+      const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
+      const isBlackFlowerBonus = player.character.id === 'BLACK_FLOWER' && card.suit === '♣' && !G.blackFlowerUsedThisTurn
+        && (card.code === 'BANG' || ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code));
+      const isEffectiveBang = card.code === 'BANG'
+        || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET')
+        || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code))
+        || isBlackFlowerBonus;
 
-      if ((card.code === 'MISSED' || card.code === 'DODGE') && !isEffectiveBang) {
+      if (['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code) && !isEffectiveBang) {
         if (player.id === G.mySeatIndex) showToast(`[${card.name}]은 공격받을 때 방어용으로만 사용할 수 있습니다.`);
         return;
       }
       if (isEffectiveBang) {
         const baseLimit = G.activeEvent?.id === 'SHOOTOUT' ? 2 : 1;
         const maxBangs = (player.equipment.some(e => e.volcanic) || player.character.id === 'WILLY_THE_KID') ? 99 : baseLimit;
-        if (G.bangsPlayedThisTurn >= maxBangs) {
+        if (G.bangsPlayedThisTurn >= maxBangs && !isBlackFlowerBonus) {
           if (player.id === G.mySeatIndex) showToast(`한 턴에 뱅!은 ${baseLimit}번만 사용할 수 있습니다! (볼캐닉/윌리 더 키드 제외)`);
+          return;
+        }
+      }
+      if (card.code === 'AIM') {
+        if (!player.hand.some(c => c.id !== card.id && c.code === 'BANG')) {
+          if (player.id === G.mySeatIndex) showToast('[조준] 사용에는 함께 소모할 뱅! 카드 1장이 필요합니다.');
           return;
         }
       }
@@ -3121,11 +3316,17 @@
           return;
         }
       }
+      if (card.code === 'LAST_CALL') {
+        if (player.hp >= player.maxHp) {
+          if (player.id === G.mySeatIndex) showToast('이미 체력이 가득 차 있습니다.');
+          return;
+        }
+      }
       if (['SPRINGFIELD', 'WHISKY', 'TEQUILA', 'BRAWL', 'RAG_TIME'].includes(card.code) && player.hand.length < 2) {
         if (player.id === G.mySeatIndex) showToast(`[${card.name}] 사용에는 추가로 버릴 손패 1장이 필요합니다.`);
         return;
       }
-      if (card.type === 'blue' && card.code !== 'WEAPON' && card.code !== 'JAIL' && !G.settings.allowDuplicateBlue) {
+      if (card.type === 'blue' && !['WEAPON', 'JAIL', 'RATTLESNAKE', 'BOUNTY'].includes(card.code) && !G.settings.allowDuplicateBlue) {
         if (player.equipment.some(e => e.code === card.code)) {
           if (player.id === G.mySeatIndex) showToast(`이미 [${card.name}] 카드가 장착되어 있습니다. (중복 장착 불가)`);
           return;
@@ -3138,7 +3339,7 @@
         renderHand();
 
         // 1. Self-Equip Blue & Green Cards
-        if ((card.type === 'blue' && card.code !== 'JAIL') || card.type === 'green') {
+        if (isSelfEquipCard(card)) {
           await FX.playEquip(card, player.id);
           if (card.code === 'WEAPON') {
             const oldW = player.equipment.findIndex(e => e.code === 'WEAPON');
@@ -3154,22 +3355,75 @@
           return;
         }
 
+        // Der Spot - Burst Ringer: once per turn BANG! as Gatling
+        if (isEffectiveBang && player.character.id === 'DER_SPOT_BURST_RINGER' && !G.derSpotUsedThisTurn && presetTargetSeat === null) {
+          let useAsGatling = false;
+          if (player.isAI) {
+            useAsGatling = G.players.filter(p => p.id !== player.id && p.isAlive).length >= 2;
+          } else if (player.id === G.mySeatIndex) {
+            useAsGatling = await openChoiceModal(
+              '💥 더 스팟 버스트 링거 능력',
+              '이 뱅! 카드를 타인 전원 공격(기관총)으로 발사하시겠습니까?',
+              [
+                { label: '💥 기관총(타인 전원)으로 발사', value: true },
+                { label: '🎯 일반 단일 대상 뱅!', value: false }
+              ]
+            );
+          }
+          if (useAsGatling) {
+            G.derSpotUsedThisTurn = true;
+            G.bangsPlayedThisTurn++;
+            player.abilityRevealed = true;
+            checkSuzyLafayette(player);
+            await FX.playGatling(card);
+            G.discardPile.push(card);
+            logBattle(`💥 더 스팟 버스트 링거 능력 발동! ${player.name}이(가) 뱅!을 기관총으로 난사합니다!`);
+            for (let off = 1; off < G.players.length; off++) {
+              const p = G.players[(player.id + off) % G.players.length];
+              if (p.isAlive) {
+                G.autoTargetIndex = p.id; applyCameraTransform();
+                const res = await requestReaction(p, 'MISSED', `${player.name}의 더 스팟 기관총! 빗나감!으로 방어하세요.`, true);
+                if (!(res === true || res?.defended)) {
+                  await FX.playBangHit(card, player.id, p.id, true);
+                  applyDamage(p, 1, player);
+                } else {
+                  await FX.playBangBlocked(card, player.id, p.id);
+                }
+              }
+            }
+            return;
+          }
+        }
+
         // 2. Targeted Cards
-        if (isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME'].includes(card.code)) {
+        if (isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME', 'TOMAHAWK', 'AIM', 'RATTLESNAKE', 'BOUNTY'].includes(card.code)) {
           let target = presetTargetSeat !== null ? G.players[presetTargetSeat] : null;
           if (!target) target = await selectTargetPlayer(player, card, isEffectiveBang);
           if (!target) { player.hand.push(card); return; }
 
+          if (card.code === 'AIM') {
+            const bangIdx = player.hand.findIndex(c => c.code === 'BANG');
+            if (bangIdx < 0) { player.hand.push(card); return; }
+            const extraBang = player.hand.splice(bangIdx, 1)[0];
+            G.discardPile.push(extraBang);
+            await FX.flyCard(extraBang, player.id, 'discard', 240);
+          }
           if (['SPRINGFIELD', 'TEQUILA', 'RAG_TIME'].includes(card.code)) {
             const paid = await discardExtraCostCard(player, card.name);
             if (!paid) { player.hand.push(card); return; }
           }
-          if (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET') {
+          if (isBlackFlowerBonus && G.bangsPlayedThisTurn >= 1) {
+            G.blackFlowerUsedThisTurn = true;
+            player.abilityRevealed = true;
+            logBattle(`🌺 블랙 플라워 능력 발동! 클로버(♣) [${card.name}]을 추가 뱅!으로 발사합니다.`);
+          } else if (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET') {
             player.abilityRevealed = true;
             logBattle(`💃 캘러미티 재닛 능력 발동! [빗나감!]을 [뱅!]으로 사용합니다.`);
+          } else if (hasLemat && card.code !== 'BANG') {
+            logBattle(`🔫 르매트 권총 효과! [${card.name}]을 [뱅!]으로 발사합니다.`);
           }
           checkSuzyLafayette(player);
-          await executeTargetedCard(player, target, card, isEffectiveBang);
+          await executeTargetedCard(player, target, card, isEffectiveBang, isBlackFlowerBonus);
           return;
         }
 
@@ -3181,14 +3435,128 @@
         checkSuzyLafayette(player);
         await FX.playCenterSpinAndHold(card, player.id);
 
-        if (card.code === 'BEER') {
+        if (card.code === 'BEER' || card.code === 'LAST_CALL') {
           await FX.playBeer(card, player.id);
           G.discardPile.push(card);
-          const healAmt = player.character.id === 'TEQUILA_JOE' ? 2 : 1;
+          const healAmt = (card.code === 'BEER' && player.character.id === 'TEQUILA_JOE') ? 2 : 1;
           if (healAmt === 2) player.abilityRevealed = true;
           player.hp = Math.min(player.maxHp, player.hp + healAmt);
-          FX.showFloatText(player.id, `+${healAmt} HP 🍺`, '#4ade80');
-          logBattle(`🍺 ${player.name}이(가) 맥주로 체력을 ${healAmt} 회복했습니다 (HP: ${player.hp}/${player.maxHp}).`);
+          FX.showFloatText(player.id, `+${healAmt} HP ${card.icon}`, '#4ade80');
+          logBattle(`${card.icon} ${player.name}이(가) [${card.name}]로 체력을 ${healAmt} 회복했습니다 (HP: ${player.hp}/${player.maxHp}).`);
+
+          // Lemonade Jim ability (Shadow Valley): when another player plays Beer
+          if (card.code === 'BEER') {
+            for (const jim of G.players) {
+              if (!jim.isAlive || jim.id === player.id || jim.character.id !== 'LEMONADE_JIM') continue;
+              if (jim.hp >= jim.maxHp || jim.hand.length === 0) continue;
+              let doHeal = jim.isAI;
+              if (!jim.isAI && jim.id === G.mySeatIndex) {
+                doHeal = await openChoiceModal(
+                  '🍋 레모네이드 짐 능력',
+                  `${player.name}이(가) 맥주를 사용했습니다. 손패 1장을 버리고 체력을 +1 회복하시겠습니까?`,
+                  [
+                    { label: '🍋 1장 버리고 +1 HP 회복', value: true },
+                    { label: '건너뛰기', value: false }
+                  ]
+                );
+              }
+              if (doHeal) {
+                jim.abilityRevealed = true;
+                const paid = await discardExtraCostCard(jim, '레모네이드 짐');
+                if (paid) {
+                  jim.hp = Math.min(jim.maxHp, jim.hp + 1);
+                  SFX.playGulp();
+                  FX.showFloatText(jim.id, '🍋 +1 HP!', '#4ade80');
+                  logBattle(`🍋 레모네이드 짐 능력 발동! 손패 1장을 버리고 체력 +1 회복.`);
+                }
+              }
+            }
+          }
+        } else if (card.code === 'TORNADO') {
+          G.discardPile.push(card);
+          logBattle(`🌪️ ${player.name}이(가) [토네이도]를 발동! 모든 생존자가 1장을 버리고 2장을 뽑습니다.`);
+          for (const p of G.players) {
+            if (!p.isAlive) continue;
+            if (p.hand.length > 0) {
+              const disc = p.hand.pop();
+              G.discardPile.push(disc);
+              await FX.flyCard(disc, p.id, 'discard', 200);
+            }
+            drawCards(p, 2, true);
+          }
+        } else if (card.code === 'POKER') {
+          G.discardPile.push(card);
+          logBattle(`🃏 ${player.name}이(가) [포커]를 선언! 타인 전원이 손패 1장씩 공개합니다.`);
+          const revealed = [];
+          for (let off = 1; off < G.players.length; off++) {
+            const p = G.players[(player.id + off) % G.players.length];
+            if (p.isAlive && p.hand.length > 0) {
+              const pick = p.hand.pop();
+              revealed.push(pick);
+              await FX.flyCard(pick, p.id, 'center', 240);
+              checkSuzyLafayette(p);
+            }
+          }
+          const hasAce = revealed.some(c => c.rank === 'A');
+          if (hasAce) {
+            revealed.forEach(c => G.discardPile.push(c));
+            logBattle(`🃏 포커 공개 카드에 에이스(A)가 있어 모두 버림 더미로 갑니다!`);
+          } else if (revealed.length > 0) {
+            let takeCount = Math.min(2, revealed.length);
+            let pool = [...revealed];
+            for (let k = 0; k < takeCount; k++) {
+              let chosen;
+              if (player.isAI || player.id !== G.mySeatIndex) {
+                chosen = pool.shift();
+              } else {
+                chosen = await openChoiceModal(
+                  `🃏 포커 보상 (${k + 1}/${takeCount})`,
+                  '에이스가 없습니다! 가져갈 카드를 선택하세요.',
+                  pool.map(c => ({ card: c, value: c }))
+                );
+                pool = pool.filter(c => c.id !== chosen.id);
+              }
+              player.hand.push(chosen);
+              await FX.flyCard(chosen, 'center', player.id, 260);
+            }
+            pool.forEach(c => G.discardPile.push(c));
+            logBattle(`🃏 ${player.name}이(가) 포커에서 ${takeCount}장을 획득했습니다!`);
+          }
+        } else if (card.code === 'BANDIDOS') {
+          G.discardPile.push(card);
+          logBattle(`🏴‍☠️ ${player.name}이(가) [산적단]을 불러 타인 전원에게 카드 2장 또는 1 피해를 강요합니다!`);
+          for (let off = 1; off < G.players.length; off++) {
+            const p = G.players[(player.id + off) % G.players.length];
+            if (!p.isAlive) continue;
+            G.autoTargetIndex = p.id; applyCameraTransform();
+            let discardTwo = false;
+            if (p.hand.length >= 2) {
+              if (p.isAI) {
+                discardTwo = p.hand.length >= 3 || p.hp <= 1;
+              } else if (p.id === G.mySeatIndex) {
+                discardTwo = await openChoiceModal(
+                  '🏴‍☠️ 산적단 습격!',
+                  '손패 2장을 버리거나 1 피해를 입어야 합니다.',
+                  [
+                    { label: '🃏 손패 2장 버리기', value: true },
+                    { label: '💥 1 피해 받기', value: false }
+                  ]
+                );
+              }
+            }
+            if (discardTwo && p.hand.length >= 2) {
+              const d1 = p.hand.pop();
+              const d2 = p.hand.pop();
+              G.discardPile.push(d1, d2);
+              await FX.flyCard(d1, p.id, 'discard', 200);
+              await FX.flyCard(d2, p.id, 'discard', 200);
+              checkSuzyLafayette(p);
+              logBattle(`🃏 ${p.name}이(가) 산적단에게 카드 2장을 바쳤습니다.`);
+            } else {
+              applyDamage(p, 1, player);
+            }
+          }
+          G.autoTargetIndex = null; applyCameraTransform();
         } else if (card.code === 'WHISKY') {
           await FX.playBeer(card, player.id);
           G.discardPile.push(card);
@@ -3332,7 +3700,7 @@
       document.getElementById('target-select-banner').classList.add('hidden');
     }
 
-    async function executeTargetedCard(attacker, target, card, isEffectiveBang = false) {
+    async function executeTargetedCard(attacker, target, card, isEffectiveBang = false, skipBangCount = false) {
       G.autoTargetIndex = target.id;
       applyCameraTransform();
 
@@ -3345,11 +3713,11 @@
         return;
       }
 
-      if (card.code === 'JAIL') {
+      if (['JAIL', 'RATTLESNAKE', 'BOUNTY'].includes(card.code)) {
         await FX.playEquip(card, target.id);
         SFX.playEquip();
         target.equipment.push(card);
-        logBattle(`🔒 ${attacker.name}이(가) ${target.name}에게 감옥을 채웠습니다.`);
+        logBattle(`${card.icon} ${attacker.name}이(가) ${target.name} 앞에 [${card.name}]을(를) 배치했습니다.`);
         G.autoTargetIndex = null; applyCameraTransform(); syncAllBoards();
         return;
       }
@@ -3364,8 +3732,26 @@
         return;
       }
 
-      if (isEffectiveBang || ['BANG', 'PUNCH', 'SPRINGFIELD'].includes(card.code)) {
-        if (isEffectiveBang || card.code === 'BANG') {
+      // Escape card or Mick Defender blocking non-BANG single-target brown cards
+      if (!isEffectiveBang && ['PANIC', 'CAT_BALOU', 'RAG_TIME', 'DUEL'].includes(card.code)) {
+        const hasEscape = target.hand.some(c => c.code === 'ESCAPE');
+        const isMick = target.character.id === 'MICK_DEFENDER';
+        if (hasEscape || isMick) {
+          const reqType = isMick ? 'MISSED' : 'ESCAPE';
+          const res = await requestReaction(target, reqType, `${attacker.name}의 [${card.name}] 효과를 무효화하시겠습니까?`, false);
+          if (res === true || res?.defended) {
+            if (isMick) target.abilityRevealed = true;
+            G.discardPile.push(card);
+            FX.showFloatText(target.id, '🏃 무효화!', '#38bdf8');
+            logBattle(`🏃 ${target.name}이(가) [${card.name}] 효과를 무효화했습니다!`);
+            G.autoTargetIndex = null; applyCameraTransform(); syncAllBoards();
+            return;
+          }
+        }
+      }
+
+      if (isEffectiveBang || ['BANG', 'PUNCH', 'SPRINGFIELD', 'TOMAHAWK', 'AIM'].includes(card.code)) {
+        if ((isEffectiveBang || card.code === 'BANG') && !skipBangCount) {
           G.bangsPlayedThisTurn++;
           if (G.bangsPlayedThisTurn > 1 && attacker.character.id === 'WILLY_THE_KID') attacker.abilityRevealed = true;
         }
@@ -3376,41 +3762,81 @@
         await FX.playCenterSpinAndHold(card, attacker.id);
         logBattle(`🔫 ${attacker.name}이(가) ${target.name}에게 [${card.name}]을(를) 사용했습니다!`);
 
+        let unavoidable = false;
+        if ((isEffectiveBang || card.code === 'BANG') && attacker.character.id === 'COLORADO_BILL') {
+          attacker.abilityRevealed = true;
+          const cbRes = await performDrawCheck(attacker, '콜로라도 빌 판정', c => c.suit === '♠');
+          if (cbRes.success) {
+            unavoidable = true;
+            logBattle(`🤠 콜로라도 빌 판정 성공(♠)! 회피할 수 없는 일격!`);
+          }
+        }
+
         const isSniperEvent = G.activeEvent?.id === 'SNIPER' && (isEffectiveBang || card.code === 'BANG');
         const neededMissed = ((attacker.character.id === 'SLAB_THE_KILLER' && (isEffectiveBang || card.code === 'BANG')) || isSniperEvent) ? 2 : 1;
         if (attacker.character.id === 'SLAB_THE_KILLER' && neededMissed === 2) attacker.abilityRevealed = true;
 
-        let dodged = 0, barrelUsed = false, jourdonnaisUsed = false;
-        for (let i = 0; i < neededMissed; i++) {
-          const res = await requestReaction(
-            target, 'MISSED',
-            `${attacker.name}의 [${card.name}] 공격 (${dodged}/${neededMissed} 방어). 빗나감!으로 회피하세요.`,
-            true, { barrelUsed, jourdonnaisUsed }
-          );
-          if (res?.barrelUsed) barrelUsed = true;
-          if (res?.jourdonnaisUsed) jourdonnaisUsed = true;
-          if (res === true || res?.defended) dodged++;
-          else break;
+        let dodged = 0, barrelUsed = false, jourdonnaisUsed = false, triggeredBackfire = false;
+        if (!unavoidable) {
+          for (let i = 0; i < neededMissed; i++) {
+            const res = await requestReaction(
+              target, 'MISSED',
+              `${attacker.name}의 [${card.name}] 공격 (${dodged}/${neededMissed} 방어). 빗나감!으로 회피하세요.`,
+              true, { barrelUsed, jourdonnaisUsed }
+            );
+            if (res?.barrelUsed) barrelUsed = true;
+            if (res?.jourdonnaisUsed) jourdonnaisUsed = true;
+            if (res?.backfire) triggeredBackfire = true;
+            if (res === true || res?.defended) dodged++;
+            else break;
+          }
         }
         G.discardPile.push(card);
         if (dodged >= neededMissed) {
           await FX.playBangBlocked(card, attacker.id, target.id);
           FX.showFloatText(target.id, '🛡️ 빗나감!', '#38bdf8');
           logBattle(`🛡️ ${target.name}이(가) 공격을 완벽히 회피했습니다.`);
+          if (triggeredBackfire && attacker.isAlive && target.isAlive) {
+            logBattle(`🔥 [역화] 발동! ${target.name}이(가) ${attacker.name}에게 반격 뱅!을 날립니다!`);
+            G.autoTargetIndex = attacker.id; applyCameraTransform();
+            const bfRes = await requestReaction(attacker, 'MISSED', `${target.name}의 [역화] 반격! 빗나감!으로 방어하세요.`, true);
+            if (!(bfRes === true || bfRes?.defended)) {
+              await FX.playBangHit(card, target.id, attacker.id, false);
+              applyDamage(attacker, 1, target);
+            } else {
+              await FX.playBangBlocked(card, target.id, attacker.id);
+            }
+          }
         } else {
+          const dmg = card.code === 'AIM' ? 2 : 1;
           await FX.playBangHit(card, attacker.id, target.id, false);
-          applyDamage(target, 1, attacker);
+          applyDamage(target, dmg, attacker);
+          // Shotgun effect: discard 1 card from hit target
+          if ((isEffectiveBang || card.code === 'BANG') && target.isAlive && attacker.isAlive &&
+              attacker.equipment.some(e => e.shotgun) && !isEquipmentNegatedByBelleStar(attacker) &&
+              (target.hand.length > 0 || target.equipment.length > 0)) {
+            await discardCardFromPlayer(target, false);
+            logBattle(`🔫 [산탄총] 효과! ${target.name}의 카드 1장이 제거되었습니다.`);
+          }
+          // Bounty effect: attacker draws 1 card when target is hit by BANG!
+          if ((isEffectiveBang || card.code === 'BANG') && attacker.isAlive && target.equipment.some(e => e.code === 'BOUNTY')) {
+            drawCards(attacker, 1, true);
+            FX.showFloatText(attacker.id, '💰 현상금 +1장!', '#fbbf24');
+            logBattle(`💰 [현상금] 발동! ${attacker.name}이(가) 카드 1장을 획득했습니다.`);
+          }
         }
       } else if (card.code === 'PANIC' || card.code === 'RAG_TIME') {
         await FX.flyCard(card, attacker.id, target.id, 380);
         G.discardPile.push(card);
         await stealCardFromPlayer(attacker, target, !attacker.isAI && attacker.id === G.mySeatIndex);
         logBattle(`🤏 ${attacker.name}이(가) [${card.name}]으로 ${target.name}의 카드를 강탈했습니다.`);
+        await checkHenryBlockCounter(target, attacker, card);
       } else if (card.code === 'CAT_BALOU') {
         await FX.flyCard(card, attacker.id, target.id, 380);
         G.discardPile.push(card);
         await discardCardFromPlayer(target, !attacker.isAI && attacker.id === G.mySeatIndex);
         logBattle(`🔥 ${attacker.name}이(가) ${target.name}의 카드를 캣 벌로우로 제거했습니다.`);
+        await checkHenryBlockCounter(target, attacker, card);
       } else if (card.code === 'DUEL') {
         await FX.playCenterSpinAndHold(card, attacker.id);
         G.discardPile.push(card);
@@ -3422,7 +3848,21 @@
       syncAllBoards();
     }
 
-    /* ===================================================================
+    async function checkHenryBlockCounter(victim, offender, refCard) {
+      if (!victim || !victim.isAlive || !offender || !offender.isAlive || victim.id === offender.id) return;
+      if (victim.character.id !== 'HENRY_BLOCK') return;
+      victim.abilityRevealed = true;
+      logBattle(`🥊 헨리 블록 반격! ${offender.name}에게 즉시 뱅! 공격을 가합니다!`);
+      G.autoTargetIndex = offender.id; applyCameraTransform();
+      const res = await requestReaction(offender, 'MISSED', `🥊 헨리 블록의 반격 뱅! 빗나감!으로 방어하세요.`, true);
+      if (!(res === true || res?.defended)) {
+        await FX.playBangHit(refCard, victim.id, offender.id, false);
+        applyDamage(offender, 1, victim);
+      } else {
+        await FX.playBangBlocked(refCard, victim.id, offender.id);
+      }
+    }
+        /* ===================================================================
        10. REACTION SYSTEM (LOCAL + ONLINE GUEST + BARREL / DODGE / GREEN)
        =================================================================== */
     function showLocalReactionModal(req) {
@@ -3515,7 +3955,7 @@
 
       const matchFn = (c) => {
         if (c.code === requiredCode) return true;
-        if (requiredCode === 'MISSED' && c.code === 'DODGE') return true;
+        if (requiredCode === 'MISSED' && (c.code === 'DODGE' || c.code === 'BACKFIRE' || c.code === 'ESCAPE')) return true;
         if (targetPlayer.character.id === 'CALAMITY_JANET' && (c.code === 'BANG' || c.code === 'MISSED')) return true;
         if (requiredCode === 'MISSED' && targetPlayer.character.id === 'ELENA_FUENTE') return true;
         return false;
@@ -3526,6 +3966,7 @@
 
       if (!readyGreenDef && matchingCards.length === 0) return false;
 
+      let usedBackfire = false;
       const consumeDefense = async () => {
         if (readyGreenDef) {
           targetPlayer.equipment = targetPlayer.equipment.filter(e => e.id !== readyGreenDef.id);
@@ -3536,8 +3977,9 @@
           logBattle(`🌿 ${targetPlayer.name}이(가) 초록 카드 [${readyGreenDef.name}]으로 방어했습니다!`);
         } else {
           const played = matchingCards[0];
+          if (played.code === 'BACKFIRE') usedBackfire = true;
           targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
-          if (played.code !== requiredCode && played.code !== 'DODGE') targetPlayer.abilityRevealed = true;
+          if (played.code !== requiredCode && !['DODGE', 'BACKFIRE', 'ESCAPE'].includes(played.code)) targetPlayer.abilityRevealed = true;
           G.discardPile.push(played);
           await FX.flyCard(played, targetPlayer.id, 'discard', 300);
           SFX.playRicochet();
@@ -3557,11 +3999,11 @@
       if (targetPlayer.isAI) {
         await sleep(360);
         await consumeDefense();
-        return { defended: true, barrelUsed, jourdonnaisUsed };
+        return { defended: true, barrelUsed, jourdonnaisUsed, backfire: usedBackfire };
       }
 
       const primaryName = readyGreenDef ? readyGreenDef.name : matchingCards[0].name;
-      const btnLabel = requiredCode === 'MISSED' ? `🛡️ ${primaryName} 사용` : `🎯 ${primaryName} 제출`;
+      const btnLabel = requiredCode === 'MISSED' ? `🛡️ ${primaryName} 사용` : (requiredCode === 'ESCAPE' ? `🏃 ${primaryName} 사용` : `🎯 ${primaryName} 제출`);
 
       let accepted = false;
       if (targetPlayer.id === G.mySeatIndex) {
@@ -3583,7 +4025,7 @@
 
       if (accepted) {
         await consumeDefense();
-        return { defended: true, barrelUsed, jourdonnaisUsed };
+        return { defended: true, barrelUsed, jourdonnaisUsed, backfire: usedBackfire };
       }
       return false;
     }
@@ -3864,6 +4306,8 @@
       if (!curP || !curP.isAlive) { nextTurn(); return; }
 
       G.bangsPlayedThisTurn = 0;
+      G.blackFlowerUsedThisTurn = false;
+      G.derSpotUsedThisTurn = false;
       G.autoTargetIndex = null;
       G.isBusy = true;
 
@@ -3930,6 +4374,19 @@
           syncAllBoards();
         }
 
+        // Rattlesnake Check (Shadow Valley - stays in front of player)
+        if (curP.equipment.some(e => e.code === 'RATTLESNAKE')) {
+          const rRes = await performDrawCheck(curP, '방울뱀 판정', c => c.suit !== '♠');
+          if (!rRes.success) {
+            logBattle(`🐍 방울뱀에 물렸습니다(♠)! ${curP.name}에게 1 피해!`);
+            applyDamage(curP, 1);
+            if (!curP.isAlive) { G.isBusy = false; nextTurn(); return; }
+          } else {
+            logBattle(`🐍 방울뱀 판정 통과! 피해를 입지 않았습니다.`);
+          }
+          syncAllBoards();
+        }
+
         // Turn Start Draw
         if (curP.character.id === 'KIT_CARLSON') {
           curP.abilityRevealed = true;
@@ -3993,11 +4450,46 @@
             curP.abilityRevealed = true;
             drawAmt = 1 + Math.max(0, curP.maxHp - curP.hp);
             logBattle(`🎭 빌 노페이스 능력 발동! 1 + 잃은 체력만큼 총 ${drawAmt}장을 뽑습니다.`);
+          } else if (curP.character.id === 'TUCO_FRANZISKANER' && !curP.equipment.some(e => e.type === 'blue')) {
+            curP.abilityRevealed = true;
+            drawAmt += 2;
+            logBattle(`🏜️ 투코 프란치스카너 능력 발동! 파란 장비가 없어 2장 추가 드로우!`);
           }
           if (G.activeEvent?.id === 'THIRST') drawAmt = Math.max(1, drawAmt - 1);
           else if (G.activeEvent?.id === 'GOLD_RUSH') drawAmt += 1;
 
+          // Evelyn Shebang: trade 1 draw for a free BANG! in range
+          let evelynFreeTarget = null;
+          if (curP.character.id === 'EVELYN_SHEBANG' && drawAmt >= 2 && !curP.isAI && curP.id === G.mySeatIndex) {
+            const inRange = G.players.filter(p => p.id !== curP.id && p.isAlive && calculateDistance(curP.id, p.id) <= getWeaponRange(curP));
+            if (inRange.length > 0) {
+              evelynFreeTarget = await openChoiceModal(
+                '🎯 에블린 쉬뱅 능력',
+                '드로우 1장을 포기하고 사거리 내 대상에게 무료 뱅!을 쏘시겠습니까?',
+                [
+                  ...inRange.map(t => ({ label: `🎯 ${t.name}에게 무료 뱅! (1장만 드로우)`, value: t })),
+                  { label: `🃏 일반 ${drawAmt}장 드로우`, value: null }
+                ]
+              );
+              if (evelynFreeTarget) {
+                curP.abilityRevealed = true;
+                drawAmt = Math.max(1, drawAmt - 1);
+              }
+            }
+          }
+
           const drawn = drawCards(curP, drawAmt, true);
+          if (evelynFreeTarget && evelynFreeTarget.isAlive) {
+            const virtualBang = { id: `ev_${Date.now()}`, code: 'BANG', name: '에블린 쉬뱅', type: 'brown', icon: '🎯', suit: '♠', rank: 'A' };
+            logBattle(`🎯 에블린 쉬뱅 능력 발동! ${evelynFreeTarget.name}에게 무료 뱅!을 발사합니다.`);
+            const evRes = await requestReaction(evelynFreeTarget, 'MISSED', `🎯 에블린 쉬뱅의 무료 뱅! 빗나감!으로 회피하세요.`, true);
+            if (!(evRes === true || evRes?.defended)) {
+              await FX.playBangHit(virtualBang, curP.id, evelynFreeTarget.id, false);
+              applyDamage(evelynFreeTarget, 1, curP);
+            } else {
+              await FX.playBangBlocked(virtualBang, curP.id, evelynFreeTarget.id);
+            }
+          }
           if (curP.character.id === 'BLACK_JACK' && drawn[1]) {
             const isRed = drawn[1].suit === '♥' || drawn[1].suit === '♦';
             if (isRed) {
@@ -4063,7 +4555,7 @@
         }
 
         const equip = ai.hand.find(c =>
-          ((c.type === 'blue' && c.code !== 'JAIL') || c.type === 'green') &&
+          isSelfEquipCard(c) &&
           (c.code === 'WEAPON'
             ? (!ai.equipment.some(e => e.code === 'WEAPON') || c.range > getWeaponRange(ai))
             : (G.settings.allowDuplicateBlue || !ai.equipment.some(e => e.code === c.code)))
@@ -4149,8 +4641,7 @@
         nextTurn();
       }
     }
-
-    async function handleEndTurnClick() {
+        async function handleEndTurnClick() {
       const me = G.players[G.mySeatIndex];
       if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy) return;
       const limit = getHandEndTurnLimit(me);
@@ -4835,9 +5326,10 @@
       closeSettingsModal,
       onVolumeSliderChange,
       setCardPlayMode,
+      selectFirstPlayMode,
       openCreateRoomModal,
       closeCreateRoomModal,
-      onToggleOneVsOne,
+      onRoomMaxChange,
       createRoomSubmit,
       attemptJoinRoom,
       closePwModal,

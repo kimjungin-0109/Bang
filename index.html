@@ -136,20 +136,22 @@
       background: linear-gradient(145deg, #efe0c4 0%, #d8b989 55%, #c19761 100%);
       border: 3px solid #59351c;
       border-radius: 14px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.72), inset 0 0 16px rgba(89, 53, 28, 0.35);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.65), inset 0 0 14px rgba(89, 53, 28, 0.3);
       color: #2b170e;
       padding: 6px 8px 8px;
       display: flex;
       flex-direction: column;
-      transition: box-shadow 0.25s ease, filter 0.25s ease;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      transition: box-shadow 0.22s ease, border-color 0.22s ease, filter 0.22s ease;
     }
     .parchment-board.active-turn {
-      border-color: #fbbf24;
-      box-shadow: 0 0 0 3px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8), 0 12px 28px rgba(0,0,0,0.8);
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2.5px #fbbf24, 0 8px 20px rgba(0, 0, 0, 0.78);
     }
     .parchment-board.target-highlight {
       border-color: #ef4444 !important;
-      box-shadow: 0 0 0 5px #ef4444, 0 0 36px rgba(239, 68, 68, 0.95) !important;
+      box-shadow: 0 0 0 4px #ef4444, 0 0 18px rgba(239, 68, 68, 0.75) !important;
       cursor: pointer !important;
       animation: targetPulse 0.85s infinite alternate;
     }
@@ -171,11 +173,13 @@
       background: #fdfbf7;
       border-radius: 10px;
       padding: 4px;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.5);
       color: #1c120c;
       position: relative;
       display: flex;
       flex-direction: column;
+      word-break: keep-all;
+      overflow-wrap: break-word;
     }
     .bang-card-inner {
       flex: 1;
@@ -250,13 +254,32 @@
       animation: edgeBubbleFade 0.35s ease-in forwards;
     }
 
-    /* Hand Dock Cards (Zero Clipping!) */
+    /* Hand Dock Cards (Zero Clipping & Crisp Korean Readability) */
     .hand-card-item {
-      width: 100px;
-      height: 134px;
+      width: 108px;
+      height: 140px;
       flex-shrink: 0;
       cursor: pointer;
       transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+    @media (max-width: 640px) {
+      .hand-card-item {
+        width: 96px;
+        height: 128px;
+      }
+    }
+    .card-desc-text {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      line-height: 1.22;
+    }
+    .overview-board-card {
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .overview-board-card:hover {
+      transform: translateY(-3px) scale(1.015);
+      box-shadow: 0 0 0 2.5px #fbbf24, 0 14px 28px rgba(0, 0, 0, 0.85);
     }
     .hand-card-item:hover {
       transform: translateY(-14px) scale(1.04);
@@ -465,35 +488,24 @@
   <!-- ==================== 4. MAIN GAME SCREEN ==================== -->
   <div id="screen-game" class="hidden h-screen w-screen flex flex-col overflow-hidden">
 
-    <!-- TOP MAHOGANY HUD BAR (Fixed 48px, whitespace-nowrap) -->
-    <header class="h-12 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-900/70 px-3 sm:px-4 flex items-center justify-between gap-2 z-30 shadow-lg">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <span class="font-western text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
-        <div class="px-2.5 py-1 bg-stone-900/90 border border-amber-700/60 rounded-lg text-xs font-bold text-amber-200 whitespace-nowrap truncate">
-          턴: <span id="hud-turn-player">-</span>
+    <!-- TOP MAHOGANY HUD BAR (Slim 44px, High Contrast) -->
+    <header class="h-11 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-800/80 px-3 sm:px-4 flex items-center justify-between gap-2 z-30 shadow-lg">
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="font-western text-lg sm:text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
+        <div class="px-2.5 py-0.5 bg-stone-900 border border-amber-600/80 rounded-lg text-xs font-bold text-amber-100 whitespace-nowrap truncate">
+          턴: <span id="hud-turn-player" class="text-amber-300">-</span>
         </div>
-        <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-1 bg-orange-950/90 hover:bg-orange-900 border border-orange-500/80 rounded-lg text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[190px] transition" title="현재 라운드 이벤트">
+        <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-0.5 bg-orange-950/95 hover:bg-orange-900 border border-orange-500/80 rounded-lg text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 라운드 이벤트">
           ☀️ 이벤트
         </button>
       </div>
 
-      <!-- Camera Controls & Zoom -->
-      <div class="flex items-center gap-1 overflow-x-auto thin-scroll py-0.5">
-        <button id="cam-btn-auto" onclick="setCameraMode('auto')" class="px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition bg-amber-500 text-stone-950">자동 A</button>
-        <button id="cam-btn-overview" onclick="setCameraMode('overview')" class="px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition bg-stone-800 text-stone-300 hover:bg-stone-700">전체 0</button>
-        <div id="cam-seat-buttons" class="flex items-center gap-1"></div>
-        <span class="text-stone-700 mx-1">|</span>
-        <button onclick="adjustZoom(-0.15)" class="w-6 h-6 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-bold rounded text-xs">-</button>
-        <span id="hud-zoom-val" class="text-[11px] font-bold text-amber-300 w-10 text-center whitespace-nowrap">100%</span>
-        <button onclick="adjustZoom(0.15)" class="w-6 h-6 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-bold rounded text-xs">+</button>
-      </div>
-
-      <!-- Right Controls -->
+      <!-- Right Controls (High-Contrast Icons) -->
       <div class="flex items-center gap-1.5 flex-shrink-0">
-        <button onclick="openSettingsModal()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-bold rounded-lg border border-stone-700 whitespace-nowrap" title="음량 및 카드 방식 설정">⚙️</button>
-        <button id="btn-mute" onclick="toggleMute()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold rounded-lg border border-stone-700 whitespace-nowrap">🔊</button>
-        <button onclick="toggleLogDrawer()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-bold rounded-lg border border-amber-800/60 whitespace-nowrap">📜 기록</button>
-        <button onclick="openExitConfirm()" class="px-2.5 py-1 bg-red-950 hover:bg-red-900 text-red-200 text-xs font-bold rounded-lg border border-red-800/80 whitespace-nowrap">나가기</button>
+        <button onclick="openSettingsModal()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm" title="음량 및 카드 방식 설정">⚙️ 설정</button>
+        <button id="btn-mute" onclick="toggleMute()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm">🔊</button>
+        <button onclick="toggleLogDrawer()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm">📜 기록</button>
+        <button onclick="openExitConfirm()" class="px-2.5 py-1 bg-red-900 hover:bg-red-800 text-red-50 text-xs font-bold rounded-lg border border-red-500/80 whitespace-nowrap shadow-sm">나가기</button>
       </div>
     </header>
 
@@ -540,6 +552,35 @@
         <div id="fx-layer" class="absolute inset-0 pointer-events-none z-40"></div>
       </div>
 
+      <!-- Left-Top Vertical Camera & View Bar -->
+      <nav id="left-camera-bar" class="absolute top-2.5 left-2.5 z-35 w-[82px] sm:w-[92px] bg-stone-950/90 border border-amber-700/75 rounded-2xl p-1.5 shadow-2xl backdrop-blur-sm flex flex-col gap-1 max-h-[calc(100%-20px)] overflow-y-auto thin-scroll">
+        <div class="text-[9px] font-black text-amber-400/90 text-center tracking-wider">화면 크기</div>
+        <div class="flex items-center justify-between gap-0.5 bg-stone-900/90 border border-stone-700/80 rounded-lg px-1 py-0.5">
+          <button onclick="adjustZoom(-0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">-</button>
+          <span id="hud-zoom-val" class="text-[10px] font-black text-amber-300 text-center whitespace-nowrap">100%</span>
+          <button onclick="adjustZoom(0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">+</button>
+        </div>
+        <div class="h-px bg-amber-900/60 my-0.5"></div>
+        <button id="cam-btn-overview" onclick="setCameraMode('overview')" class="w-full py-1 px-1.5 text-[11px] font-bold rounded-lg text-center transition bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700">전체 0</button>
+        <button id="cam-btn-auto" onclick="setCameraMode('auto')" class="w-full py-1 px-1.5 text-[11px] font-black rounded-lg text-center transition bg-amber-500 text-stone-950">자동 A</button>
+        <div class="h-px bg-amber-900/60 my-0.5"></div>
+        <div id="cam-seat-buttons" class="flex flex-col gap-1"></div>
+      </nav>
+
+      <!-- Blurred Full-Grid Overview Overlay -->
+      <div id="overview-grid-overlay" class="hidden absolute inset-0 z-45 backdrop-blur-md bg-black/75 flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
+        <div class="flex items-center justify-between max-w-6xl w-full mx-auto mb-2 flex-shrink-0">
+          <div class="text-sm sm:text-base font-black text-amber-300">🗺️ 전체 플레이어 현황 <span class="text-xs font-bold text-stone-300 ml-1">(판을 클릭하면 확대됩니다)</span></div>
+          <span id="overview-count-badge" class="text-xs font-bold text-amber-200 bg-stone-900/90 border border-amber-700/60 px-2.5 py-0.5 rounded-full">0명</span>
+        </div>
+        <div id="overview-grid-cards" class="flex-1 max-w-6xl w-full mx-auto grid gap-3 overflow-y-auto thin-scroll items-center content-center py-1"></div>
+        <div class="flex justify-center pt-3 flex-shrink-0">
+          <button onclick="closeOverviewGrid('auto')" class="px-8 py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-200 border-2 border-amber-500/90 font-black text-sm rounded-2xl shadow-2xl transition active:scale-95">
+            취소 (자동 화면으로)
+          </button>
+        </div>
+      </div>
+
       <!-- Target Selection Banner -->
       <div id="target-select-banner" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-red-950/95 border-2 border-red-400 px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-4">
         <span id="target-select-text" class="text-sm font-black text-amber-100">🎯 대상을 클릭하여 선택하세요.</span>
@@ -565,8 +606,8 @@
       <!-- Speech Bubbles Overlay Layer (On-Screen & Off-Screen Edge Indicators) -->
       <div id="speech-bubble-layer" class="absolute inset-0 pointer-events-none z-45 overflow-hidden"></div>
 
-      <!-- Compact Chat & Emoticon Bar (Positioned directly above "내 손패", never overlapping center deck!) -->
-      <div id="dock-chat-widget" class="absolute bottom-2 left-3 z-35 flex flex-col items-start gap-1.5 max-w-[calc(100vw-24px)]">
+      <!-- Compact Chat & Emoticon Bar (Bottom-Right to balance Left Camera Bar) -->
+      <div id="dock-chat-widget" class="absolute bottom-2 right-3 z-35 flex flex-col items-end gap-1.5 max-w-[calc(100vw-24px)]">
         <!-- Expandable Chat History Popup -->
         <div id="chat-history-popup" class="hidden w-72 sm:w-80 h-52 bg-stone-950/95 border-2 border-emerald-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-sm">
           <div class="px-3 py-1.5 bg-emerald-950/80 border-b border-emerald-800/60 flex items-center justify-between">
@@ -592,23 +633,26 @@
           <button onclick="sendEmote('❤️')" class="w-9 h-9 text-xl hover:bg-amber-500/20 rounded-xl transition active:scale-90">❤️</button>
         </div>
 
-        <!-- Inline Chat Input + Emoticon Button on its Right -->
-        <div class="flex items-center gap-1.5 bg-stone-950/90 border border-emerald-700/70 rounded-2xl px-2 py-1.5 shadow-xl backdrop-blur-sm">
-          <button onclick="toggleChatHistory()" class="relative px-2 py-1 bg-stone-900 hover:bg-stone-800 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-800/60 transition" title="채팅 기록 보기">
+        <!-- Inline Chat Input + Emoticon Button + Collapse Toggle -->
+        <div class="flex items-center gap-1.5 bg-stone-950/90 border border-emerald-700/75 rounded-2xl px-2 py-1 shadow-xl backdrop-blur-sm">
+          <button onclick="toggleChatHistory()" class="relative px-2 py-1 bg-stone-900 hover:bg-stone-800 text-emerald-300 text-xs font-bold rounded-xl border border-emerald-700/70 transition" title="채팅 기록 보기">
             💬
             <span id="chat-unread-badge" class="hidden absolute -top-1.5 -right-1.5 min-w-[15px] h-4 px-1 rounded-full bg-red-600 text-white text-[9px] font-black flex items-center justify-center">0</span>
           </button>
-          <input id="chat-input" type="text" maxlength="80" placeholder="채팅 입력 (Enter)"
-            onkeydown="if(event.key==='Enter'){event.preventDefault();sendChatMessage();}"
-            class="w-36 sm:w-44 bg-stone-900/90 border border-stone-700 rounded-xl px-2.5 py-1 text-xs text-amber-100 focus:outline-none focus:border-emerald-500" />
-          <button onclick="sendChatMessage()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition active:scale-95 whitespace-nowrap">전송</button>
-          <button onclick="toggleEmotePicker()" class="px-2.5 py-1 bg-amber-600/90 hover:bg-amber-500 text-stone-950 text-xs font-black rounded-xl transition active:scale-95 whitespace-nowrap" title="이모티콘 보내기">😊</button>
+          <div id="chat-input-group" class="flex items-center gap-1.5">
+            <input id="chat-input" type="text" maxlength="80" placeholder="채팅 입력 (Enter)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();sendChatMessage();}"
+              class="w-32 sm:w-44 bg-stone-900/90 border border-stone-700 rounded-xl px-2.5 py-1 text-xs text-amber-100 focus:outline-none focus:border-emerald-500" />
+            <button onclick="sendChatMessage()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-xl transition active:scale-95 whitespace-nowrap">전송</button>
+            <button onclick="toggleEmotePicker()" class="px-2 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-black rounded-xl transition active:scale-95 whitespace-nowrap" title="이모티콘 보내기">😊</button>
+          </div>
+          <button id="btn-chat-collapse" onclick="toggleChatDock()" class="px-1.5 py-1 bg-stone-900 hover:bg-stone-800 text-stone-300 text-[10px] font-bold rounded-lg border border-stone-700" title="채팅창 접기/펼치기">▸</button>
         </div>
       </div>
     </main>
 
-    <!-- BOTTOM MAHOGANY HAND DOCK (214px tall -> ZERO card clipping!) -->
-    <footer class="h-[214px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/70 px-4 pt-2 pb-2 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative">
+    <!-- BOTTOM MAHOGANY HAND DOCK (Compact & Zero Clipping!) -->
+    <footer class="h-[196px] sm:h-[212px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/75 px-3 sm:px-4 pt-1.5 pb-1.5 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative overflow-visible">
       <!-- Floating Quick-Action Pill for Selected Card -->
       <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-40 bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2.5">
         <span id="pill-card-name" class="text-xs font-black text-amber-200">카드</span>
@@ -712,7 +756,8 @@
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">확인</button>
     </div>
   </div>
-    <!-- Create Room Modal (With 6 Custom Settings + Expansion Packs) -->
+
+  <!-- Create Room Modal (With 6 Custom Settings + Expansion Packs) -->
   <div id="modal-create-room" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-stone-950 border-2 border-amber-600 rounded-2xl p-6 max-w-lg w-full shadow-2xl my-auto max-h-[92vh] overflow-y-auto thin-scroll">
       <h3 class="text-xl font-black text-amber-400 mb-4">🏠 새 살롱 방 만들기</h3>
@@ -914,21 +959,24 @@
       db: null,
       auth: null,
       uid: null,
-      clientId: sessionStorage.getItem('bang_cid') || (() => {
+      clientId: localStorage.getItem('bang_cid') || sessionStorage.getItem('bang_cid') || (() => {
         const id = 'p_' + Math.random().toString(36).slice(2, 10);
-        sessionStorage.setItem('bang_cid', id);
+        localStorage.setItem('bang_cid', id);
         return id;
       })(),
       online: false,
       isHost: false,
       roomUnsub: null,
-      lastStateHash: '',
+      lastStateJson: '',
+      lastFxId: '',
       lastCeremonyPhase: '',
       lastActionId: '',
       lastReactionId: '',
+      reconnectChecked: false,
       syncTimer: null,
       heartbeatTimer: null
     };
+    localStorage.setItem('bang_cid', Net.clientId);
 
     function setNetBadge(connected, text) {
       const el = document.getElementById('net-status-badge');
@@ -951,6 +999,10 @@
             Net.online = true;
             setNetBadge(true, '🟢 실시간 멀티플레이어 연결됨');
             subscribeRoomList();
+            if (!Net.reconnectChecked) {
+              Net.reconnectChecked = true;
+              tryAutoReconnect();
+            }
           }
         });
         try {
@@ -968,11 +1020,43 @@
       }
     }
 
+    async function tryAutoReconnect() {
+      if (!Net.online || !Net.db || lobby.activeRoomId) return;
+      const savedRoomId = localStorage.getItem('bang_active_room');
+      if (!savedRoomId) return;
+      try {
+        const snap = await getDoc(doc(Net.db, APP_COL, savedRoomId));
+        if (!snap.exists()) {
+          localStorage.removeItem('bang_active_room');
+          return;
+        }
+        const room = { id: snap.id, ...snap.data() };
+        const inSlots = (room.slots || []).some(s => s && s.clientId === Net.clientId);
+        if (!inSlots || isRoomStaleOrEmpty(room)) {
+          localStorage.removeItem('bang_active_room');
+          return;
+        }
+        lobby.activeRoomId = savedRoomId;
+        Net.isHost = room.hostClientId === Net.clientId;
+        const idx = lobby.rooms.findIndex(r => r.id === room.id);
+        if (idx >= 0) lobby.rooms[idx] = room;
+        else lobby.rooms.unshift(room);
+        if (Net.isHost) startHostHeartbeat();
+        subscribeActiveRoom(savedRoomId);
+        if (room.status === 'WAITING') {
+          enterWaitingRoom(savedRoomId);
+        }
+        showToast('🔄 이전 게임 방에 자동으로 재접속했습니다!');
+      } catch (e) {
+        console.warn('Auto reconnect failed:', e);
+      }
+    }
+
     function isRoomStaleOrEmpty(room) {
       const humanCount = (room.slots || []).filter(s => s && !s.isAI).length;
       if (humanCount === 0) return true;
       const lastBeat = room.lastHeartbeat || room.updatedAt || room.createdAt || 0;
-      if (lastBeat > 0 && Date.now() - lastBeat > 22000) return true;
+      if (lastBeat > 0 && Date.now() - lastBeat > 65000) return true;
       return false;
     }
 
@@ -1054,6 +1138,7 @@
           drawCount: G.drawPile.length,
           discardPile: G.discardPile,
           turnIndex: G.turnIndex,
+          turnSeq: G.turnSeq,
           bangsPlayedThisTurn: G.bangsPlayedThisTurn,
           isBusy: G.isBusy,
           autoTargetIndex: G.autoTargetIndex,
@@ -1061,8 +1146,11 @@
           activeEvent: G.activeEvent,
           roundNumber: G.roundNumber
         };
+        const json = JSON.stringify(snap);
+        if (json === Net.lastStateJson && !immediate) return;
+        Net.lastStateJson = json;
         patchRoom(lobby.activeRoomId, {
-          stateJson: JSON.stringify(snap),
+          stateJson: json,
           updatedAt: Date.now(),
           lastHeartbeat: Date.now()
         });
@@ -1071,7 +1159,42 @@
         if (Net.syncTimer) clearTimeout(Net.syncTimer);
         push();
       } else if (!Net.syncTimer) {
-        Net.syncTimer = setTimeout(push, 180);
+        Net.syncTimer = setTimeout(push, 80);
+      }
+    }
+
+    function broadcastFxEvent(type, payload = {}) {
+      if (!Net.online || !Net.isHost || !lobby.activeRoomId || FX._isRemote) return;
+      const fxEvent = {
+        id: `fx_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        type,
+        payload
+      };
+      Net.lastFxId = fxEvent.id;
+      patchRoom(lobby.activeRoomId, { fxEvent });
+    }
+
+    async function playRemoteFxEvent(evt) {
+      if (!evt || !evt.type || document.getElementById('screen-game').classList.contains('hidden')) return;
+      FX._isRemote = true;
+      try {
+        const p = evt.payload || {};
+        if (evt.type === 'TURN_BANNER') await FX.playTurnBanner(p.text || '');
+        else if (evt.type === 'BANG_HIT') await FX.playBangHit(p.card, p.attackerIdx, p.targetIdx, !!p.isGatling);
+        else if (evt.type === 'BANG_BLOCKED') await FX.playBangBlocked(p.card, p.attackerIdx, p.targetIdx);
+        else if (evt.type === 'BEER') await FX.playBeer(p.card, p.playerIdx);
+        else if (evt.type === 'EQUIP') await FX.playEquip(p.card, p.targetIdx);
+        else if (evt.type === 'INDIANS') await FX.playIndians(p.card);
+        else if (evt.type === 'GATLING') await FX.playGatling(p.card);
+        else if (evt.type === 'DRAW_CHECK') await FX.playDrawCheck(p.card, p.label, !!p.isSuccess);
+        else if (evt.type === 'FLOAT_TEXT') FX.showFloatText(p.playerIdx, p.text, p.color);
+        else if (evt.type === 'FLY_CARD') await FX.flyCard(p.card, p.fromLoc, p.toLoc, p.duration || 320, !!p.faceDown);
+        else if (evt.type === 'CENTER_SPIN') await FX.playCenterSpinAndHold(p.card, p.fromLoc || 'center');
+        else if (evt.type === 'SHAKE') FX.triggerScreenShake(p.duration || 340);
+      } catch (e) {
+        console.warn('playRemoteFxEvent error:', e);
+      } finally {
+        FX._isRemote = false;
       }
     }
 
@@ -1081,7 +1204,7 @@
         if (Net.online && Net.isHost && lobby.activeRoomId) {
           patchRoom(lobby.activeRoomId, { lastHeartbeat: Date.now() });
         }
-      }, 6000);
+      }, 20000);
     }
 
     function stopHostHeartbeat() {
@@ -1090,20 +1213,6 @@
         Net.heartbeatTimer = null;
       }
     }
-
-    window.addEventListener('beforeunload', () => {
-      if (!Net.online || !Net.db || !lobby.activeRoomId) return;
-      const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
-      if (!room) return;
-      if (Net.isHost) {
-        deleteDoc(doc(Net.db, APP_COL, lobby.activeRoomId)).catch(() => {});
-      } else {
-        const newSlots = (room.slots || []).map(s => (s && s.clientId === Net.clientId) ? null : s);
-        const humansLeft = newSlots.filter(s => s && !s.isAI).length;
-        if (humansLeft === 0) deleteDoc(doc(Net.db, APP_COL, lobby.activeRoomId)).catch(() => {});
-        else patchRoom(lobby.activeRoomId, { slots: newSlots });
-      }
-    });
 
     /* ===================================================================
        1. USER PREFERENCES & WEB AUDIO SYNTHESIZED SFX ENGINE
@@ -1386,7 +1495,8 @@
       }
       return pool;
     }
-        function buildOfficial80Deck(expansions = []) {
+
+    function buildOfficial80Deck(expansions = []) {
       const specs = [
         // 25 BANG!
         ...['♠A','♦A','♦2','♦3','♦4','♦5','♦6','♦7','♦8','♦9','♦10','♦J','♦Q','♦K','♣2','♣3','♣4','♣5','♣6','♣7','♣8','♣9','♥Q','♥K','♥A'].map(sr => ({
@@ -1704,6 +1814,7 @@
 
       if (Net.online && Net.db) {
         await setDoc(doc(Net.db, APP_COL, roomId), roomObj);
+        localStorage.setItem('bang_active_room', roomId);
         startHostHeartbeat();
         subscribeActiveRoom(roomId);
       } else {
@@ -1756,6 +1867,7 @@
           });
           Net.isHost = false;
           lobby.activeRoomId = roomId;
+          localStorage.setItem('bang_active_room', roomId);
           ChatState.messages = [];
           ChatState.seenIds.clear();
           ChatState.unread = 0;
@@ -1781,6 +1893,7 @@
     async function leaveWaitingRoom() {
       const roomId = lobby.activeRoomId;
       const room = lobby.rooms.find(r => r.id === roomId);
+      localStorage.removeItem('bang_active_room');
       stopHostHeartbeat();
       if (Net.roomUnsub) { Net.roomUnsub(); Net.roomUnsub = null; }
 
@@ -1927,7 +2040,7 @@
 
       const charPool = getCharacterPool(s.expansions);
       const shuffledChars = [...charPool].sort(() => Math.random() - 0.5);
-            const charOptionsBySeat = {};
+      const charOptionsBySeat = {};
       const initialPicks = {};
       for (let i = 0; i < N; i++) {
         const pair = [shuffledChars[i * 2], shuffledChars[i * 2 + 1]];
@@ -2064,7 +2177,8 @@
         initGameBoardSolo(chosenChar);
       }
     }
-        /* ===================================================================
+
+    /* ===================================================================
        5. CORE GAME STATE & MULTIPLAYER BOARD INITIALIZATION
        =================================================================== */
     const G = {
@@ -2078,8 +2192,11 @@
       roundNumber: 0,
       roundStarterIndex: 0,
       turnIndex: 0,
+      turnSeq: 0,
+      isAdvancingTurn: false,
       bangsPlayedThisTurn: 0,
       isBusy: false,
+      _seatCache: {},
       cameraMode: 'auto',
       focusPlayerIndex: 0,
       autoTargetIndex: null,
@@ -2107,6 +2224,9 @@
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
       G.roundNumber = 0;
+      G.turnSeq = 0;
+      G.isAdvancingTurn = false;
+      G._seatCache = {};
       G.bangsPlayedThisTurn = 0;
       G.isBusy = false;
       G.cameraMode = 'auto';
@@ -2170,6 +2290,9 @@
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
       G.roundNumber = 0;
+      G.turnSeq = 0;
+      G.isAdvancingTurn = false;
+      G._seatCache = {};
       G.bangsPlayedThisTurn = 0;
       G.isBusy = false;
 
@@ -2210,6 +2333,7 @@
         drawCount: G.drawPile.length,
         discardPile: G.discardPile,
         turnIndex: G.turnIndex,
+        turnSeq: G.turnSeq,
         bangsPlayedThisTurn: 0,
         isBusy: false,
         autoTargetIndex: null,
@@ -2228,50 +2352,82 @@
 
     function handleRemoteGameSync(room) {
       if (!room.stateJson) return;
-      const snap = JSON.parse(room.stateJson);
+      const isGameHidden = document.getElementById('screen-game').classList.contains('hidden');
+      const stateChanged = room.stateJson !== Net.lastStateJson;
 
-      if (document.getElementById('screen-game').classList.contains('hidden')) {
-        document.getElementById('screen-ceremony').classList.add('hidden');
-        document.getElementById('screen-waiting').classList.add('hidden');
-        document.getElementById('screen-game').classList.remove('hidden');
+      if (isGameHidden || stateChanged) {
+        const snap = JSON.parse(room.stateJson);
 
-        G.players = snap.players;
-        if (snap.settings) G.settings = normalizeSettings(snap.settings);
-        const myIdx = G.players.findIndex(p => p.clientId === Net.clientId);
-        G.mySeatIndex = myIdx >= 0 ? myIdx : 0;
-        G.focusPlayerIndex = G.mySeatIndex;
+        if (isGameHidden) {
+          document.getElementById('screen-lobby').classList.add('hidden');
+          document.getElementById('screen-ceremony').classList.add('hidden');
+          document.getElementById('screen-waiting').classList.add('hidden');
+          document.getElementById('screen-game').classList.remove('hidden');
 
-        buildSeatButtonsHUD();
-        buildPlayerSeatsOnce();
-        initCentralDropZone();
-        computeFitScale();
-        setCameraMode('auto');
+          G.players = snap.players;
+          G.discardPile = snap.discardPile || [];
+          G.turnIndex = snap.turnIndex;
+          G.turnSeq = snap.turnSeq || 0;
+          G.bangsPlayedThisTurn = snap.bangsPlayedThisTurn || 0;
+          G.isBusy = false;
+          G.isAdvancingTurn = false;
+          G._seatCache = {};
+          if (snap.settings) G.settings = normalizeSettings(snap.settings);
+          const myIdx = G.players.findIndex(p => p.clientId === Net.clientId);
+          G.mySeatIndex = myIdx >= 0 ? myIdx : 0;
+          G.focusPlayerIndex = G.mySeatIndex;
+          if (Net.isHost && G.drawPile.length === 0) {
+            // Host refreshed mid-game: rebuild remaining deck from unused cards
+            G.drawPile = buildOfficial80Deck(G.settings.expansions).slice(0, snap.drawCount || 40);
+          }
 
-        if (Net.isHost) {
-          logBattle(`🌵 ${G.players.length}인 실시간 서부 대결이 시작되었습니다!`);
-          startTurnPhase();
-          return;
+          buildSeatButtonsHUD();
+          buildPlayerSeatsOnce();
+          initCentralDropZone();
+          computeFitScale();
+          setCameraMode('auto');
+
+          if (Net.isHost) {
+            Net.lastStateJson = room.stateJson;
+            document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
+            syncAllBoards();
+            renderHand();
+            if ((snap.turnSeq || 0) === 0 && !snap.isBusy && G.roundNumber === 0) {
+              logBattle(`🌵 ${G.players.length}인 실시간 서부 대결이 시작되었습니다!`);
+              startTurnPhase();
+            }
+            return;
+          }
+        }
+
+        if (!Net.isHost && (stateChanged || isGameHidden)) {
+          Net.lastStateJson = room.stateJson;
+          G.players = snap.players;
+          G.discardPile = snap.discardPile || [];
+          G.turnIndex = snap.turnIndex;
+          G.turnSeq = snap.turnSeq || 0;
+          G.bangsPlayedThisTurn = snap.bangsPlayedThisTurn || 0;
+          G.isBusy = snap.isBusy;
+          G.autoTargetIndex = snap.autoTargetIndex ?? null;
+          if (snap.settings) G.settings = normalizeSettings(snap.settings);
+          G.activeEvent = snap.activeEvent || null;
+          G.roundNumber = snap.roundNumber || 1;
+          updateEventHUD();
+          document.getElementById('deck-count-label').innerText = `덱 ${snap.drawCount ?? 0}장`;
+          document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
+          syncAllBoards();
+          renderHand();
+          applyCameraTransform();
+          checkVictory();
         }
       }
 
-      if (!Net.isHost) {
-        G.players = snap.players;
-        G.discardPile = snap.discardPile || [];
-        G.turnIndex = snap.turnIndex;
-        G.bangsPlayedThisTurn = snap.bangsPlayedThisTurn || 0;
-        G.isBusy = snap.isBusy;
-        G.autoTargetIndex = snap.autoTargetIndex ?? null;
-        if (snap.settings) G.settings = normalizeSettings(snap.settings);
-        G.activeEvent = snap.activeEvent || null;
-        G.roundNumber = snap.roundNumber || 1;
-        updateEventHUD();
-        document.getElementById('deck-count-label').innerText = `덱 ${snap.drawCount ?? 0}장`;
-        document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
-        syncAllBoards();
-        renderHand();
-        applyCameraTransform();
-        checkVictory();
-      } else if (room.guestAction && room.guestAction.id !== Net.lastActionId) {
+      if (!Net.isHost && room.fxEvent && room.fxEvent.id && room.fxEvent.id !== Net.lastFxId) {
+        Net.lastFxId = room.fxEvent.id;
+        playRemoteFxEvent(room.fxEvent);
+      }
+
+      if (Net.isHost && room.guestAction && room.guestAction.id !== Net.lastActionId) {
         Net.lastActionId = room.guestAction.id;
         processGuestActionOnHost(room.guestAction);
       }
@@ -2287,6 +2443,9 @@
     }
 
     async function processGuestActionOnHost(act) {
+      if (G.isBusy || G.isAdvancingTurn) return;
+      if (act.seat !== G.turnIndex) return;
+      if (act.turnSeq !== undefined && act.turnSeq !== G.turnSeq) return;
       const actor = G.players[act.seat];
       if (!actor || !actor.isAlive) return;
       if (act.type === 'PLAY_CARD') {
@@ -2374,13 +2533,15 @@
 
     function buildSeatButtonsHUD() {
       const wrap = document.getElementById('cam-seat-buttons');
+      if (!wrap) return;
       wrap.innerHTML = '';
       G.players.forEach((p, idx) => {
         const btn = document.createElement('button');
         btn.id = `cam-btn-p${idx}`;
         btn.onclick = () => setCameraMode('focus', idx);
-        btn.className = 'px-2 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition bg-stone-800 text-stone-300 hover:bg-stone-700';
-        btn.innerText = idx === G.mySeatIndex ? `나 ${idx + 1}` : `${idx + 1}P`;
+        btn.className = 'w-full py-1 px-1.5 text-[11px] font-bold rounded-lg text-center whitespace-nowrap truncate transition bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700';
+        btn.innerText = idx === G.mySeatIndex ? `나 ${idx + 1}` : `${idx + 1}P ${p.name.slice(0, 3)}`;
+        btn.title = `${idx + 1}P · ${p.name}`;
         wrap.appendChild(btn);
       });
     }
@@ -2388,6 +2549,7 @@
     function buildPlayerSeatsOnce() {
       const layer = document.getElementById('seats-layer');
       layer.innerHTML = '';
+      G._seatCache = {};
       G.players.forEach((p, idx) => {
         const geo = getSeatGeometry(idx, G.players.length);
         const wrap = document.createElement('div');
@@ -2407,13 +2569,14 @@
           <div id="player-board-${idx}" class="parchment-board">
             <div class="flex items-center justify-between gap-1 mb-1 px-0.5">
               <div class="flex items-center gap-1 min-w-0">
-                <span class="text-[11px] font-black text-stone-900 truncate">${idx + 1}P · ${p.name}</span>
-                <span id="p-team-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 같은 팀</span>
+                <span id="p-turn-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black whitespace-nowrap">▶ 턴</span>
+                <span class="text-xs font-black text-stone-950 truncate">${idx + 1}P · ${p.name}</span>
+                <span id="p-team-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0">
-                <span id="p-range-badge-${idx}" class="text-[10px] px-1.5 py-0.5 rounded bg-stone-800 text-amber-200 font-bold">사거리 1</span>
-                <span id="p-hp-badge-${idx}" class="text-[10px] px-2 py-0.5 rounded-full bg-red-900 text-amber-200 font-black border border-amber-400/70">🔫 4/4</span>
-                <span id="p-hand-badge-${idx}" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-900 text-amber-100 font-bold">🃏 4</span>
+                <span id="p-range-badge-${idx}" class="text-[10px] px-1.5 py-0.5 rounded bg-stone-900 text-amber-200 font-bold">사거리 1</span>
+                <span id="p-hp-badge-${idx}" class="text-[10px] px-2 py-0.5 rounded-full bg-red-900 text-amber-100 font-black border border-amber-400/80">🔫 4/4</span>
+                <span id="p-hand-badge-${idx}" class="text-[10px] px-1.5 py-0.5 rounded bg-amber-900 text-amber-50 font-bold">🃏 4</span>
               </div>
             </div>
             <div class="grid grid-cols-4 gap-1.5 flex-1">
@@ -2424,6 +2587,13 @@
             </div>
           </div>
         `;
+        const boardEl = wrap.querySelector(`#player-board-${idx}`);
+        if (boardEl && idx !== G.mySeatIndex) {
+          boardEl.addEventListener('click', (e) => {
+            if (G.selectionMode === 'target' || e.target.closest('[onclick]')) return;
+            setCameraMode('focus', idx);
+          });
+        }
         layer.appendChild(wrap);
       });
 
@@ -2485,8 +2655,19 @@
         const board = document.getElementById(`player-board-${idx}`);
         if (!wrap || !board) return;
 
+        const isActiveTurn = idx === G.turnIndex && p.isAlive;
+        const distTag = idx === G.mySeatIndex
+          ? `사거리 ${getWeaponRange(p)}`
+          : `거리 ${calculateDistance(G.mySeatIndex, idx)}`;
+        const eqKey = p.equipment.map(e => `${e.id}:${e.ready ? 1 : 0}`).join(',');
+        const seatKey = `${p.isAlive}|${isActiveTurn}|${p.hp}/${p.maxHp}|${p.hand.length}|${distTag}|${p.abilityRevealed}|${G.isBusy}|${eqKey}`;
+        if (G._seatCache[idx] === seatKey) return;
+        G._seatCache[idx] = seatKey;
+
         wrap.classList.toggle('is-dead', !p.isAlive);
-        board.classList.toggle('active-turn', idx === G.turnIndex && p.isAlive);
+        board.classList.toggle('active-turn', isActiveTurn);
+        const turnTag = document.getElementById(`p-turn-tag-${idx}`);
+        if (turnTag) turnTag.classList.toggle('hidden', !isActiveTurn);
 
         // Under-Board Moving Brass Bullet Card
         const maxBullets = Math.max(5, p.maxHp);
@@ -2501,10 +2682,6 @@
         const hpBadge = document.getElementById(`p-hp-badge-${idx}`);
         hpBadge.innerText = p.isAlive ? `🔫 ${p.hp}/${p.maxHp}` : '☠️ 탈락';
         document.getElementById(`p-hand-badge-${idx}`).innerText = `🃏 ${p.hand.length}`;
-
-        const distTag = idx === G.mySeatIndex
-          ? `사거리 ${getWeaponRange(p)}`
-          : `거리 ${calculateDistance(G.mySeatIndex, idx)}`;
         document.getElementById(`p-range-badge-${idx}`).innerText = distTag;
 
         const teamTag = document.getElementById(`p-team-tag-${idx}`);
@@ -2602,6 +2779,93 @@
             </div>`;
         }
       });
+
+      const ov = document.getElementById('overview-grid-overlay');
+      if (ov && !ov.classList.contains('hidden')) {
+        renderOverviewGrid();
+      }
+    }
+
+    function openOverviewGrid() {
+      const ov = document.getElementById('overview-grid-overlay');
+      if (!ov) return;
+      renderOverviewGrid();
+      ov.classList.remove('hidden');
+    }
+
+    function closeOverviewGrid(targetMode = 'auto', focusIdx = null) {
+      const ov = document.getElementById('overview-grid-overlay');
+      if (ov) ov.classList.add('hidden');
+      setCameraMode(targetMode, focusIdx);
+    }
+
+    function renderOverviewGrid() {
+      const grid = document.getElementById('overview-grid-cards');
+      const countBadge = document.getElementById('overview-count-badge');
+      if (!grid || G.players.length === 0) return;
+
+      const N = G.players.length;
+      if (countBadge) countBadge.innerText = `${N}명`;
+
+      let colsCls = 'grid-cols-1 sm:grid-cols-2';
+      if (N === 2) colsCls = 'grid-cols-1 sm:grid-cols-2';
+      else if (N <= 4) colsCls = 'grid-cols-1 sm:grid-cols-2';
+      else if (N <= 6) colsCls = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+      else colsCls = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+      grid.className = `flex-1 max-w-6xl w-full mx-auto grid ${colsCls} gap-3 overflow-y-auto thin-scroll items-stretch content-center py-1`;
+
+      const me = G.players[G.mySeatIndex];
+      grid.innerHTML = '';
+      G.players.forEach((p, idx) => {
+        const isActiveTurn = idx === G.turnIndex && p.isAlive;
+        const distTag = idx === G.mySeatIndex
+          ? `사거리 ${getWeaponRange(p)}`
+          : `거리 ${calculateDistance(G.mySeatIndex, idx)}`;
+        const isSameTeam = G.settings.useRoles && idx !== G.mySeatIndex && p.isAlive && me &&
+          ((me.role.team === 'LAW' && p.role.team === 'LAW') ||
+           (me.role.team === 'OUT' && p.role.team === 'OUT'));
+
+        const roleHtml = canSeeRole(G.mySeatIndex, p)
+          ? `<div class="bang-card w-full h-full"><div class="bang-card-inner items-center justify-between text-center py-1"><div class="text-[8px] font-black text-amber-900">${p.role.en}</div><div class="text-2xl leading-none">${p.role.icon}</div><div class="text-[10px] font-black text-stone-900">${p.role.name}</div></div></div>`
+          : `<div class="bang-card card-role-back w-full h-full"><div class="bang-card-inner items-center justify-center text-center"><div class="text-2xl">⭐</div><div class="text-[9px] font-bold text-amber-300/80 mt-0.5">미공개</div></div></div>`;
+
+        const showAbility = p.abilityRevealed || idx === G.mySeatIndex;
+        const charHtml = `<div class="bang-card card-char w-full h-full"><div class="bang-card-inner justify-between p-1"><div class="flex items-center justify-between gap-0.5"><span class="text-[9px] font-black leading-none truncate">${p.character.name}</span><span class="text-[8px] font-black text-amber-700 flex-shrink-0">${p.maxHp}🔫</span></div><div class="text-xl text-center leading-none">${p.character.icon}</div><div class="text-[8px] card-desc-text text-stone-800 line-clamp-3 text-center">${showAbility ? p.character.desc : '🔒 능력 미공개'}</div></div></div>`;
+
+        const weapon = p.equipment.find(e => e.code === 'WEAPON');
+        const weaponHtml = weapon
+          ? `<div class="bang-card card-blue w-full h-full"><div class="bang-card-inner items-center justify-between text-center py-1"><div class="text-[9px] font-black text-blue-950 truncate w-full">${weapon.name}</div><div class="text-xl leading-none">${weapon.icon}</div><div class="px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[8px] font-black">사거리 ${weapon.range}</div></div></div>`
+          : `<div class="w-full h-full rounded-lg border border-dashed border-amber-900/45 bg-amber-950/15 flex flex-col items-center justify-center text-center p-1"><span class="text-[9px] font-bold text-amber-950/75">콜트 .45</span><span class="text-[8px] text-amber-950/65 mt-0.5">사거리 1</span></div>`;
+
+        const fronts = p.equipment.filter(e => e.code !== 'WEAPON');
+        const frontHtml = fronts.length > 0
+          ? `<div class="bang-card ${fronts.some(f => f.type === 'blue') ? 'card-blue' : 'card-green'} w-full h-full"><div class="bang-card-inner p-1 flex flex-col justify-center gap-0.5 overflow-y-auto thin-scroll">${fronts.map(eq => `<div class="text-[8.5px] font-black ${eq.type === 'green' ? 'text-emerald-950 bg-emerald-200/85' : 'text-blue-950 bg-blue-200/85'} rounded px-1 py-0.5 truncate">${eq.icon} ${eq.name}</div>`).join('')}</div></div>`
+          : `<div class="w-full h-full rounded-lg border border-dashed border-amber-900/45 bg-amber-950/15 flex flex-col items-center justify-center text-center p-1"><span class="text-[8.5px] font-bold text-amber-950/65">전면 특수</span><span class="text-[8px] text-amber-950/55">없음</span></div>`;
+
+        const card = document.createElement('div');
+        card.className = `parchment-board overview-board-card h-[168px] ${isActiveTurn ? 'active-turn' : ''} ${!p.isAlive ? 'opacity-60 grayscale' : ''}`;
+        card.onclick = () => closeOverviewGrid('focus', idx);
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-1 mb-1 px-0.5">
+            <div class="flex items-center gap-1 min-w-0">
+              ${isActiveTurn ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black whitespace-nowrap">▶ 턴</span>' : ''}
+              <span class="text-xs font-black text-stone-950 truncate">${idx + 1}P · ${p.name}${idx === G.mySeatIndex ? ' (나)' : ''}</span>
+              ${isSameTeam ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>' : ''}
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-900 text-amber-200 font-bold">${distTag}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-red-900 text-amber-100 font-black border border-amber-400/80">${p.isAlive ? `🔫 ${p.hp}/${p.maxHp}` : '☠️ 탈락'}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-900 text-amber-50 font-bold">🃏 ${p.hand.length}</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 flex-1">
+            <div class="rounded-lg overflow-hidden">${roleHtml}</div>
+            <div class="rounded-lg overflow-hidden">${charHtml}</div>
+            <div class="rounded-lg overflow-hidden">${weaponHtml}</div>
+            <div class="rounded-lg overflow-hidden">${frontHtml}</div>
+          </div>`;
+        grid.appendChild(card);
+      });
     }
 
     /* ===================================================================
@@ -2624,12 +2888,21 @@
 
       const autoBtn = document.getElementById('cam-btn-auto');
       const overBtn = document.getElementById('cam-btn-overview');
-      if (autoBtn) autoBtn.className = `px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition ${mode === 'auto' ? 'bg-amber-500 text-stone-950' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'}`;
-      if (overBtn) overBtn.className = `px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition ${mode === 'overview' ? 'bg-amber-500 text-stone-950' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'}`;
+      if (autoBtn) autoBtn.className = `w-full py-1 px-1.5 text-[11px] rounded-lg text-center transition ${mode === 'auto' ? 'font-black bg-amber-500 text-stone-950' : 'font-bold bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700'}`;
+      if (overBtn) overBtn.className = `w-full py-1 px-1.5 text-[11px] rounded-lg text-center transition ${mode === 'overview' ? 'font-black bg-amber-500 text-stone-950' : 'font-bold bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700'}`;
       G.players.forEach((_, idx) => {
         const b = document.getElementById(`cam-btn-p${idx}`);
-        if (b) b.className = `px-2 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition ${mode === 'focus' && G.focusPlayerIndex === idx ? 'bg-amber-500 text-stone-950' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'}`;
+        if (b) b.className = `w-full py-1 px-1.5 text-[11px] rounded-lg text-center whitespace-nowrap truncate transition ${mode === 'focus' && G.focusPlayerIndex === idx ? 'font-black bg-amber-500 text-stone-950' : 'font-bold bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700'}`;
       });
+
+      const ov = document.getElementById('overview-grid-overlay');
+      if (ov) {
+        if (mode === 'overview' && G.selectionMode !== 'target') {
+          openOverviewGrid();
+        } else {
+          ov.classList.add('hidden');
+        }
+      }
       applyCameraTransform();
     }
 
@@ -2710,7 +2983,7 @@
 
         let panning = false, startX = 0, startY = 0;
         vp.addEventListener('mousedown', (e) => {
-          if (e.target.closest('.parchment-board') || e.target.closest('#central-drop-zone') || e.target.closest('#dock-chat-widget')) return;
+          if (e.target.closest('.parchment-board') || e.target.closest('#central-drop-zone') || e.target.closest('#dock-chat-widget') || e.target.closest('#left-camera-bar') || e.target.closest('#overview-grid-overlay')) return;
           panning = true; startX = e.clientX - G.panX; startY = e.clientY - G.panY;
           document.getElementById('table-world').classList.add('dragging-pan');
         });
@@ -2743,7 +3016,8 @@
     } else {
       bootApp();
     }
-       /* ===================================================================
+
+    /* ===================================================================
        8. HAND RENDERING, GREEN CARDS & DUAL INPUT (DRAG / SELECT)
        =================================================================== */
     function isSelfEquipCard(card) {
@@ -2758,6 +3032,15 @@
       if (!player) return 0;
       if (player.character.id === 'SEAN_MALLORY') return 10;
       return Math.max(0, player.hp);
+    }
+
+    function highlightCardDesc(desc) {
+      const safe = escapeHtml(desc || '');
+      return safe
+        .replace(/(\d+\s*피해|3피해|1피해|2피해)/g, '<span class="font-black text-red-700">$1</span>')
+        .replace(/(체력\s*\+\d+|회복)/g, '<span class="font-black text-emerald-700">$1</span>')
+        .replace(/(사거리\s*\d+|거리\s*[+-]?\d+|무제한)/g, '<span class="font-black text-blue-700">$1</span>')
+        .replace(/(강탈|제거|빗나감!|턴 스킵)/g, '<span class="font-black text-amber-900">$1</span>');
     }
 
     function renderHand() {
@@ -2817,14 +3100,14 @@
         el.innerHTML = `
           <div class="bang-card-inner justify-between">
             <div class="flex items-center justify-between gap-0.5">
-              <span class="text-[11px] font-black leading-tight truncate">${card.name}</span>
+              <span class="text-[11px] font-black leading-tight truncate text-stone-950">${card.name}</span>
               ${card.range ? `<span class="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">${card.range}</span>` : ''}
             </div>
-            <div class="text-3xl text-center leading-none my-0.5">${card.icon}</div>
-            <div class="text-[8.5px] leading-tight text-stone-700 text-center line-clamp-2">${card.desc}</div>
-            <div class="flex items-center justify-between border-t border-stone-900/10 pt-0.5 mt-0.5">
-              <span class="text-[10px] font-black ${isRedSuit ? 'text-red-600' : 'text-stone-900'}">${card.suit}${card.rank}</span>
-              <span class="text-[8px] font-bold text-stone-500">${typeLabel}</span>
+            <div class="text-2xl sm:text-3xl text-center leading-none my-0.5">${card.icon}</div>
+            <div class="text-[9px] card-desc-text text-stone-800 text-center line-clamp-2 px-0.5">${highlightCardDesc(card.desc)}</div>
+            <div class="flex items-center justify-between border-t border-stone-900/15 pt-0.5 mt-0.5">
+              <span class="text-[10px] font-black ${isRedSuit ? 'text-red-600' : 'text-stone-950'}">${card.suit}${card.rank}</span>
+              <span class="text-[8.5px] font-bold text-stone-600">${typeLabel}</span>
             </div>
           </div>`;
 
@@ -3277,7 +3560,8 @@
       }
       return false;
     }
-        async function playCardAction(player, card, presetTargetSeat = null) {
+
+    async function playCardAction(player, card, presetTargetSeat = null) {
       if (G.isBusy || !player.isAlive) return;
       const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
       const isBlackFlowerBonus = player.character.id === 'BLACK_FLOWER' && card.suit === '♣' && !G.blackFlowerUsedThisTurn
@@ -3862,7 +4146,8 @@
         await FX.playBangBlocked(refCard, victim.id, offender.id);
       }
     }
-        /* ===================================================================
+
+    /* ===================================================================
        10. REACTION SYSTEM (LOCAL + ONLINE GUEST + BARREL / DODGE / GREEN)
        =================================================================== */
     function showLocalReactionModal(req) {
@@ -4245,7 +4530,10 @@
        12. TURN LOOP, HIGH NOON EVENTS, AI & DISCARD SELECTION
        =================================================================== */
     function nextTurn() {
+      if (G.isAdvancingTurn) return;
       if (!document.getElementById('modal-game-over').classList.contains('hidden')) return;
+      G.isAdvancingTurn = true;
+      G.turnSeq++;
       let next = (G.turnIndex + 1) % G.players.length;
       let guard = 0;
       while (!G.players[next].isAlive && guard++ < G.players.length) next = (next + 1) % G.players.length;
@@ -4302,6 +4590,7 @@
     }
 
     async function startTurnPhase() {
+      G.isAdvancingTurn = false;
       const curP = G.players[G.turnIndex];
       if (!curP || !curP.isAlive) { nextTurn(); return; }
 
@@ -4641,9 +4930,10 @@
         nextTurn();
       }
     }
-        async function handleEndTurnClick() {
+
+    async function handleEndTurnClick() {
       const me = G.players[G.mySeatIndex];
-      if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy) return;
+      if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy || G.isAdvancingTurn) return;
       const limit = getHandEndTurnLimit(me);
       if (me.hand.length > limit) {
         G.selectionMode = 'discard';
@@ -4653,12 +4943,16 @@
         showToast(`손패가 한도(${limit})보다 많습니다. 초과분 ${me.hand.length - limit}장을 선택해 버려주세요.`);
         return;
       }
+      G.isBusy = true;
+      const endBtn = document.getElementById('btn-end-turn');
+      if (endBtn) endBtn.disabled = true;
       if (Net.online && !Net.isHost) {
         await patchRoom(lobby.activeRoomId, {
           guestAction: {
             id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
             type: 'END_TURN',
-            seat: G.mySeatIndex
+            seat: G.mySeatIndex,
+            turnSeq: G.turnSeq
           }
         });
       } else {
@@ -4689,12 +4983,14 @@
         G.selectionMode = null; G.selectedCardIds.clear();
 
         if (Net.online && !Net.isHost) {
+          G.isBusy = true;
           renderHand();
           await patchRoom(lobby.activeRoomId, {
             guestAction: {
               id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
               type: 'DISCARD_AND_END',
               seat: G.mySeatIndex,
+              turnSeq: G.turnSeq,
               cardIds: chosenIds
             }
           });
@@ -4796,6 +5092,17 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    function toggleChatDock() {
+      const grp = document.getElementById('chat-input-group');
+      const btn = document.getElementById('btn-chat-collapse');
+      if (!grp || !btn) return;
+      const collapsed = grp.classList.toggle('hidden');
+      btn.innerText = collapsed ? '◂' : '▸';
+      if (collapsed) {
+        document.getElementById('emote-picker-popup')?.classList.add('hidden');
+      }
     }
 
     function toggleChatHistory() {
@@ -5011,6 +5318,7 @@
        14. TARGET-FOCUSED FX ANIMATION ENGINE
        =================================================================== */
     const FX = {
+      _isRemote: false,
       getPoint(loc) {
         if (loc === 'deck') return { x: 895, y: 630 };
         if (loc === 'center') return { x: 1000, y: 630 };
@@ -5045,6 +5353,7 @@
         setTimeout(() => vp.classList.remove('shake-active'), duration);
       },
       showFloatText(playerIdx, text, color = '#fbbf24') {
+        broadcastFxEvent('FLOAT_TEXT', { playerIdx, text, color });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const pt = this.getPoint(playerIdx);
@@ -5056,6 +5365,7 @@
         setTimeout(() => el.remove(), 1200);
       },
       async playTurnBanner(text) {
+        broadcastFxEvent('TURN_BANNER', { text });
         const b = document.getElementById('turn-banner');
         const lbl = document.getElementById('turn-banner-text');
         if (!b || !lbl) return;
@@ -5093,6 +5403,7 @@
         });
       },
       async playCenterSpinAndHold(card, fromLoc = 'center') {
+        broadcastFxEvent('CENTER_SPIN', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank }, fromLoc });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const from = this.getPoint(fromLoc), center = this.getPoint('center');
@@ -5108,12 +5419,14 @@
         el.remove();
       },
       async playBangHit(card, attackerIdx, targetIdx, isGatling = false) {
+        broadcastFxEvent('BANG_HIT', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank }, attackerIdx, targetIdx, isGatling });
         SFX.playGunshot();
         if (!isGatling) await this.flyCard(card, attackerIdx, targetIdx, 260, false);
         this.triggerScreenShake(320);
         if (!isGatling) await this.flyCard(card, targetIdx, 'discard', 340, false);
       },
       async playBangBlocked(attackCard, attackerIdx, targetIdx) {
+        broadcastFxEvent('BANG_BLOCKED', { card: { name: attackCard.name, type: attackCard.type, icon: attackCard.icon, suit: attackCard.suit, rank: attackCard.rank }, attackerIdx, targetIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const targetPt = this.getPoint(targetIdx);
@@ -5134,6 +5447,7 @@
         await this.flyCard(attackCard, targetIdx, 'discard', 280, false);
       },
       async playBeer(card, playerIdx) {
+        broadcastFxEvent('BEER', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank }, playerIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const pt = this.getPoint(playerIdx);
@@ -5147,6 +5461,7 @@
         await this.flyCard(card, playerIdx, 'discard', 260, false);
       },
       async playEquip(card, targetIdx) {
+        broadcastFxEvent('EQUIP', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank }, targetIdx });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center'), target = this.getPoint(targetIdx);
@@ -5165,6 +5480,7 @@
         el.remove();
       },
       async playIndians(card) {
+        broadcastFxEvent('INDIANS', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank } });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center');
@@ -5179,6 +5495,7 @@
         await this.flyCard(card, 'center', 'discard', 280, false);
       },
       async playGatling(card) {
+        broadcastFxEvent('GATLING', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank } });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         const center = this.getPoint('center');
@@ -5193,6 +5510,7 @@
         await this.flyCard(card, 'center', 'discard', 280, false);
       },
       async playDrawCheck(card, label, isSuccess) {
+        broadcastFxEvent('DRAW_CHECK', { card: { name: card.name, type: card.type, icon: card.icon, suit: card.suit, rank: card.rank }, label, isSuccess });
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         SFX.playCardDraw();
@@ -5301,7 +5619,10 @@
       }
 
       lobby.activeRoomId = null;
+      localStorage.removeItem('bang_active_room');
       Net.isHost = false;
+      Net.lastStateJson = '';
+      Net.lastFxId = '';
       Net.lastCeremonyPhase = '';
       Net.lastActionId = '';
       Net.lastReactionId = '';
@@ -5343,6 +5664,7 @@
       goToCharStep,
       showCurrentEventToast,
       setCameraMode,
+      closeOverviewGrid,
       adjustZoom,
       toggleMute,
       toggleLogDrawer,
@@ -5350,6 +5672,7 @@
       closeExitConfirm,
       executeExitToLobby,
       handleDeckClick,
+      toggleChatDock,
       toggleChatHistory,
       toggleEmotePicker,
       sendEmote,

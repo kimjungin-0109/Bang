@@ -416,15 +416,20 @@
           </div>
           <p class="text-stone-400 text-sm mt-1">서부 총격 심리전 · 공식 덱 · 인물 능력 완비 · 실시간 멀티플레이어</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openCodexModal()"
+            class="px-3 py-2 bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-600/80 rounded-xl text-sm font-black transition whitespace-nowrap"
+            title="기본 룰 · 직업 · 인물 · 카드 도감">
+            📖 카드 도감
+          </button>
           <button onclick="openSettingsModal()"
             class="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-amber-300 border border-amber-800/80 rounded-xl text-sm font-bold transition whitespace-nowrap"
             title="음량 및 카드 조작 설정">
             ⚙️ 설정
           </button>
-          <input id="lobby-nickname" type="text" value="총잡이" maxlength="12"
-            class="bg-stone-900 border border-amber-800/80 rounded-xl px-3 py-2 text-sm text-amber-100 w-28 sm:w-32 focus:outline-none focus:border-amber-400"
-            placeholder="닉네임" />
+          <input id="lobby-nickname" type="text" value="" maxlength="12"
+            class="bg-stone-900 border border-amber-700/90 rounded-xl px-3 py-2 text-sm text-amber-100 w-32 sm:w-36 focus:outline-none focus:border-amber-400"
+            placeholder="닉네임 입력 *" />
           <button onclick="openCreateRoomModal()"
             class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black rounded-xl shadow-lg whitespace-nowrap transition active:scale-95">
             + 방 만들기
@@ -529,12 +534,19 @@
     <header class="h-10 md:h-11 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-800/80 px-2 md:px-4 flex items-center justify-between gap-1.5 md:gap-2 z-30 shadow-lg">
       <div class="flex items-center gap-1.5 md:gap-2 min-w-0">
         <span class="font-western text-base md:text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
+        <span id="spectator-badge" class="hidden px-2 py-0.5 bg-sky-900/95 border border-sky-400/90 text-sky-100 text-[11px] font-black rounded-full whitespace-nowrap">👁️ 관전 중</span>
         <div id="hud-status-group" class="flex items-center gap-1.5 md:gap-2 min-w-0">
           <div class="px-2.5 py-0.5 bg-stone-950/95 border border-amber-600/85 rounded-lg text-[11px] md:text-xs font-bold text-amber-100 whitespace-nowrap truncate">
             턴: <span id="hud-turn-player" class="text-amber-300">-</span>
           </div>
-          <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-0.5 bg-orange-950/95 hover:bg-orange-900 border border-orange-500/85 rounded-lg text-[11px] md:text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 라운드 이벤트">
+          <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-0.5 bg-orange-950/95 hover:bg-orange-900 border border-orange-500/85 rounded-lg text-[11px] md:text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 하이눈 이벤트">
             ☀️ 이벤트
+          </button>
+          <button id="hud-wws-pill" onclick="showCurrentWwsToast()" class="hidden px-2.5 py-0.5 bg-fuchsia-950/95 hover:bg-fuchsia-900 border border-fuchsia-500/85 rounded-lg text-[11px] md:text-xs font-black text-fuchsia-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 와일드 웨스트 쇼 이벤트">
+            🎪 와웨쇼
+          </button>
+          <button id="hud-shop-pill" onclick="openGoldShopModal()" class="hidden px-2.5 py-0.5 bg-yellow-950/95 hover:bg-yellow-900 border border-yellow-400/90 rounded-lg text-[11px] md:text-xs font-black text-yellow-200 whitespace-nowrap transition shadow" title="골드러쉬 상점 열기">
+            🏪 상점
           </button>
         </div>
       </div>
@@ -709,7 +721,7 @@
       <div class="flex items-center justify-between gap-1.5 md:gap-2">
         <div class="flex items-center gap-1.5 md:gap-2 min-w-0">
           <span class="px-2 md:px-3 py-0.5 md:py-1 bg-stone-950/85 border border-amber-800/70 rounded-full text-[11px] md:text-xs font-bold text-amber-200 whitespace-nowrap">
-            손패 <span id="my-hand-count" class="text-amber-400 font-black">0</span><span class="hidden md:inline">장</span> · 한도 <span id="my-hp-limit" class="text-emerald-400 font-black">4</span><span class="hidden md:inline">장</span>
+            손패 <span id="my-hand-count" class="text-amber-400 font-black">0</span><span class="hidden md:inline">장</span> · 한도 <span id="my-hp-limit" class="text-emerald-400 font-black">4</span><span class="hidden md:inline">장</span><span id="my-gold-wrap" class="hidden"> · 🪙 <span id="my-gold-count" class="text-yellow-300 font-black">0</span></span>
           </span>
           <button id="btn-sid-heal" onclick="startSidHealMode()" class="hidden px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-black rounded-full shadow transition">
             💉 시드 케첨: 2장 버리고 +1 HP
@@ -814,6 +826,20 @@
             </button>
           </div>
         </div>
+
+        <!-- SUPER Code Unlock -->
+        <div class="pt-3 border-t border-stone-800">
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="font-black text-amber-300 tracking-wider">⚡ SUPER</label>
+            <span id="super-status-badge" class="text-[10px] font-bold text-stone-400">잠김</span>
+          </div>
+          <div class="flex gap-2">
+            <input id="input-super-code" type="password" placeholder="SUPER 코드 입력"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();unlockSuperMode();}"
+              class="flex-1 bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-xs text-amber-100 focus:outline-none focus:border-amber-400" />
+            <button onclick="unlockSuperMode()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-black rounded-xl text-xs whitespace-nowrap">적용</button>
+          </div>
+        </div>
       </div>
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">확인</button>
     </div>
@@ -825,8 +851,8 @@
       <h3 class="text-xl font-black text-amber-400 mb-4">🏠 새 살롱 방 만들기</h3>
       <div class="space-y-3.5 mb-5">
         <div>
-          <label class="block text-xs font-bold text-stone-300 mb-1">방 제목</label>
-          <input id="input-room-title" type="text" value="서부 개척지 결투방" maxlength="24"
+          <label class="block text-xs font-bold text-stone-300 mb-1">방 제목 <span class="text-red-400">*</span></label>
+          <input id="input-room-title" type="text" value="" maxlength="24" placeholder="방 제목을 입력해 주세요"
             class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-500" />
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -874,6 +900,18 @@
             </div>
           </div>
 
+          <div class="text-xs">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-stone-300 font-bold">🎭 캐릭터 선택 수 (뽑는 카드 수 + 1장 중 선택)</label>
+              <span id="char-pool-check-msg" class="text-[10px] font-bold text-emerald-400">충분함</span>
+            </div>
+            <select id="opt-char-pick-count" onchange="onExpansionSelectionChange()" class="w-full bg-stone-950 border border-stone-700 rounded-lg px-2.5 py-1.5 text-amber-200">
+              <option value="1" selected>1명 선택 (2장 중 1명 · 기본)</option>
+              <option value="2">2명 선택 (3장 중 2명 · 2개 능력 동시 사용)</option>
+              <option value="3">3명 선택 (4장 중 3명 · 3개 능력 동시 사용)</option>
+            </select>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
             <label class="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 cursor-pointer">
               <span class="font-bold text-stone-200">🎭 직업 사용</span>
@@ -886,6 +924,10 @@
             <label class="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 cursor-pointer">
               <span class="font-bold text-stone-200">🍺 2인 생존 시 맥주 가능</span>
               <input id="opt-beer-two" type="checkbox" class="accent-amber-500 w-4 h-4" />
+            </label>
+            <label id="lbl-exclude-base-chars" class="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 cursor-pointer opacity-50" title="캐릭터가 포함된 확장판을 1개 이상 선택하면 활성화됩니다">
+              <span class="font-bold text-stone-200">🚫 기본 캐릭터 빼기</span>
+              <input id="opt-exclude-base-chars" type="checkbox" disabled onchange="onExpansionSelectionChange()" class="accent-amber-500 w-4 h-4" />
             </label>
           </div>
         </div>
@@ -902,30 +944,126 @@
                 <div class="font-black text-emerald-300">🌵 닷지시티 (Dodge City)</div>
                 <div class="text-[10px] text-stone-400 mt-0.5">초록색 카드(다음 턴 발동) · 신규 액션/장비 · 닷지시티 인물 15인 추가</div>
               </div>
-              <input id="exp-dodge-city" type="checkbox" value="DODGE_CITY" class="exp-pack-checkbox accent-emerald-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+              <input id="exp-dodge-city" type="checkbox" value="DODGE_CITY" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-emerald-500 w-4 h-4 mt-0.5 flex-shrink-0" />
             </label>
             <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-orange-800/50 hover:border-orange-500 rounded-lg px-3 py-2.5 cursor-pointer transition">
               <div>
                 <div class="font-black text-orange-300">☀️ 하이눈 & 한 줌의 카드 (세트)</div>
                 <div class="text-[10px] text-stone-400 mt-0.5">매 라운드 특수 이벤트 발동 (축복·저주·총격전·매복·저격수·최종 하이눈 등)</div>
               </div>
-              <input id="exp-high-noon-set" type="checkbox" value="HIGH_NOON_SET" class="exp-pack-checkbox accent-orange-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+              <input id="exp-high-noon-set" type="checkbox" value="HIGH_NOON_SET" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-orange-500 w-4 h-4 mt-0.5 flex-shrink-0" />
             </label>
             <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-purple-800/50 hover:border-purple-500 rounded-lg px-3 py-2.5 cursor-pointer transition">
               <div>
                 <div class="font-black text-purple-300">🌑 그림자 계곡 (The Valley of Shadows)</div>
                 <div class="text-[10px] text-stone-400 mt-0.5">신규 카드 12종(토마호크·조준·역화·방울뱀·현상금 등) · 그림자 계곡 인물 8인 추가</div>
               </div>
-              <input id="exp-shadow-valley" type="checkbox" value="SHADOW_VALLEY" class="exp-pack-checkbox accent-purple-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+              <input id="exp-shadow-valley" type="checkbox" value="SHADOW_VALLEY" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-purple-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+            </label>
+            <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-fuchsia-800/50 hover:border-fuchsia-500 rounded-lg px-3 py-2.5 cursor-pointer transition">
+              <div>
+                <div class="font-black text-fuchsia-300">🎪 와일드 웨스트 쇼 (Wild West Show)</div>
+                <div class="text-[10px] text-stone-400 mt-0.5">역마차·웰스파고 사용 시 특수 이벤트 발동 · 와웨쇼 인물 8인 추가</div>
+              </div>
+              <input id="exp-wild-west-show" type="checkbox" value="WILD_WEST_SHOW" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-fuchsia-500 w-4 h-4 mt-0.5 flex-shrink-0" />
+            </label>
+            <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-yellow-700/60 hover:border-yellow-400 rounded-lg px-3 py-2.5 cursor-pointer transition">
+              <div>
+                <div class="font-black text-yellow-300">🪙 골드러쉬 (Gold Rush)</div>
+                <div class="text-[10px] text-stone-400 mt-0.5">피해 시 금덩이 획득 · 🏪 상점 장비 구매 시스템 · 골드러쉬 인물 8인 추가</div>
+              </div>
+              <input id="exp-gold-rush" type="checkbox" value="GOLD_RUSH" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-yellow-400 w-4 h-4 mt-0.5 flex-shrink-0" />
+            </label>
+            <label class="flex items-start justify-between gap-2 bg-stone-950/80 border border-amber-600/60 hover:border-amber-400 rounded-lg px-3 py-2.5 cursor-pointer transition">
+              <div>
+                <div class="font-black text-amber-300">👑 전설적인 무법자들 (Legends)</div>
+                <div class="text-[10px] text-stone-400 mt-0.5">강화된 전설 버전 인물 16인 추가 (기본 캐릭터와 함께 등장)</div>
+              </div>
+              <input id="exp-legends" type="checkbox" value="LEGENDS" onchange="onExpansionSelectionChange()" class="exp-pack-checkbox accent-amber-400 w-4 h-4 mt-0.5 flex-shrink-0" />
             </label>
           </div>
+        </div>
+
+        <!-- SUPER Hidden Settings Panel (Shown only after unlocking 'toatoto' in Settings) -->
+        <div id="super-settings-panel" class="hidden bg-amber-950/35 border-2 border-amber-500/80 rounded-xl p-3.5 space-y-3 text-xs">
+          <div class="flex items-center justify-between border-b border-amber-700/60 pb-1.5">
+            <span class="font-black text-amber-300">⚡ SUPER 설정</span>
+            <span class="text-[10px] text-amber-200/80">방장 전용 커스텀</span>
+          </div>
+
+          <!-- 2-2. Ban specific characters per pack -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-stone-200">❌ 특정 팩 캐릭터 빼기 (클릭 시 ✕ 제외)</span>
+              <span id="super-ban-count" class="text-[10px] font-bold text-red-300">0명 제외됨</span>
+            </div>
+            <div id="super-ban-pack-tabs" class="flex flex-wrap gap-1 mb-2"></div>
+            <div id="super-ban-char-list" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-36 overflow-y-auto thin-scroll p-1 bg-stone-950/70 rounded-lg border border-stone-800"></div>
+          </div>
+
+          <!-- 2-1. Fixed characters for host -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-bold text-stone-200">🎯 내 캐릭터 확정 선택</span>
+              <span id="super-fixed-count" class="text-[10px] font-bold text-amber-300">0 / 2 선택</span>
+            </div>
+            <div id="super-fixed-char-list" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-36 overflow-y-auto thin-scroll p-1 bg-stone-950/70 rounded-lg border border-stone-800"></div>
+          </div>
+
+          <!-- 2-3. Start hand all blue cards -->
+          <label class="flex items-center justify-between bg-stone-950/80 border border-blue-700/70 rounded-lg px-3 py-2 cursor-pointer">
+            <span class="font-bold text-blue-200">🛡️ 내 모든 시작 패를 전부 파란카드로 시작</span>
+            <input id="opt-super-all-blue" type="checkbox" class="accent-blue-500 w-4 h-4" />
+          </label>
         </div>
       </div>
 
       <div class="flex gap-2.5">
         <button onclick="closeCreateRoomModal()" class="flex-1 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-sm">취소</button>
-        <button onclick="createRoomSubmit()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">방 생성하기</button>
+        <button id="btn-create-room-submit" onclick="createRoomSubmit()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-stone-700 disabled:text-stone-400 text-stone-950 font-black rounded-xl text-sm">방 생성하기</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Codex / Rules & Card Encyclopedia Modal -->
+  <div id="modal-codex" class="hidden fixed inset-0 z-[60] bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-stone-950 border-2 border-amber-500 rounded-3xl p-4 sm:p-6 max-w-4xl w-full h-[88vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between border-b border-amber-900/60 pb-3 mb-3 flex-shrink-0">
+        <div>
+          <h3 class="text-xl font-black text-amber-400">📖 BANG! 공식 가이드 · 카드 도감</h3>
+          <p class="text-xs text-stone-400 mt-0.5">기본 룰 · 직업 · 인물 · 확장판별 특수 카드를 한눈에 확인하세요.</p>
+        </div>
+        <button onclick="closeCodexModal()" class="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold rounded-xl text-xs">닫기 ✕</button>
+      </div>
+      <!-- 4 Main Category Tabs -->
+      <div id="codex-cat-tabs" class="flex flex-wrap gap-1.5 mb-2.5 flex-shrink-0">
+        <button data-cat="RULES" onclick="selectCodexCategory('RULES')" class="codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-stone-950">📜 기본 룰</button>
+        <button data-cat="ROLES" onclick="selectCodexCategory('ROLES')" class="codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-200">🎭 직업</button>
+        <button data-cat="CHARS" onclick="selectCodexCategory('CHARS')" class="codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-200">🤠 인물 카드</button>
+        <button data-cat="CARDS" onclick="selectCodexCategory('CARDS')" class="codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-200">🃏 특수 룰 · 액션 카드</button>
+      </div>
+      <!-- Expansion Sub-Filter Tabs -->
+      <div id="codex-exp-tabs" class="flex flex-wrap gap-1.5 mb-3 pb-2 border-b border-stone-800 flex-shrink-0"></div>
+      <!-- Content Area -->
+      <div id="codex-content" class="flex-1 overflow-y-auto thin-scroll pr-1 space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- Gold Rush Shop Modal -->
+  <div id="modal-gold-shop" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-yellow-500 rounded-2xl p-5 sm:p-6 max-w-xl w-full shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
+        <div>
+          <h3 class="text-lg font-black text-yellow-300">🏪 골드러쉬 장비 상점</h3>
+          <p class="text-[11px] text-stone-400 mt-0.5">내 턴에 금덩이(🪙)로 특수 장비를 구매할 수 있습니다.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 bg-yellow-950 border border-yellow-500/70 rounded-full text-xs font-black text-yellow-300">🪙 <span id="shop-my-gold">0</span></span>
+          <button onclick="closeGoldShopModal()" class="text-stone-400 hover:text-white font-bold px-1">✕</button>
+        </div>
+      </div>
+      <div id="gold-shop-items" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
+      <button onclick="closeGoldShopModal()" class="w-full py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold rounded-xl text-xs">닫기</button>
     </div>
   </div>
 
@@ -1166,6 +1304,13 @@
         Net.isHost = room.hostClientId === Net.clientId;
         if (room.settings) G.settings = normalizeSettings(room.settings);
 
+        // Kick detection for guest in waiting room
+        if (!G.isSpectator && !Net.isHost && Array.isArray(room.kickedClientIds) && room.kickedClientIds.includes(Net.clientId)) {
+          showToast('방장에 의해 방에서 추방되었습니다.');
+          executeExitToLobby(true);
+          return;
+        }
+
         if (Array.isArray(room.chatMessages)) {
           syncChatMessages(room.chatMessages);
         }
@@ -1206,6 +1351,8 @@
           autoTargetIndex: G.autoTargetIndex,
           settings: G.settings,
           activeEvent: G.activeEvent,
+          activeWwsEvent: G.activeWwsEvent,
+          shopDisplay: G.shopDisplay,
           roundNumber: G.roundNumber
         };
         const json = JSON.stringify(snap);
@@ -1282,7 +1429,8 @@
     const Prefs = {
       volume: parseInt(localStorage.getItem('bang_volume') ?? '100', 10),
       playMode: localStorage.getItem('bang_play_mode'), // null (first visit) | 'drag' | 'select'
-      overviewStyle: localStorage.getItem('bang_overview_style') || 'grid' // 'grid' | 'table'
+      overviewStyle: localStorage.getItem('bang_overview_style') || 'grid', // 'grid' | 'table'
+      superUnlocked: localStorage.getItem('bang_super_unlocked') === '1'
     };
 
     function openSettingsModal() {
@@ -1292,7 +1440,34 @@
       if (label) label.innerText = `${Prefs.volume}%`;
       updatePlayModeButtons();
       updateOverviewStyleButtons();
+      updateSuperStatusBadge();
       document.getElementById('modal-settings').classList.remove('hidden');
+    }
+
+    function updateSuperStatusBadge() {
+      const b = document.getElementById('super-status-badge');
+      if (!b) return;
+      if (Prefs.superUnlocked) {
+        b.innerText = '⚡ 해금됨 (방 만들기 하단 표시)';
+        b.className = 'text-[10px] font-black text-emerald-400';
+      } else {
+        b.innerText = '잠김';
+        b.className = 'text-[10px] font-bold text-stone-400';
+      }
+    }
+
+    function unlockSuperMode() {
+      const input = document.getElementById('input-super-code');
+      const code = (input?.value || '').trim();
+      if (code === 'toatoto') {
+        Prefs.superUnlocked = true;
+        localStorage.setItem('bang_super_unlocked', '1');
+        if (input) input.value = '';
+        updateSuperStatusBadge();
+        showToast('⚡ SUPER 설정이 해금되었습니다! 방 만들기 화면 하단을 확인하세요.');
+      } else {
+        showToast('코드가 올바르지 않습니다.');
+      }
     }
 
     function closeSettingsModal() {
@@ -1521,22 +1696,22 @@
     };
 
     const BASE_CHARACTERS = [
-      { id: 'BART_CASSIDY',   name: '바트 캐시디',   hp: 4, icon: '🍺', desc: '피해 1당 카드 1장을 뽑습니다.' },
-      { id: 'BLACK_JACK',     name: '블랙 잭',       hp: 4, icon: '🃏', desc: '턴 시작 2번째 카드가 ♥/♦면 1장 추가 드로우.' },
-      { id: 'CALAMITY_JANET', name: '캘러미티 재닛', hp: 4, icon: '💃', desc: '뱅!과 빗나감!을 서로 바꿔 사용할 수 있습니다.' },
-      { id: 'EL_GRINGO',      name: '엘 그링고',     hp: 3, icon: '🌵', desc: '피해 1당 공격자의 손패에서 1장을 빼앗습니다.' },
-      { id: 'JESSE_JONES',    name: '제시 존스',     hp: 4, icon: '💰', desc: '턴 시작 첫 카드를 타인의 손패에서 뽑을 수 있음.' },
-      { id: 'JOURDONNAIS',    name: '주르도네',      hp: 4, icon: '🛢️', desc: '항상 술통(♥ 판정 시 뱅! 회피) 능력을 가집니다.' },
-      { id: 'KIT_CARLSON',    name: '킷 칼슨',       hp: 4, icon: '🔍', desc: '턴 시작 시 덱 위 3장을 보고 2장을 선택합니다.' },
-      { id: 'LUCKY_DUKE',     name: '럭키 듀크',     hp: 4, icon: '🍀', desc: '판정 시 2장을 뒤집어 유리한 1장을 선택합니다.' },
-      { id: 'PAUL_REGRET',    name: '폴 리그렛',     hp: 3, icon: '🐎', desc: '남들이 나를 볼 때 거리 +1 (기본 야생마).' },
-      { id: 'PEDRO_RAMIREZ',  name: '페드로 라미레스',hp: 4, icon: '⚰️', desc: '턴 시작 첫 카드를 버림 더미에서 가져올 수 있음.' },
-      { id: 'ROSE_DOOLAN',    name: '로즈 둘란',     hp: 4, icon: '🔎', desc: '남들을 볼 때 거리 -1 (기본 조준경).' },
-      { id: 'SID_KETCHUM',    name: '시드 케첨',     hp: 4, icon: '💉', desc: '손패 2장을 버려 체력 1을 회복할 수 있습니다.' },
-      { id: 'SLAB_THE_KILLER',name: '슬랩 더 킬러',  hp: 4, icon: '💀', desc: '자신의 뱅!은 빗나감! 2장으로만 막을 수 있음.' },
-      { id: 'SUZY_LAFAYETTE', name: '수지 라파예트', hp: 4, icon: '⚡', desc: '손패가 0장이 되는 즉시 1장을 뽑습니다.' },
-      { id: 'VULTURE_SAM',    name: '벌쳐 샘',       hp: 4, icon: '🦅', desc: '누군가 탈락하면 그 사람의 모든 카드를 흡수.' },
-      { id: 'WILLY_THE_KID',  name: '윌리 더 키드',  hp: 4, icon: '🔫', desc: '한 턴에 뱅!을 횟수 제한 없이 사용 가능합니다.' }
+      { id: 'BART_CASSIDY',   name: '바트 캐시디',     hp: 4, icon: '🍺', desc: '생명력을 1 잃을 때마다 카드 1장을 뽑습니다.' },
+      { id: 'BLACK_JACK',     name: '블랙 잭',         hp: 4, icon: '🃏', desc: '턴 시작 시 2번째로 뽑은 카드가 ♥/♦이면 1장을 더 뽑습니다.' },
+      { id: 'CALAMITY_JANET', name: '캘러미티 재닛',   hp: 4, icon: '💃', desc: '뱅!과 빗나감!을 서로 바꿔서 사용할 수 있습니다.' },
+      { id: 'EL_GRINGO',      name: '엘 그링고',       hp: 3, icon: '🌵', desc: '피해를 1 입을 때마다 공격자의 손패에서 1장을 뽑아 옵니다.' },
+      { id: 'JESSE_JONES',    name: '제시 존스',       hp: 4, icon: '💰', desc: '턴 시작 첫 카드를 다른 플레이어의 손패에서 뽑을 수 있습니다.' },
+      { id: 'JOURDONNAIS',    name: '주르도네',        hp: 4, icon: '🛢️', desc: '항상 술통(♥ 판정 시 뱅! 회피)을 장착한 것으로 취급합니다.' },
+      { id: 'KIT_CARLSON',    name: '킷 칼슨',         hp: 4, icon: '🔍', desc: '턴 시작 시 덱 맨 위 3장을 보고 2장을 가져갑니다.' },
+      { id: 'LUCKY_DUKE',     name: '럭키 듀크',       hp: 4, icon: '🍀', desc: '판정할 때마다 카드 2장을 펼쳐 유리한 1장을 선택합니다.' },
+      { id: 'PAUL_REGRET',    name: '폴 리그렛',       hp: 3, icon: '🐎', desc: '다른 플레이어가 나를 볼 때 거리가 +1 증가합니다.' },
+      { id: 'PEDRO_RAMIREZ',  name: '페드로 라미레스', hp: 4, icon: '⚰️', desc: '턴 시작 첫 카드를 버림 더미 맨 위에서 가져올 수 있습니다.' },
+      { id: 'ROSE_DOOLAN',    name: '로즈 둘란',       hp: 4, icon: '🔎', desc: '내가 다른 플레이어를 볼 때 거리가 -1 감소합니다.' },
+      { id: 'SID_KETCHUM',    name: '시드 케첨',       hp: 4, icon: '💉', desc: '손패 2장을 버려 생명력을 1 회복할 수 있습니다.' },
+      { id: 'SLAB_THE_KILLER',name: '슬랩 더 킬러',    hp: 4, icon: '💀', desc: '자신이 쏜 뱅!은 빗나감! 2장을 내야만 피할 수 있습니다.' },
+      { id: 'SUZY_LAFAYETTE', name: '수지 라파예트',   hp: 4, icon: '⚡', desc: '손패가 0장이 되는 즉시 카드 1장을 뽑습니다.' },
+      { id: 'VULTURE_SAM',    name: '벌쳐 샘',         hp: 4, icon: '🦅', desc: '누군가 탈락하면 그 플레이어의 모든 카드를 손으로 가져옵니다.' },
+      { id: 'WILLY_THE_KID',  name: '윌리 더 키드',    hp: 4, icon: '🔫', desc: '자신의 턴에 뱅!을 횟수 제한 없이 사용할 수 있습니다.' }
     ];
 
     const DODGE_CITY_CHARACTERS = [
@@ -1558,23 +1733,117 @@
     ];
 
     const SHADOW_VALLEY_CHARACTERS = [
-      { id: 'BLACK_FLOWER',          name: '블랙 플라워',           hp: 4, icon: '🌺', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 클로버(♣) 카드를 추가 뱅!으로 사용 가능.' },
-      { id: 'COLORADO_BILL',         name: '콜로라도 빌',           hp: 4, icon: '🤠', exp: 'SHADOW_VALLEY', desc: '뱅! 발사 시 판정해 ♠가 나오면 회피할 수 없습니다.' },
-      { id: 'DER_SPOT_BURST_RINGER', name: '더 스팟 버스트 링거',   hp: 4, icon: '💥', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 뱅!을 기관총(타인 전원 공격)으로 사용 가능.' },
-      { id: 'EVELYN_SHEBANG',        name: '에블린 쉬뱅',           hp: 4, icon: '🎯', exp: 'SHADOW_VALLEY', desc: '턴 시작 드로우를 1장 줄이는 대신 사거리 내 무료 뱅! 사격.' },
-      { id: 'HENRY_BLOCK',           name: '헨리 블록',             hp: 4, icon: '🥊', exp: 'SHADOW_VALLEY', desc: '누군가 내 카드를 강탈·제거하면 즉시 뱅!으로 반격합니다.' },
-      { id: 'LEMONADE_JIM',          name: '레모네이드 짐',         hp: 4, icon: '🍋', exp: 'SHADOW_VALLEY', desc: '타인이 맥주를 쓰면 손패 1장을 버리고 체력 +1 회복.' },
-      { id: 'MICK_DEFENDER',         name: '믹 디펜더',             hp: 4, icon: '🛡️', exp: 'SHADOW_VALLEY', desc: '나만 지목하는 갈색 카드를 빗나감!으로 무효화할 수 있음.' },
-      { id: 'TUCO_FRANZISKANER',     name: '투코 프란치스카너',     hp: 5, icon: '🏜️', exp: 'SHADOW_VALLEY', desc: '턴 시작 시 장착한 파란 카드가 없으면 2장 추가 드로우.' }
+      { id: 'BLACK_FLOWER',          name: '블랙 플라워',         hp: 4, icon: '🌺', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 클로버(♣) 카드를 추가 뱅!으로 사용할 수 있습니다.' },
+      { id: 'COLORADO_BILL',         name: '콜로라도 빌',         hp: 4, icon: '🤠', exp: 'SHADOW_VALLEY', desc: '뱅! 발사 시 판정해 ♠가 나오면 상대가 회피할 수 없습니다.' },
+      { id: 'DER_SPOT_BURST_RINGER', name: '더 스팟-버스트 링거', hp: 4, icon: '💥', exp: 'SHADOW_VALLEY', desc: '턴에 한 번 뱅!을 기관총(다른 모든 플레이어 공격)으로 사용합니다.' },
+      { id: 'EVELYN_SHEBANG',        name: '에블린 더 뱅',        hp: 4, icon: '🎯', exp: 'SHADOW_VALLEY', desc: '턴 시작 드로우를 1장 줄이는 대신 사거리 내 무료 뱅!을 쏩니다.' },
+      { id: 'HENRY_BLOCK',           name: '헨리 블록',           hp: 4, icon: '🥊', exp: 'SHADOW_VALLEY', desc: '누군가 내 카드를 강탈·제거하면 즉시 뱅!으로 반격합니다.' },
+      { id: 'LEMONADE_JIM',          name: '레모네이드 짐',       hp: 4, icon: '🍋', exp: 'SHADOW_VALLEY', desc: '다른 플레이어가 맥주를 쓰면 손패 1장을 버리고 생명력 +1 회복.' },
+      { id: 'MICK_DEFENDER',         name: '믹 디펜더',           hp: 4, icon: '🛡️', exp: 'SHADOW_VALLEY', desc: '나만 지목하는 갈색 카드를 빗나감!으로 무효화할 수 있습니다.' },
+      { id: 'TUCO_FRANZISKANER',     name: '투코 프란치스카너',   hp: 5, icon: '🏜️', exp: 'SHADOW_VALLEY', desc: '턴 시작 시 장착한 파란 카드가 없으면 카드 2장을 더 뽑습니다.' }
     ];
 
-    function getCharacterPool(expansions = []) {
-      const pool = [...BASE_CHARACTERS];
-      if (Array.isArray(expansions) && expansions.includes('DODGE_CITY')) {
-        pool.push(...DODGE_CITY_CHARACTERS);
+    const WILD_WEST_SHOW_CHARACTERS = [
+      { id: 'BIG_SPENCER',    name: '빅 스펜서',      hp: 9, icon: '🦣', exp: 'WILD_WEST_SHOW', desc: '시작 손패 5장 · 체력 9 · 빗나감! 사용 불가.' },
+      { id: 'FLINT_WESTWOOD', name: '플린트 웨스트우드', hp: 4, icon: '🤝', exp: 'WILD_WEST_SHOW', desc: '턴 시작 시 타인 손패에서 1장 강탈 후 1장 전달.' },
+      { id: 'GARY_LOOTER',    name: '게리 루터',      hp: 5, icon: '🎒', exp: 'WILD_WEST_SHOW', desc: '타인이 턴 종료 시 초과해 버린 카드를 모두 획득.' },
+      { id: 'GREGORY_DECK',   name: '그레고리 덱',    hp: 4, icon: '🎭', exp: 'WILD_WEST_SHOW', desc: '매 턴 시작 시 추가 카드 1장 드로우 (다재다능).' },
+      { id: 'JOHN_PAIN',      name: '존 페인',        hp: 4, icon: '🃏', exp: 'WILD_WEST_SHOW', desc: '손패가 6장 미만이면 판정 카드를 손패로 획득.' },
+      { id: 'LEE_VAN_KLIFF',  name: '리 반 클리프',   hp: 4, icon: '⚡', exp: 'WILD_WEST_SHOW', desc: '턴에 한 번 갈색 공격/드로우 카드 사용 시 1장 추가 드로우.' },
+      { id: 'TEREN_KILL',     name: '테렌 킬',        hp: 3, icon: '💀', exp: 'WILD_WEST_SHOW', desc: '탈락 시 판정해 ♠가 아니면 체력 1로 부활 + 1장 드로우.' },
+      { id: 'YOUL_GRINNER',   name: '율 그리너',      hp: 4, icon: '😈', exp: 'WILD_WEST_SHOW', desc: '턴 시작 시 나보다 손패가 많은 플레이어가 1장씩 바침.' }
+    ];
+
+    const GOLD_RUSH_CHARACTERS = [
+      { id: 'DON_BELL',       name: '돈 벨',          hp: 4, icon: '🔔', exp: 'GOLD_RUSH', desc: '턴 시작 시 ♥/♦ 판정 성공하면 금덩이 +1 & 1장 드로우.' },
+      { id: 'DUTCH_WILL',     name: '더치 윌',        hp: 4, icon: '⛏️', exp: 'GOLD_RUSH', desc: '매 턴 시작 시 금덩이 +1 획득.' },
+      { id: 'JACKY_MURIETA',  name: '재키 무리에타',  hp: 4, icon: '🔫', exp: 'GOLD_RUSH', desc: '금덩이 2개 보유 시 턴당 뱅! 1회 추가 가능.' },
+      { id: 'JOSH_MCCLOUD',   name: '조시 맥클라우드',hp: 4, icon: '🏪', exp: 'GOLD_RUSH', desc: '상점 장비 구매 시 금덩이 1개 환급.' },
+      { id: 'MADAME_YTO',     name: '마담 이토',      hp: 4, icon: '🍺', exp: 'GOLD_RUSH', desc: '누군가 맥주를 사용할 때마다 카드 1장 드로우.' },
+      { id: 'PRETTY_LUZENA',  name: '프리티 루제나',  hp: 4, icon: '💎', exp: 'GOLD_RUSH', desc: '상점 모든 장비를 금덩이 1개 할인된 가격에 구매.' },
+      { id: 'RADDIE_SNAKE',   name: '래디 스네이크',  hp: 4, icon: '🐍', exp: 'GOLD_RUSH', desc: '턴 시작 시 금덩이가 있으면 1장 추가 드로우.' },
+      { id: 'SIMEON_PICOS',   name: '시메온 피코스',  hp: 4, icon: '🪙', exp: 'GOLD_RUSH', desc: '피해를 1 입을 때마다 금덩이 +1 획득.' }
+    ];
+
+    const LEGENDS_CHARACTERS = [
+      { id: 'LEG_BART_CASSIDY',   name: '[전설] 바트 캐시디',   hp: 4, icon: '👑', exp: 'LEGENDS', desc: '피해 1당 카드 2장을 뽑습니다.' },
+      { id: 'LEG_BLACK_JACK',     name: '[전설] 블랙 잭',       hp: 4, icon: '👑', exp: 'LEGENDS', desc: '턴 시작 시 항상 카드 3장을 뽑습니다.' },
+      { id: 'LEG_CALAMITY_JANET', name: '[전설] 캘러미티 재닛', hp: 4, icon: '👑', exp: 'LEGENDS', desc: '뱅!/빗나감! 호환 + 공격 성공 시 1장 드로우.' },
+      { id: 'LEG_EL_GRINGO',      name: '[전설] 엘 그링고',     hp: 3, icon: '👑', exp: 'LEGENDS', desc: '피해 1당 공격자 손패에서 최대 2장 강탈.' },
+      { id: 'LEG_JESSE_JONES',    name: '[전설] 제시 존스',     hp: 4, icon: '👑', exp: 'LEGENDS', desc: '턴 시작 시 타인 손패에서 1장 강탈 + 2장 드로우.' },
+      { id: 'LEG_JOURDONNAIS',    name: '[전설] 주르도네',      hp: 4, icon: '👑', exp: 'LEGENDS', desc: '항상 강화 술통(♥/♦ 판정 시 뱅! 회피) 보유.' },
+      { id: 'LEG_KIT_CARLSON',    name: '[전설] 킷 칼슨',       hp: 4, icon: '👑', exp: 'LEGENDS', desc: '턴 시작 시 덱 위 4장을 보고 3장을 가져옵니다.' },
+      { id: 'LEG_LUCKY_DUKE',     name: '[전설] 럭키 듀크',     hp: 4, icon: '👑', exp: 'LEGENDS', desc: '판정 시 3장을 뒤집어 유리한 1장을 선택합니다.' },
+      { id: 'LEG_PAUL_REGRET',    name: '[전설] 폴 리그렛',     hp: 3, icon: '👑', exp: 'LEGENDS', desc: '남들이 나를 볼 때 거리 +2 (전설 야생마).' },
+      { id: 'LEG_PEDRO_RAMIREZ',  name: '[전설] 페드로 라미레스',hp: 4, icon: '👑', exp: 'LEGENDS', desc: '턴 시작 시 버림 더미 1장 + 덱 2장 드로우.' },
+      { id: 'LEG_ROSE_DOOLAN',    name: '[전설] 로즈 둘란',     hp: 4, icon: '👑', exp: 'LEGENDS', desc: '남들을 볼 때 거리 -2 (전설 조준경).' },
+      { id: 'LEG_SID_KETCHUM',    name: '[전설] 시드 케첨',     hp: 4, icon: '👑', exp: 'LEGENDS', desc: '턴에 2장 버리면 체력 +2 회복 + 빈사 구출.' },
+      { id: 'LEG_SLAB_THE_KILLER',name: '[전설] 슬랩 더 킬러',  hp: 4, icon: '👑', exp: 'LEGENDS', desc: '자신의 뱅!은 빗나감! 2장 필요 + 명중 시 +1장.' },
+      { id: 'LEG_SUZY_LAFAYETTE', name: '[전설] 수지 라파예트', hp: 4, icon: '👑', exp: 'LEGENDS', desc: '손패가 1장 이하가 되면 즉시 2장까지 보충.' },
+      { id: 'LEG_VULTURE_SAM',    name: '[전설] 벌쳐 샘',       hp: 4, icon: '👑', exp: 'LEGENDS', desc: '누군가 탈락 시 모든 카드 흡수 + 체력 +2 회복.' },
+      { id: 'LEG_WILLY_THE_KID',  name: '[전설] 윌리 더 키드',  hp: 4, icon: '👑', exp: 'LEGENDS', desc: '뱅! 무제한 + 사거리 +1 기본 보너스.' }
+    ];
+
+    const CHARACTER_EXPANSIONS = ['DODGE_CITY', 'SHADOW_VALLEY', 'WILD_WEST_SHOW', 'GOLD_RUSH', 'LEGENDS'];
+
+    function hasChar(player, charId) {
+      if (!player) return false;
+      if (Array.isArray(player.characters) && player.characters.length > 0) {
+        return player.characters.some(c => c && c.id === charId);
       }
-      if (Array.isArray(expansions) && expansions.includes('SHADOW_VALLEY')) {
-        pool.push(...SHADOW_VALLEY_CHARACTERS);
+      return player.character?.id === charId;
+    }
+
+    function getPlayerCharacters(player) {
+      if (!player) return [];
+      if (Array.isArray(player.characters) && player.characters.length > 0) return player.characters;
+      return player.character ? [player.character] : [];
+    }
+
+    function getCharDisplayName(player) {
+      const list = getPlayerCharacters(player);
+      return list.map(c => c.name).join(' + ') || '-';
+    }
+
+    function getCharDisplayIcons(player) {
+      const list = getPlayerCharacters(player);
+      return list.map(c => c.icon).join('');
+    }
+
+    function getCharDisplayDesc(player) {
+      const list = getPlayerCharacters(player);
+      return list.map(c => list.length > 1 ? `[${c.name}] ${c.desc}` : c.desc).join(' / ');
+    }
+
+    function hasCharacterExpansion(expansions = []) {
+      return Array.isArray(expansions) && expansions.some(e => CHARACTER_EXPANSIONS.includes(e));
+    }
+
+    function getCharactersByPack(packId) {
+      if (packId === 'BASE') return BASE_CHARACTERS;
+      if (packId === 'DODGE_CITY') return DODGE_CITY_CHARACTERS;
+      if (packId === 'SHADOW_VALLEY') return SHADOW_VALLEY_CHARACTERS;
+      if (packId === 'WILD_WEST_SHOW') return WILD_WEST_SHOW_CHARACTERS;
+      if (packId === 'GOLD_RUSH') return GOLD_RUSH_CHARACTERS;
+      if (packId === 'LEGENDS') return LEGENDS_CHARACTERS;
+      return [];
+    }
+
+    function getCharacterPool(expansions = [], excludeBaseChars = false, minNeeded = 0, excludedCharIds = []) {
+      const expPool = [];
+      if (Array.isArray(expansions)) {
+        if (expansions.includes('DODGE_CITY')) expPool.push(...DODGE_CITY_CHARACTERS);
+        if (expansions.includes('SHADOW_VALLEY')) expPool.push(...SHADOW_VALLEY_CHARACTERS);
+        if (expansions.includes('WILD_WEST_SHOW')) expPool.push(...WILD_WEST_SHOW_CHARACTERS);
+        if (expansions.includes('GOLD_RUSH')) expPool.push(...GOLD_RUSH_CHARACTERS);
+        if (expansions.includes('LEGENDS')) expPool.push(...LEGENDS_CHARACTERS);
+      }
+      const skipBase = !!excludeBaseChars && expPool.length > 0;
+      const excludedSet = new Set(Array.isArray(excludedCharIds) ? excludedCharIds : []);
+      const rawPool = skipBase ? [...expPool] : [...BASE_CHARACTERS, ...expPool];
+      const pool = rawPool.filter(c => !excludedSet.has(c.id));
+      if (minNeeded > 0 && pool.length < minNeeded) {
+        return pool;
       }
       return pool;
     }
@@ -1600,22 +1869,22 @@
         // 1 WELLS FARGO
         { code: 'WELLS_FARGO', name: '웰스 파고', type: 'brown', icon: '💰', desc: '카드 3장 뽑기', sr: '♥3' },
         // 4 PANIC!
-        ...['♥J','♥Q','♥A','♦8'].map(sr => ({ code: 'PANIC', name: '강탈', type: 'brown', icon: '🤏', desc: '거리 1 이내 카드 1장 강탈', sr })),
+        ...['♥J','♥Q','♥A','♦8'].map(sr => ({ code: 'PANIC', name: '강탈!', type: 'brown', icon: '🤏', desc: '거리 1 이내 대상의 카드 1장 강탈', sr })),
         // 4 CAT BALOU
-        ...['♥K','♦9','♦10','♦J'].map(sr => ({ code: 'CAT_BALOU', name: '캣 벌로우', type: 'brown', icon: '🔥', desc: '아무 대상 카드 1장 제거', sr })),
+        ...['♥K','♦9','♦10','♦J'].map(sr => ({ code: 'CAT_BALOU', name: '캣 발루', type: 'brown', icon: '🔥', desc: '아무 대상의 카드 1장 제거', sr })),
         // 3 DUEL
-        ...['♦Q','♠J','♣8'].map(sr => ({ code: 'DUEL', name: '결투', type: 'brown', icon: '⚔️', desc: '번갈아 뱅! 제출 승부', sr })),
+        ...['♦Q','♠J','♣8'].map(sr => ({ code: 'DUEL', name: '결투', type: 'brown', icon: '⚔️', desc: '번갈아 뱅!을 내며 승부', sr })),
         // 2 INDIANS!
-        ...['♦K','♦A'].map(sr => ({ code: 'INDIANS', name: '인디언', type: 'brown', icon: '🪓', desc: '타인 전원 뱅! 미제출 시 1 피해', sr })),
+        ...['♦K','♦A'].map(sr => ({ code: 'INDIANS', name: '인디언!', type: 'brown', icon: '🪓', desc: '타인 전원 뱅! 미제출 시 1 피해', sr })),
         // 1 GATLING
-        { code: 'GATLING', name: '기관총', type: 'brown', icon: '💣', desc: '타인 전원에게 뱅! 난사', sr: '♥10' },
+        { code: 'GATLING', name: '기관총', type: 'brown', icon: '💣', desc: '타인 전원에게 1 피해 난사', sr: '♥10' },
         // 2 GENERAL STORE
-        ...['♣9','♠Q'].map(sr => ({ code: 'GENERAL_STORE', name: '잡화점', type: 'brown', icon: '🎪', desc: '공개 카드 1장씩 획득', sr })),
+        ...['♣9','♠Q'].map(sr => ({ code: 'GENERAL_STORE', name: '잡화점', type: 'brown', icon: '🎪', desc: '공개 카드 1장씩 순서대로 획득', sr })),
         // 8 WEAPONS (Blue)
-        ...['♠10','♣10'].map(sr => ({ code: 'WEAPON', name: '볼캐닉', type: 'blue', range: 1, volcanic: true, icon: '💥', desc: '사거리 1 · 뱅! 무제한', sr })),
-        ...['♣J','♣Q','♠K'].map(sr => ({ code: 'WEAPON', name: '스코필드', type: 'blue', range: 2, icon: '🔫', desc: '사거리 2 권총', sr })),
+        ...['♠10','♣10'].map(sr => ({ code: 'WEAPON', name: '볼캐닉', type: 'blue', range: 1, volcanic: true, icon: '💥', desc: '사거리 1 · 뱅! 횟수 무제한', sr })),
+        ...['♣J','♣Q','♠K'].map(sr => ({ code: 'WEAPON', name: '스코필드', type: 'blue', range: 2, icon: '🔫', desc: '사거리 2 리볼버', sr })),
         { code: 'WEAPON', name: '레밍턴', type: 'blue', range: 3, icon: '🔫', desc: '사거리 3 소총', sr: '♣K' },
-        { code: 'WEAPON', name: '카빈', type: 'blue', range: 4, icon: '🔫', desc: '사거리 4 소총', sr: '♣A' },
+        { code: 'WEAPON', name: '리바이브 카빈', type: 'blue', range: 4, icon: '🔫', desc: '사거리 4 소총', sr: '♣A' },
         { code: 'WEAPON', name: '윈체스터', type: 'blue', range: 5, icon: '🔫', desc: '사거리 5 장총', sr: '♠8' },
         // 9 BLUE EQUIPMENT
         ...['♠Q','♠K'].map(sr => ({ code: 'BARREL', name: '술통', type: 'blue', icon: '🛢️', desc: '피격 시 ♥ 판정이면 회피', sr })),
@@ -1693,8 +1962,206 @@
     const EXPANSION_LABELS = {
       DODGE_CITY: '🌵닷지시티',
       HIGH_NOON_SET: '☀️하이눈&한줌',
-      SHADOW_VALLEY: '🌑그림자계곡'
+      SHADOW_VALLEY: '🌑그림자계곡',
+      WILD_WEST_SHOW: '🎪와웨쇼',
+      GOLD_RUSH: '🪙골드러쉬',
+      LEGENDS: '👑전설'
     };
+
+    // Wild West Show Event Deck (triggered by Stagecoach / Wells Fargo)
+    const WWS_EVENTS = [
+      { id: 'WWS_MISS_SUSANNA',    name: '미스 수잔나',     icon: '💃', desc: '와웨쇼! 턴 시작 시 카드를 1장 추가로 더 뽑습니다.' },
+      { id: 'WWS_SHOWDOWN',        name: '쇼다운',          icon: '🔫', desc: '와웨쇼! 이번 이벤트 동안 한 턴에 뱅!을 최대 2회 사용 가능.' },
+      { id: 'WWS_DARLING',         name: '달링 발렌타인',   icon: '💘', desc: '와웨쇼! 이벤트 공개 시 모든 생존자가 체력을 +1 회복합니다.' },
+      { id: 'WWS_DOROTHY',         name: '도로시 레이지',   icon: '😡', desc: '와웨쇼! 모든 생존자가 손패 1장을 버리고 2장을 뽑습니다.' },
+      { id: 'WWS_GAG',             name: '재갈',            icon: '🤐', desc: '와웨쇼! 이번 이벤트 동안 모든 판정 카드가 ♥로 취급됩니다.' },
+      { id: 'WWS_BONE_ORCHARD',    name: '공동묘지',        icon: '⚰️', desc: '와웨쇼! 탈락자가 있으면 가장 체력 낮은 생존자가 2장 드로우.' },
+      { id: 'WWS_HELENA',          name: '헬레나 존테로',   icon: '🎪', desc: '와웨쇼! 모든 생존자가 카드 1장씩 즉시 보너스 드로우.' },
+      { id: 'WWS_SACAGAWEYA',      name: '사카가웨아',      icon: '🪶', desc: '와웨쇼! 이번 이벤트 동안 모든 플레이어 간 거리가 1 감소.' },
+      { id: 'WWS_LADY_ROSA',       name: '레이디 로사',     icon: '🌹', desc: '와웨쇼! 턴 시작 시 체력이 2 이하인 플레이어는 +1 HP 회복.' }
+    ];
+    const WWS_FINALE = { id: 'WWS_FINALE', name: '와일드 웨스트 쇼 (최종)', icon: '🎪', desc: '최종 쇼! 직업 목표와 관계없이 최후의 1인이 승리합니다!' };
+
+    function buildWwsEventDeck() {
+      const mid = [...WWS_EVENTS].sort(() => Math.random() - 0.5).slice(0, 7);
+      return [WWS_FINALE, ...mid];
+    }
+
+    // Gold Rush Shop Items Deck
+    const GOLD_RUSH_SHOP_ITEMS = [
+      { id: 'GR_BOOTS',     name: '박차 부츠',     cost: 2, icon: '🥾', desc: '즉시 카드 2장을 뽑습니다.', instant: true },
+      { id: 'GR_RUM',       name: '럼주',          cost: 3, icon: '🍾', desc: '즉시 체력을 +2 회복합니다.', instant: true },
+      { id: 'GR_CALUMET',   name: '평화의 담뱃대', cost: 3, icon: '🪶', desc: '영구 장착: ♦ 카드의 피해를 무시합니다.', equip: true },
+      { id: 'GR_BELT',      name: '총알 벨트',     cost: 3, icon: '🔫', desc: '영구 장착: 한 턴에 뱅! +1회 추가 발사.', equip: true },
+      { id: 'GR_GOLD_WATCH',name: '황금 시계',     cost: 3, icon: '⌚', desc: '영구 장착: 매 턴 시작 시 1장 추가 드로우.', equip: true },
+      { id: 'GR_LUCKY_CHARM',name: '행운의 부적',  cost: 2, icon: '🍀', desc: '영구 장착: 피해를 입을 때마다 금덩이 +1.', equip: true },
+      { id: 'GR_HORSESHOE', name: '황금 말발굽',   cost: 2, icon: '🧲', desc: '영구 장착: 남들이 나를 볼 때 거리 +1.', equip: true },
+      { id: 'GR_SHOTGUN_A', name: '황금 조준기',   cost: 2, icon: '🔭', desc: '영구 장착: 내가 남을 볼 때 거리 -1.', equip: true },
+      { id: 'GR_PICKAXE',   name: '금광 곡괭이',   cost: 2, icon: '⛏️', desc: '영구 장착: 매 턴 시작 시 금덩이 +1 획득.', equip: true },
+      { id: 'GR_BADGE',     name: '황금 배지',     cost: 4, icon: '⭐', desc: '즉시 최대 체력 +1 및 체력 +1 회복.', instant: true },
+      { id: 'GR_SATCHEL',   name: '황금 가방',     cost: 2, icon: '🎒', desc: '즉시 카드 3장을 뽑습니다.', instant: true },
+      { id: 'GR_WHISKY_K',  name: '황금 위스키 통',cost: 2, icon: '🥃', desc: '즉시 체력 +1 회복 + 카드 1장 드로우.', instant: true }
+    ];
+
+    function buildGoldShopDeck() {
+      return [...GOLD_RUSH_SHOP_ITEMS].map((item, idx) => ({ ...item, uid: `${item.id}_${idx}` })).sort(() => Math.random() - 0.5);
+    }
+
+    function refillGoldShopDisplay() {
+      if (!G.settings.expansions.includes('GOLD_RUSH')) return;
+      while (G.shopDisplay.length < 3 && G.shopDeck.length > 0) {
+        G.shopDisplay.push(G.shopDeck.pop());
+      }
+    }
+
+    function updateWwsAndShopHUD() {
+      const wwsPill = document.getElementById('hud-wws-pill');
+      if (wwsPill) {
+        if (G.activeWwsEvent) {
+          wwsPill.innerText = `${G.activeWwsEvent.icon} ${G.activeWwsEvent.name}`;
+          wwsPill.title = G.activeWwsEvent.desc;
+          wwsPill.classList.remove('hidden');
+        } else {
+          wwsPill.classList.add('hidden');
+        }
+      }
+      const shopPill = document.getElementById('hud-shop-pill');
+      if (shopPill) {
+        const isGoldRush = G.settings.expansions.includes('GOLD_RUSH');
+        shopPill.classList.toggle('hidden', !isGoldRush);
+      }
+      const goldWrap = document.getElementById('my-gold-wrap');
+      const goldCount = document.getElementById('my-gold-count');
+      if (goldWrap && goldCount) {
+        const isGoldRush = G.settings.expansions.includes('GOLD_RUSH');
+        goldWrap.classList.toggle('hidden', !isGoldRush);
+        const me = G.players[G.mySeatIndex];
+        if (me) goldCount.innerText = String(me.gold || 0);
+      }
+    }
+
+    function showCurrentWwsToast() {
+      if (!G.activeWwsEvent) return;
+      showToast(`[${G.activeWwsEvent.icon} ${G.activeWwsEvent.name}] ${G.activeWwsEvent.desc}`);
+    }
+
+    function openGoldShopModal() {
+      if (!G.settings.expansions.includes('GOLD_RUSH')) return;
+      renderGoldShopModal();
+      document.getElementById('modal-gold-shop').classList.remove('hidden');
+    }
+
+    function closeGoldShopModal() {
+      document.getElementById('modal-gold-shop').classList.add('hidden');
+    }
+
+    function renderGoldShopModal() {
+      const me = G.players[G.mySeatIndex];
+      const goldEl = document.getElementById('shop-my-gold');
+      const grid = document.getElementById('gold-shop-items');
+      if (!me || !grid) return;
+      if (goldEl) goldEl.innerText = String(me.gold || 0);
+      const isMyTurn = G.turnIndex === G.mySeatIndex && !G.isBusy && me.isAlive;
+      const discount = hasChar(me, 'PRETTY_LUZENA') ? 1 : 0;
+
+      grid.innerHTML = '';
+      if (G.shopDisplay.length === 0) {
+        grid.innerHTML = '<div class="col-span-3 text-center text-xs text-stone-400 py-8">상점에 남은 장비가 없습니다.</div>';
+        return;
+      }
+      G.shopDisplay.forEach((item, idx) => {
+        const price = Math.max(1, item.cost - discount);
+        const canBuy = isMyTurn && (me.gold || 0) >= price;
+        const card = document.createElement('div');
+        card.className = 'bg-stone-900 border-2 border-yellow-700/70 rounded-2xl p-3.5 flex flex-col justify-between gap-2 text-center';
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-black text-yellow-200 truncate">${item.name}</span>
+              <span class="px-2 py-0.5 bg-yellow-950 border border-yellow-500/70 rounded-full text-[11px] font-black text-yellow-300">🪙 ${price}</span>
+            </div>
+            <div class="text-4xl my-2">${item.icon}</div>
+            <div class="text-[11px] text-stone-300 leading-snug card-desc-text">${item.desc}</div>
+          </div>
+          <button onclick="buyGoldShopItem(${idx})" ${canBuy ? '' : 'disabled'}
+            class="w-full py-2 bg-yellow-500 hover:bg-yellow-400 disabled:bg-stone-800 disabled:text-stone-500 text-stone-950 font-black text-xs rounded-xl transition">
+            ${canBuy ? `🪙 ${price} 구매하기` : (isMyTurn ? '금덩이 부족' : '내 턴에만 구매 가능')}
+          </button>`;
+        grid.appendChild(card);
+      });
+    }
+
+    async function buyGoldShopItem(idx) {
+      const me = G.players[G.mySeatIndex];
+      if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy || !me.isAlive) return;
+      const item = G.shopDisplay[idx];
+      if (!item) return;
+
+      if (Net.online && !Net.isHost) {
+        closeGoldShopModal();
+        await patchRoom(lobby.activeRoomId, {
+          guestAction: {
+            id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+            type: 'BUY_SHOP',
+            seat: G.mySeatIndex,
+            turnSeq: G.turnSeq,
+            shopIdx: idx
+          }
+        });
+        return;
+      }
+      await executeBuyShopItem(me, idx);
+      closeGoldShopModal();
+      broadcastGameState(true);
+    }
+
+    async function executeBuyShopItem(player, idx) {
+      const item = G.shopDisplay[idx];
+      if (!item) return;
+      const discount = hasChar(player, 'PRETTY_LUZENA') ? 1 : 0;
+      const price = Math.max(1, item.cost - discount);
+      if ((player.gold || 0) < price) return;
+
+      player.gold = (player.gold || 0) - price;
+      if (hasChar(player, 'JOSH_MCCLOUD')) {
+        player.gold += 1;
+        player.abilityRevealed = true;
+      }
+      G.shopDisplay.splice(idx, 1);
+      refillGoldShopDisplay();
+      SFX.playEquip();
+
+      if (item.id === 'GR_BOOTS') {
+        drawCards(player, 2, true);
+      } else if (item.id === 'GR_RUM') {
+        player.hp = Math.min(player.maxHp, player.hp + 2);
+        FX.showFloatText(player.id, '+2 HP 🍾', '#4ade80');
+      } else if (item.id === 'GR_BADGE') {
+        player.maxHp += 1;
+        player.hp += 1;
+        FX.showFloatText(player.id, '최대HP +1 ⭐', '#fbbf24');
+      } else if (item.id === 'GR_SATCHEL') {
+        drawCards(player, 3, true);
+      } else if (item.id === 'GR_WHISKY_K') {
+        player.hp = Math.min(player.maxHp, player.hp + 1);
+        drawCards(player, 1, true);
+      } else if (item.equip) {
+        player.equipment.push({
+          id: `shop_${item.uid}_${Date.now()}`,
+          code: item.id,
+          name: item.name,
+          type: 'blue',
+          icon: item.icon,
+          desc: item.desc,
+          suit: '♦',
+          rank: 'A'
+        });
+      }
+      logBattle(`🏪 ${player.name}이(가) 상점에서 [${item.icon} ${item.name}]을(를) 금덩이 ${price}개로 구매했습니다!`);
+      updateWwsAndShopHUD();
+      syncAllBoards();
+      renderHand();
+    }
 
     // High Noon & A Fistful of Cards (Combined Set) Round Events
     const HIGH_NOON_FISTFUL_EVENTS = [
@@ -1743,10 +2210,21 @@
     const DEFAULT_SETTINGS = {
       bonusHp: 0,
       sheriffBonusHp: 1,
+      charPickCount: 1,
       allowDuplicateBlue: false,
       allowBeerAtTwo: false,
+      excludeBaseChars: false,
       useRoles: true,
-      expansions: []
+      expansions: [],
+      excludedCharIds: [],
+      superFixedCharIds: [],
+      superAllBlueStart: false
+    };
+
+    const SuperDraft = {
+      activeBanPack: 'BASE',
+      bannedIds: new Set(),
+      fixedIds: []
     };
 
     const lobby = { rooms: [], activeRoomId: null, pendingJoinId: null };
@@ -1755,11 +2233,16 @@
       const s = { ...DEFAULT_SETTINGS, ...(raw || {}) };
       s.bonusHp = Math.max(0, Math.min(5, parseInt(s.bonusHp, 10) || 0));
       s.sheriffBonusHp = Math.max(1, Math.min(3, parseInt(s.sheriffBonusHp, 10) || 1));
+      s.charPickCount = Math.max(1, Math.min(3, parseInt(s.charPickCount, 10) || 1));
       s.allowDuplicateBlue = !!s.allowDuplicateBlue;
       s.allowBeerAtTwo = !!s.allowBeerAtTwo;
       const count = playerCount !== null ? parseInt(playerCount, 10) : (raw?.maxPlayers ? parseInt(raw.maxPlayers, 10) : null);
       s.useRoles = count === 2 ? false : (raw && raw.useRoles !== undefined ? !!raw.useRoles : true);
       s.expansions = Array.isArray(raw?.expansions) ? [...new Set(raw.expansions)] : [];
+      s.excludeBaseChars = hasCharacterExpansion(s.expansions) ? !!s.excludeBaseChars : false;
+      s.excludedCharIds = Array.isArray(raw?.excludedCharIds) ? [...new Set(raw.excludedCharIds)] : [];
+      s.superFixedCharIds = Array.isArray(raw?.superFixedCharIds) ? [...new Set(raw.superFixedCharIds)] : [];
+      s.superAllBlueStart = !!raw?.superAllBlueStart;
       return s;
     }
 
@@ -1771,6 +2254,9 @@
       } else {
         tags.push('기본판');
       }
+      if (s.excludeBaseChars) tags.push('🚫기본캐제외');
+      if (s.charPickCount > 1) tags.push(`🎭인물${s.charPickCount}명선택`);
+      if (s.superAllBlueStart) tags.push('⚡SUPER');
       if (!s.useRoles) tags.push('🎭직업OFF');
       if (s.bonusHp > 0) tags.push(`❤️기본HP+${s.bonusHp}`);
       if (s.useRoles && s.sheriffBonusHp !== 1) tags.push(`⭐보안관HP+${s.sheriffBonusHp}`);
@@ -1825,20 +2311,168 @@
             <div class="text-xs text-stone-400 mt-1">${getRoleBreakdownText(room.maxPlayers, room.settings)} · 현재 ${filled}/${room.maxPlayers}명</div>
             <div class="flex flex-wrap gap-1 mt-1.5">${badges}</div>
           </div>
-          <button onclick="attemptJoinRoom('${room.id}')" ${isPlaying || filled >= room.maxPlayers ? 'disabled' : ''}
-            class="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-stone-700 disabled:text-stone-400 text-stone-950 font-black text-xs rounded-xl whitespace-nowrap">
-            ${isPlaying ? '게임중' : (filled >= room.maxPlayers ? '만석' : '입장하기')}
-          </button>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            ${isPlaying
+              ? `<button onclick="spectateRoom('${room.id}')" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white font-black text-xs rounded-xl whitespace-nowrap shadow">👁️ 관전하기</button>`
+              : `<button onclick="attemptJoinRoom('${room.id}')" ${filled >= room.maxPlayers ? 'disabled' : ''}
+                  class="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-stone-700 disabled:text-stone-400 text-stone-950 font-black text-xs rounded-xl whitespace-nowrap">
+                  ${filled >= room.maxPlayers ? '만석' : '입장하기'}
+                </button>`}
+          </div>
         `;
         wrap.appendChild(row);
       });
     }
 
+    function requireNickname() {
+      const nick = (document.getElementById('lobby-nickname')?.value || '').trim();
+      if (!nick) {
+        showToast('닉네임을 입력해 주세요.');
+        document.getElementById('lobby-nickname')?.focus();
+        return null;
+      }
+      return nick;
+    }
+
     function openCreateRoomModal() {
+      if (!requireNickname()) return;
       onRoomMaxChange();
+      onExpansionSelectionChange();
+      const superPanel = document.getElementById('super-settings-panel');
+      if (superPanel) superPanel.classList.toggle('hidden', !Prefs.superUnlocked);
+      if (Prefs.superUnlocked) renderSuperSettingsUI();
       document.getElementById('modal-create-room').classList.remove('hidden');
     }
     function closeCreateRoomModal() { document.getElementById('modal-create-room').classList.add('hidden'); }
+
+    function onExpansionSelectionChange() {
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const enabled = hasCharacterExpansion(exps);
+      const chk = document.getElementById('opt-exclude-base-chars');
+      const lbl = document.getElementById('lbl-exclude-base-chars');
+      if (chk) {
+        chk.disabled = !enabled;
+        if (!enabled) chk.checked = false;
+      }
+      if (lbl) {
+        lbl.classList.toggle('opacity-50', !enabled);
+      }
+      if (Prefs.superUnlocked) renderSuperSettingsUI();
+      updateCharPoolAvailabilityUI();
+    }
+
+    function updateCharPoolAvailabilityUI() {
+      const maxPlayers = parseInt(document.getElementById('input-room-max')?.value, 10) || 5;
+      const pickCount = parseInt(document.getElementById('opt-char-pick-count')?.value, 10) || 1;
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const excludeBase = document.getElementById('opt-exclude-base-chars')?.checked || false;
+      const banned = Prefs.superUnlocked ? [...SuperDraft.bannedIds] : [];
+      const pool = getCharacterPool(exps, excludeBase, 0, banned);
+      const needed = maxPlayers * (pickCount + 1);
+      const msg = document.getElementById('char-pool-check-msg');
+      const btn = document.getElementById('btn-create-room-submit');
+      const ok = pool.length >= needed;
+      if (msg) {
+        msg.innerText = ok
+          ? `가능 (사용 가능 ${pool.length}명 / 필요 ${needed}명)`
+          : `인물 부족! (${pool.length}명 / 필요 ${needed}명)`;
+        msg.className = ok ? 'text-[10px] font-bold text-emerald-400' : 'text-[10px] font-black text-red-400';
+      }
+      if (btn) btn.disabled = !ok;
+      return { ok, pool, needed, maxPlayers, pickCount };
+    }
+
+    function getActiveCharacterPacksForUI() {
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const excludeBase = document.getElementById('opt-exclude-base-chars')?.checked || false;
+      const packs = [];
+      if (!excludeBase || !hasCharacterExpansion(exps)) packs.push({ id: 'BASE', label: '기본판' });
+      CHARACTER_EXPANSIONS.forEach(expId => {
+        if (exps.includes(expId)) packs.push({ id: expId, label: EXPANSION_LABELS[expId] || expId });
+      });
+      return packs;
+    }
+
+    function renderSuperSettingsUI() {
+      const packs = getActiveCharacterPacksForUI();
+      if (!packs.some(p => p.id === SuperDraft.activeBanPack)) {
+        SuperDraft.activeBanPack = packs[0]?.id || 'BASE';
+      }
+      const tabsEl = document.getElementById('super-ban-pack-tabs');
+      const banListEl = document.getElementById('super-ban-char-list');
+      const fixedListEl = document.getElementById('super-fixed-char-list');
+      if (!tabsEl || !banListEl || !fixedListEl) return;
+
+      tabsEl.innerHTML = packs.map(pk => `
+        <button type="button" onclick="selectSuperBanPack('${pk.id}')"
+          class="px-2 py-1 rounded-lg text-[10px] font-bold transition ${SuperDraft.activeBanPack === pk.id ? 'bg-amber-500 text-stone-950' : 'bg-stone-800 text-stone-300 hover:bg-stone-700'}">
+          ${pk.label}
+        </button>`).join('');
+
+      const packChars = getCharactersByPack(SuperDraft.activeBanPack);
+      banListEl.innerHTML = packChars.map(c => {
+        const isBanned = SuperDraft.bannedIds.has(c.id);
+        return `
+          <button type="button" onclick="toggleSuperBanChar('${c.id}')"
+            class="px-2 py-1.5 rounded-lg border text-left flex items-center justify-between gap-1 text-[10px] font-bold transition ${isBanned ? 'bg-red-950/90 border-red-500 text-red-200 line-through' : 'bg-stone-900 border-stone-700 text-stone-200 hover:border-amber-500'}">
+            <span class="truncate">${c.icon} ${c.name}</span>
+            <span class="font-black flex-shrink-0">${isBanned ? '✕' : ''}</span>
+          </button>`;
+      }).join('');
+
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const excludeBase = document.getElementById('opt-exclude-base-chars')?.checked || false;
+      const availPool = getCharacterPool(exps, excludeBase, 0, [...SuperDraft.bannedIds]);
+      const availIds = new Set(availPool.map(c => c.id));
+      const pickCount = parseInt(document.getElementById('opt-char-pick-count')?.value, 10) || 1;
+      const maxFixed = pickCount + 1;
+      SuperDraft.fixedIds = SuperDraft.fixedIds.filter(id => availIds.has(id)).slice(0, maxFixed);
+
+      const banCountEl = document.getElementById('super-ban-count');
+      if (banCountEl) banCountEl.innerText = `${SuperDraft.bannedIds.size}명 제외됨`;
+      const fixedCountEl = document.getElementById('super-fixed-count');
+      if (fixedCountEl) fixedCountEl.innerText = `${SuperDraft.fixedIds.length} / ${maxFixed} 선택`;
+
+      fixedListEl.innerHTML = availPool.map(c => {
+        const isFixed = SuperDraft.fixedIds.includes(c.id);
+        return `
+          <button type="button" onclick="toggleSuperFixedChar('${c.id}')"
+            class="px-2 py-1.5 rounded-lg border text-left flex items-center justify-between gap-1 text-[10px] font-bold transition ${isFixed ? 'bg-amber-500/25 border-amber-400 text-amber-200' : 'bg-stone-900 border-stone-700 text-stone-200 hover:border-amber-500'}">
+            <span class="truncate">${c.icon} ${c.name}</span>
+            <span class="font-black flex-shrink-0">${isFixed ? '★' : ''}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function selectSuperBanPack(packId) {
+      SuperDraft.activeBanPack = packId;
+      renderSuperSettingsUI();
+    }
+
+    function toggleSuperBanChar(charId) {
+      if (SuperDraft.bannedIds.has(charId)) SuperDraft.bannedIds.delete(charId);
+      else {
+        SuperDraft.bannedIds.add(charId);
+        SuperDraft.fixedIds = SuperDraft.fixedIds.filter(id => id !== charId);
+      }
+      renderSuperSettingsUI();
+      updateCharPoolAvailabilityUI();
+    }
+
+    function toggleSuperFixedChar(charId) {
+      const pickCount = parseInt(document.getElementById('opt-char-pick-count')?.value, 10) || 1;
+      const maxFixed = pickCount + 1;
+      if (SuperDraft.fixedIds.includes(charId)) {
+        SuperDraft.fixedIds = SuperDraft.fixedIds.filter(id => id !== charId);
+      } else {
+        if (SuperDraft.fixedIds.length >= maxFixed) {
+          showToast(`최대 ${maxFixed}명까지 확정 선택할 수 있습니다.`);
+          return;
+        }
+        SuperDraft.fixedIds.push(charId);
+      }
+      renderSuperSettingsUI();
+    }
 
     function onRoomMaxChange() {
       const maxVal = parseInt(document.getElementById('input-room-max')?.value, 10) || 5;
@@ -1851,21 +2485,38 @@
           roleChk.disabled = false;
         }
       }
+      updateCharPoolAvailabilityUI();
     }
 
     async function createRoomSubmit() {
-      const title = document.getElementById('input-room-title').value.trim() || '서부 개척지 결투방';
+      const nick = requireNickname();
+      if (!nick) return;
+      const title = (document.getElementById('input-room-title').value || '').trim();
+      if (!title) {
+        showToast('방 제목을 입력해 주세요.');
+        document.getElementById('input-room-title')?.focus();
+        return;
+      }
+      const check = updateCharPoolAvailabilityUI();
+      if (!check.ok) {
+        showToast(`인물 카드가 부족합니다! (사용 가능 ${check.pool.length}명 / 필요 ${check.needed}명)`);
+        return;
+      }
       const maxPlayers = parseInt(document.getElementById('input-room-max').value, 10) || 5;
       const password = document.getElementById('input-room-pw').value.trim();
-      const nick = document.getElementById('lobby-nickname').value.trim() || '총잡이';
 
       const expansions = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
       const settings = normalizeSettings({
         bonusHp: document.getElementById('opt-bonus-hp').value,
         sheriffBonusHp: document.getElementById('opt-sheriff-hp').value,
+        charPickCount: document.getElementById('opt-char-pick-count')?.value || 1,
         useRoles: document.getElementById('opt-use-roles').checked,
         allowDuplicateBlue: document.getElementById('opt-dup-blue').checked,
         allowBeerAtTwo: document.getElementById('opt-beer-two').checked,
+        excludeBaseChars: document.getElementById('opt-exclude-base-chars')?.checked || false,
+        excludedCharIds: Prefs.superUnlocked ? [...SuperDraft.bannedIds] : [],
+        superFixedCharIds: Prefs.superUnlocked ? [...SuperDraft.fixedIds] : [],
+        superAllBlueStart: Prefs.superUnlocked ? (document.getElementById('opt-super-all-blue')?.checked || false) : false,
         expansions
       }, maxPlayers);
 
@@ -1909,6 +2560,7 @@
     }
 
     function attemptJoinRoom(roomId) {
+      if (!requireNickname()) return;
       const room = lobby.rooms.find(r => r.id === roomId);
       if (!room) return;
       if (room.password) {
@@ -1918,6 +2570,24 @@
       } else {
         joinRoomNow(roomId);
       }
+    }
+
+    async function spectateRoom(roomId) {
+      const room = lobby.rooms.find(r => r.id === roomId);
+      if (!room) return;
+      G.isSpectator = true;
+      Net.isHost = false;
+      lobby.activeRoomId = roomId;
+      ChatState.messages = [];
+      ChatState.seenIds.clear();
+      ChatState.unread = 0;
+      document.getElementById('spectator-badge')?.classList.remove('hidden');
+      document.querySelector('#screen-game footer')?.classList.add('hidden');
+      if (Net.online && Net.db) {
+        subscribeActiveRoom(roomId);
+        if (room.stateJson) handleRemoteGameSync(room);
+      }
+      showToast(`👁️ [${room.title}] 관전을 시작합니다.`);
     }
     function closePwModal() { document.getElementById('modal-pw').classList.add('hidden'); lobby.pendingJoinId = null; }
     function confirmJoinWithPw() {
@@ -1930,7 +2600,11 @@
     }
 
     async function joinRoomNow(roomId) {
-      const nick = document.getElementById('lobby-nickname').value.trim() || '총잡이';
+      const nick = requireNickname();
+      if (!nick) return;
+      G.isSpectator = false;
+      document.getElementById('spectator-badge')?.classList.add('hidden');
+      document.querySelector('#screen-game footer')?.classList.remove('hidden');
       if (Net.online && Net.db) {
         try {
           const roomRef = doc(Net.db, APP_COL, roomId);
@@ -2034,8 +2708,10 @@
                 <div class="text-[11px] text-stone-400">${slot.isHost ? '👑 방장' : (slot.isAI ? '🤖 AI 총잡이' : '🤠 참가자')}</div>
               </div>
             </div>
-            ${slot.isAI && isHost
-              ? `<button onclick="removeAISlot(${idx})" class="px-2.5 py-1 bg-red-950 hover:bg-red-900 text-red-300 text-xs font-bold rounded-lg border border-red-800">AI 제거</button>`
+            ${isHost && !isMe
+              ? (slot.isAI
+                  ? `<button onclick="removeAISlot(${idx})" class="px-2.5 py-1 bg-red-950 hover:bg-red-900 text-red-300 text-xs font-bold rounded-lg border border-red-800">AI 제거</button>`
+                  : `<button onclick="kickPlayerSlot(${idx})" class="px-2.5 py-1 bg-red-900 hover:bg-red-800 text-red-100 text-xs font-black rounded-lg border border-red-500">추방</button>`)
               : '<span class="text-xs text-emerald-400 font-bold">준비 완료</span>'}
           `;
         } else {
@@ -2066,6 +2742,21 @@
       renderWaitingRoom();
       await patchRoom(room.id, { slots, updatedAt: Date.now() });
     }
+    async function kickPlayerSlot(idx) {
+      const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
+      if (!room || !room.slots[idx] || room.slots[idx].isHost) return;
+      const target = room.slots[idx];
+      const slots = [...room.slots];
+      slots[idx] = null;
+      const kicked = Array.isArray(room.kickedClientIds) ? [...room.kickedClientIds] : [];
+      if (target.clientId && !kicked.includes(target.clientId)) kicked.push(target.clientId);
+      room.slots = slots;
+      room.kickedClientIds = kicked;
+      renderWaitingRoom();
+      await patchRoom(room.id, { slots, kickedClientIds: kicked, updatedAt: Date.now() });
+      showToast(`${target.name}님을 추방했습니다.`);
+    }
+
     async function removeAISlot(idx) {
       const room = lobby.rooms.find(r => r.id === lobby.activeRoomId);
       if (!room || !room.slots[idx]?.isAI) return;
@@ -2089,11 +2780,12 @@
        =================================================================== */
     const ceremony = {
       roles: [],
-      charOptionsBySeat: [],
+      charOptionsBySeat: {},
       activeSlots: [],
       settings: { ...DEFAULT_SETTINGS },
       mySeat: 0,
-      roleFlipped: false
+      roleFlipped: false,
+      selectedIndices: []
     };
 
     async function startOpeningCeremony() {
@@ -2108,6 +2800,15 @@
 
       const N = activeSlots.length;
       const s = normalizeSettings(room.settings, N);
+      const pickCount = s.charPickCount || 1;
+      const dealCount = pickCount + 1;
+
+      const charPool = getCharacterPool(s.expansions, s.excludeBaseChars, 0, s.excludedCharIds);
+      if (charPool.length < N * dealCount) {
+        showToast(`인물 카드가 부족합니다! (사용 가능 ${charPool.length}명 / 필요 ${N * dealCount}명)`);
+        return;
+      }
+
       let roles;
       if (!s.useRoles || N === 2) {
         roles = Array(N).fill(ROLES.FREE);
@@ -2121,15 +2822,38 @@
         roles = rolePool.sort(() => Math.random() - 0.5);
       }
 
-      const charPool = getCharacterPool(s.expansions);
-      const shuffledChars = [...charPool].sort(() => Math.random() - 0.5);
+      // Apply SUPER fixed characters for host seat without duplicates
+      const hostSeat = Math.max(0, activeSlots.findIndex(sl => sl.isHost));
+      const fixedChars = (s.superFixedCharIds || [])
+        .map(id => charPool.find(c => c.id === id))
+        .filter(Boolean)
+        .slice(0, dealCount);
+      const fixedIdSet = new Set(fixedChars.map(c => c.id));
+      const remainingPool = charPool.filter(c => !fixedIdSet.has(c.id)).sort(() => Math.random() - 0.5);
+
       const charOptionsBySeat = {};
       const initialPicks = {};
+
+      // Deal host seat first (guaranteed fixed chars + random fill up to dealCount)
+      const hostOpts = [...fixedChars];
+      while (hostOpts.length < dealCount && remainingPool.length > 0) {
+        hostOpts.push(remainingPool.pop());
+      }
+      charOptionsBySeat[String(hostSeat)] = hostOpts;
+      if (activeSlots[hostSeat]?.isAI) {
+        initialPicks[String(hostSeat)] = hostOpts.slice(0, pickCount).map(c => c.id).join(',');
+      }
+
+      // Deal other seats without duplicates
       for (let i = 0; i < N; i++) {
-        const pair = [shuffledChars[i * 2], shuffledChars[i * 2 + 1]];
-        charOptionsBySeat[String(i)] = pair;
+        if (i === hostSeat) continue;
+        const opts = [];
+        for (let k = 0; k < dealCount && remainingPool.length > 0; k++) {
+          opts.push(remainingPool.pop());
+        }
+        charOptionsBySeat[String(i)] = opts;
         if (activeSlots[i].isAI) {
-          initialPicks[String(i)] = pair[0].id;
+          initialPicks[String(i)] = opts.slice(0, pickCount).map(c => c.id).join(',');
         }
       }
 
@@ -2217,19 +2941,30 @@
 
     function goToCharStep() {
       SFX.playCardDraw();
+      ceremony.selectedIndices = [];
       document.getElementById('ceremony-step-role').classList.add('hidden');
       document.getElementById('ceremony-step-char').classList.remove('hidden');
       const wrap = document.getElementById('ceremony-char-choices');
+      wrap.classList.remove('opacity-50', 'pointer-events-none');
       wrap.innerHTML = '';
 
       const s = normalizeSettings(ceremony.settings);
+      const pickCount = s.charPickCount || 1;
       const isSheriff = s.useRoles && ceremony.roles[ceremony.mySeat]?.id === 'SHERIFF';
       const myOptions = ceremony.charOptionsBySeat[ceremony.mySeat] || [];
+
+      const stepDesc = document.querySelector('#ceremony-step-char p');
+      if (stepDesc) {
+        stepDesc.innerText = pickCount > 1
+          ? `${myOptions.length}명의 인물 중 ${pickCount}명을 선택하세요! 선택한 모든 인물의 능력을 동시에 사용할 수 있습니다.`
+          : `${myOptions.length}명의 인물 중 1명을 선택하세요. 체력만큼 뒤편 총알 카드가 세팅됩니다.`;
+      }
 
       myOptions.forEach((ch, idx) => {
         const finalHp = ch.hp + s.bonusHp + (isSheriff ? s.sheriffBonusHp : 0);
         const btn = document.createElement('button');
-        btn.className = 'bang-card card-char w-48 h-64 text-left hover:-translate-y-2 hover:ring-4 hover:ring-amber-400 transition shadow-2xl';
+        btn.id = `ceremony-char-btn-${idx}`;
+        btn.className = 'bang-card card-char w-44 sm:w-48 h-60 sm:h-64 text-left hover:-translate-y-2 hover:ring-4 hover:ring-amber-400 transition shadow-2xl';
         btn.onclick = () => selectMyCharacter(idx);
         btn.innerHTML = `
           <div class="bang-card-inner p-3 justify-between">
@@ -2238,7 +2973,7 @@
               <span class="text-xs font-black text-amber-700">${'🔫'.repeat(Math.min(finalHp, 5))} ${finalHp}</span>
             </div>
             <div class="text-5xl text-center my-2">${ch.icon}</div>
-            <div class="text-xs text-stone-800 leading-snug bg-amber-900/10 p-2 rounded-lg">${ch.desc}</div>
+            <div class="text-xs text-stone-800 leading-snug bg-amber-900/10 p-2 rounded-lg card-desc-text">${ch.desc}</div>
           </div>`;
         wrap.appendChild(btn);
       });
@@ -2246,18 +2981,40 @@
 
     async function selectMyCharacter(chosenIdx) {
       SFX.playEquip();
-      const chosenChar = ceremony.charOptionsBySeat[ceremony.mySeat][chosenIdx];
+      const s = normalizeSettings(ceremony.settings);
+      const pickCount = s.charPickCount || 1;
+      const myOptions = ceremony.charOptionsBySeat[ceremony.mySeat] || [];
+
+      if (pickCount > 1) {
+        const pos = ceremony.selectedIndices.indexOf(chosenIdx);
+        if (pos >= 0) {
+          ceremony.selectedIndices.splice(pos, 1);
+          document.getElementById(`ceremony-char-btn-${chosenIdx}`)?.classList.remove('ring-4', 'ring-amber-400', '-translate-y-2');
+          return;
+        }
+        ceremony.selectedIndices.push(chosenIdx);
+        document.getElementById(`ceremony-char-btn-${chosenIdx}`)?.classList.add('ring-4', 'ring-amber-400', '-translate-y-2');
+        if (ceremony.selectedIndices.length < pickCount) {
+          showToast(`${ceremony.selectedIndices.length}/${pickCount}명 선택됨 — ${pickCount - ceremony.selectedIndices.length}명 더 선택하세요!`);
+          return;
+        }
+      } else {
+        ceremony.selectedIndices = [chosenIdx];
+      }
+
+      const chosenChars = ceremony.selectedIndices.map(i => myOptions[i]).filter(Boolean);
+      const pickValue = chosenChars.map(c => c.id).join(',');
 
       if (Net.online && Net.db && lobby.activeRoomId) {
         document.getElementById('ceremony-char-choices').classList.add('opacity-50', 'pointer-events-none');
         document.getElementById('ceremony-wait-others').classList.remove('hidden');
         await patchRoom(lobby.activeRoomId, {
-          [`charPicks.${ceremony.mySeat}`]: chosenChar.id,
+          [`charPicks.${ceremony.mySeat}`]: pickValue,
           updatedAt: Date.now()
         });
       } else {
         document.getElementById('screen-ceremony').classList.add('hidden');
-        initGameBoardSolo(chosenChar);
+        initGameBoardSolo(chosenChars);
       }
     }
 
@@ -2266,12 +3023,17 @@
        =================================================================== */
     const G = {
       mySeatIndex: 0,
+      isSpectator: false,
       settings: { ...DEFAULT_SETTINGS },
       players: [],
       drawPile: [],
       discardPile: [],
       eventDeck: [],
       activeEvent: null,
+      wwsEventDeck: [],
+      activeWwsEvent: null,
+      shopDeck: [],
+      shopDisplay: [],
       roundNumber: 0,
       roundStarterIndex: 0,
       turnIndex: 0,
@@ -2294,18 +3056,44 @@
       draggedCardId: null
     };
 
-    function calcStartingMaxHp(character, role, s) {
+    function calcStartingMaxHp(charOrList, role, s) {
+      const list = Array.isArray(charOrList) ? charOrList : [charOrList];
+      const baseHp = Math.max(...list.map(c => c?.hp || 4));
       const isSheriff = s.useRoles && role.id === 'SHERIFF';
-      return character.hp + s.bonusHp + (isSheriff ? s.sheriffBonusHp : 0);
+      return baseHp + s.bonusHp + (isSheriff ? s.sheriffBonusHp : 0);
     }
 
-    function initGameBoardSolo(p0Char) {
+    function drawStartingHandForSeat(count, allBlueOnly = false) {
+      const hand = [];
+      if (allBlueOnly) {
+        for (let i = 0; i < count; i++) {
+          const bIdx = G.drawPile.findIndex(c => c.type === 'blue');
+          if (bIdx >= 0) hand.push(G.drawPile.splice(bIdx, 1)[0]);
+          else if (G.drawPile.length > 0) hand.push(G.drawPile.pop());
+        }
+        return hand;
+      }
+      for (let i = 0; i < count; i++) {
+        if (G.drawPile.length > 0) hand.push(G.drawPile.pop());
+      }
+      return hand;
+    }
+
+    function initGameBoardSolo(p0Chars) {
       G.mySeatIndex = 0;
+      G.isSpectator = false;
       G.settings = normalizeSettings(ceremony.settings);
+      const pickCount = G.settings.charPickCount || 1;
+      const p0List = Array.isArray(p0Chars) ? p0Chars : [p0Chars];
       G.drawPile = buildOfficial80Deck(G.settings.expansions);
       G.discardPile = [];
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
+      G.wwsEventDeck = G.settings.expansions.includes('WILD_WEST_SHOW') ? buildWwsEventDeck() : [];
+      G.activeWwsEvent = null;
+      G.shopDeck = G.settings.expansions.includes('GOLD_RUSH') ? buildGoldShopDeck() : [];
+      G.shopDisplay = [];
+      refillGoldShopDisplay();
       G.roundNumber = 0;
       G.turnSeq = 0;
       G.isAdvancingTurn = false;
@@ -2326,12 +3114,11 @@
 
       G.players = ceremony.activeSlots.map((slot, idx) => {
         const role = ceremony.roles[idx];
-        const character = idx === 0 ? p0Char : ceremony.charOptionsBySeat[idx][0];
-        const maxHp = calcStartingMaxHp(character, role, G.settings);
-        const hand = [];
-        for (let i = 0; i < maxHp; i++) {
-          if (G.drawPile.length > 0) hand.push(G.drawPile.pop());
-        }
+        const characters = idx === 0 ? p0List : (ceremony.charOptionsBySeat[idx] || []).slice(0, pickCount);
+        const character = characters[0];
+        const maxHp = calcStartingMaxHp(characters, role, G.settings);
+        const startDraw = characters.some(c => c.id === 'BIG_SPENCER') ? 5 : maxHp;
+        const hand = drawStartingHandForSeat(startDraw, idx === 0 && G.settings.superAllBlueStart);
         return {
           id: idx,
           name: slot.name,
@@ -2339,8 +3126,10 @@
           clientId: slot.clientId,
           role,
           character,
+          characters,
           hp: maxHp,
           maxHp,
+          gold: 0,
           hand,
           equipment: [],
           isAlive: true,
@@ -2352,6 +3141,7 @@
       G.turnIndex = sheriffIdx >= 0 ? sheriffIdx : 0;
       G.roundStarterIndex = G.turnIndex;
       updateEventHUD();
+      updateWwsAndShopHUD();
 
       document.getElementById('screen-game').classList.remove('hidden');
       buildSeatButtonsHUD();
@@ -2372,6 +3162,11 @@
       G.discardPile = [];
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
+      G.wwsEventDeck = G.settings.expansions.includes('WILD_WEST_SHOW') ? buildWwsEventDeck() : [];
+      G.activeWwsEvent = null;
+      G.shopDeck = G.settings.expansions.includes('GOLD_RUSH') ? buildGoldShopDeck() : [];
+      G.shopDisplay = [];
+      refillGoldShopDisplay();
       G.roundNumber = 0;
       G.turnSeq = 0;
       G.isAdvancingTurn = false;
@@ -2379,17 +3174,20 @@
       G.bangsPlayedThisTurn = 0;
       G.isBusy = false;
 
-      const charPool = getCharacterPool(G.settings.expansions);
+      const charPool = getCharacterPool(G.settings.expansions, false, 0, []);
+      const pickCount = G.settings.charPickCount || 1;
+      const hostSeat = Math.max(0, cData.activeSlots.findIndex(sl => sl.isHost));
 
       G.players = cData.activeSlots.map((slot, idx) => {
         const role = cData.roles[idx];
-        const pickedId = picksMap[String(idx)];
-        const character = charPool.find(c => c.id === pickedId) || cData.charOptionsBySeat[idx][0];
-        const maxHp = calcStartingMaxHp(character, role, G.settings);
-        const hand = [];
-        for (let i = 0; i < maxHp; i++) {
-          if (G.drawPile.length > 0) hand.push(G.drawPile.pop());
-        }
+        const pickedRaw = String(picksMap[String(idx)] || '');
+        const pickedIds = pickedRaw.split(',').filter(Boolean);
+        let characters = pickedIds.map(id => charPool.find(c => c.id === id)).filter(Boolean);
+        if (characters.length === 0) characters = (cData.charOptionsBySeat[idx] || []).slice(0, pickCount);
+        const character = characters[0];
+        const maxHp = calcStartingMaxHp(characters, role, G.settings);
+        const startDraw = characters.some(c => c.id === 'BIG_SPENCER') ? 5 : maxHp;
+        const hand = drawStartingHandForSeat(startDraw, idx === hostSeat && G.settings.superAllBlueStart);
         return {
           id: idx,
           name: slot.name,
@@ -2397,8 +3195,10 @@
           clientId: slot.clientId,
           role,
           character,
+          characters,
           hp: maxHp,
           maxHp,
+          gold: 0,
           hand,
           equipment: [],
           isAlive: true,
@@ -2410,6 +3210,7 @@
       G.turnIndex = sheriffIdx >= 0 ? sheriffIdx : 0;
       G.roundStarterIndex = G.turnIndex;
       updateEventHUD();
+      updateWwsAndShopHUD();
 
       const snap = {
         players: G.players,
@@ -2494,8 +3295,11 @@
           G.autoTargetIndex = snap.autoTargetIndex ?? null;
           if (snap.settings) G.settings = normalizeSettings(snap.settings);
           G.activeEvent = snap.activeEvent || null;
+          G.activeWwsEvent = snap.activeWwsEvent || null;
+          G.shopDisplay = Array.isArray(snap.shopDisplay) ? snap.shopDisplay : [];
           G.roundNumber = snap.roundNumber || 1;
           updateEventHUD();
+          updateWwsAndShopHUD();
           document.getElementById('deck-count-label').innerText = `덱 ${snap.drawCount ?? 0}장`;
           document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
           syncAllBoards();
@@ -2515,7 +3319,7 @@
         processGuestActionOnHost(room.guestAction);
       }
 
-      if (room.reactionReq && room.reactionReq.id !== Net.lastReactionId && room.reactionReq.targetSeat === G.mySeatIndex) {
+      if (!G.isSpectator && room.reactionReq && room.reactionReq.id !== Net.lastReactionId && room.reactionReq.targetSeat === G.mySeatIndex) {
         Net.lastReactionId = room.reactionReq.id;
         showLocalReactionModal(room.reactionReq).then(async (usedCard) => {
           await patchRoom(room.id, {
@@ -2552,6 +3356,9 @@
         checkSuzyLafayette(actor);
         syncAllBoards();
         nextTurn();
+      } else if (act.type === 'BUY_SHOP') {
+        await executeBuyShopItem(actor, act.shopIdx);
+        broadcastGameState(true);
       } else if (act.type === 'END_TURN') {
         nextTurn();
       }
@@ -2703,6 +3510,7 @@
 
     function canSeeRole(viewerIdx, target) {
       if (!G.settings.useRoles) return true;
+      if (G.isSpectator) return !target.isAlive || target.role.id === 'SHERIFF';
       if (!target.isAlive || target.id === viewerIdx || target.role.id === 'SHERIFF') return true;
       const viewer = G.players[viewerIdx];
       if (!viewer) return false;
@@ -2794,19 +3602,19 @@
             </div>`;
         }
 
-        // Slot 2: Character Card
+        // Slot 2: Character Card (supports 1~3 simultaneous characters)
         const charSlot = document.getElementById(`p-slot-char-${idx}`);
-        const showAbility = p.abilityRevealed || idx === G.mySeatIndex;
+        const showAbility = p.abilityRevealed || (!G.isSpectator && idx === G.mySeatIndex);
         charSlot.innerHTML = `
           <div class="bang-card card-char w-full h-full">
             <div class="bang-card-inner justify-between p-1">
               <div class="flex items-center justify-between gap-0.5">
-                <span class="text-[9px] font-black leading-none truncate">${p.character.name}</span>
+                <span class="text-[8.5px] font-black leading-none truncate" title="${getCharDisplayName(p)}">${getCharDisplayName(p)}</span>
                 <span class="text-[8px] font-black text-amber-700 flex-shrink-0">${p.maxHp}🔫</span>
               </div>
-              <div class="text-xl text-center leading-none">${p.character.icon}</div>
-              <div class="text-[7.5px] leading-tight text-stone-800 line-clamp-3 text-center">
-                ${showAbility ? p.character.desc : '🔒 능력 미공개'}
+              <div class="text-lg text-center leading-none">${getCharDisplayIcons(p)}</div>
+              <div class="text-[7.5px] leading-tight text-stone-800 line-clamp-3 text-center card-desc-text" title="${showAbility ? getCharDisplayDesc(p) : '능력 미공개'}">
+                ${showAbility ? getCharDisplayDesc(p) : '🔒 능력 미공개'}
               </div>
             </div>
           </div>`;
@@ -2912,8 +3720,8 @@
           ? `<div class="bang-card w-full h-full"><div class="bang-card-inner items-center justify-between text-center py-1"><div class="text-[8px] font-black text-amber-900">${p.role.en}</div><div class="text-2xl leading-none">${p.role.icon}</div><div class="text-[10px] font-black text-stone-900">${p.role.name}</div></div></div>`
           : `<div class="bang-card card-role-back w-full h-full"><div class="bang-card-inner items-center justify-center text-center"><div class="text-2xl">⭐</div><div class="text-[9px] font-bold text-amber-300/80 mt-0.5">미공개</div></div></div>`;
 
-        const showAbility = p.abilityRevealed || idx === G.mySeatIndex;
-        const charHtml = `<div class="bang-card card-char w-full h-full"><div class="bang-card-inner justify-between p-1"><div class="flex items-center justify-between gap-0.5"><span class="text-[9px] font-black leading-none truncate">${p.character.name}</span><span class="text-[8px] font-black text-amber-700 flex-shrink-0">${p.maxHp}🔫</span></div><div class="text-xl text-center leading-none">${p.character.icon}</div><div class="text-[8px] card-desc-text text-stone-800 line-clamp-3 text-center">${showAbility ? p.character.desc : '🔒 능력 미공개'}</div></div></div>`;
+        const showAbility = p.abilityRevealed || (!G.isSpectator && idx === G.mySeatIndex);
+        const charHtml = `<div class="bang-card card-char w-full h-full"><div class="bang-card-inner justify-between p-1"><div class="flex items-center justify-between gap-0.5"><span class="text-[8.5px] font-black leading-none truncate" title="${getCharDisplayName(p)}">${getCharDisplayName(p)}</span><span class="text-[8px] font-black text-amber-700 flex-shrink-0">${p.maxHp}🔫</span></div><div class="text-lg text-center leading-none">${getCharDisplayIcons(p)}</div><div class="text-[8px] card-desc-text text-stone-800 line-clamp-3 text-center">${showAbility ? getCharDisplayDesc(p) : '🔒 능력 미공개'}</div></div></div>`;
 
         const weapon = p.equipment.find(e => e.code === 'WEAPON');
         const weaponHtml = weapon
@@ -3162,7 +3970,7 @@
 
     function getHandEndTurnLimit(player) {
       if (!player) return 0;
-      if (player.character.id === 'SEAN_MALLORY') return 10;
+      if (hasChar(player, 'SEAN_MALLORY')) return 10;
       return Math.max(0, player.hp);
     }
 
@@ -3176,13 +3984,15 @@
     }
 
     function renderHand() {
+      if (G.isSpectator) return;
       const me = G.players[G.mySeatIndex];
       if (!me) return;
       document.getElementById('my-hand-count').innerText = me.hand.length;
       document.getElementById('my-hp-limit').innerText = getHandEndTurnLimit(me);
+      updateWwsAndShopHUD();
 
       const isMyTurn = G.turnIndex === G.mySeatIndex && !G.isBusy && me.isAlive;
-      const canSid = isMyTurn && me.character.id === 'SID_KETCHUM' && me.hp < me.maxHp && me.hand.length >= 2 && !G.selectionMode;
+      const canSid = isMyTurn && hasChar(me, 'SID_KETCHUM') && me.hp < me.maxHp && me.hand.length >= 2 && !G.selectionMode;
       document.getElementById('btn-sid-heal').classList.toggle('hidden', !canSid);
 
       const inSel = G.selectionMode === 'discard' || G.selectionMode === 'sid';
@@ -3438,7 +4248,7 @@
       if (Net.online && !Net.isHost) {
         const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
         const isEffectiveBang = card.code === 'BANG'
-          || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET')
+          || (card.code === 'MISSED' && hasChar(player, 'CALAMITY_JANET'))
           || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code));
         const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME', 'TOMAHAWK', 'AIM', 'RATTLESNAKE', 'BOUNTY'].includes(card.code);
         let targetSeat = null;
@@ -3577,13 +4387,14 @@
        =================================================================== */
     function isEquipmentNegatedByBelleStar(owner) {
       const activeP = G.players[G.turnIndex];
-      return !!(activeP && activeP.isAlive && activeP.character.id === 'BELLE_STAR' && activeP.id !== owner.id);
+      return !!(activeP && activeP.isAlive && hasChar(activeP, 'BELLE_STAR') && activeP.id !== owner.id);
     }
 
     function getWeaponRange(player) {
-      if (isEquipmentNegatedByBelleStar(player)) return 1;
+      let bonus = hasChar(player, 'LEG_WILLY_THE_KID') ? 1 : 0;
+      if (isEquipmentNegatedByBelleStar(player)) return 1 + bonus;
       const w = player.equipment.find(e => e.code === 'WEAPON');
-      return w ? w.range : 1;
+      return (w ? w.range : 1) + bonus;
     }
 
     function calculateDistance(fromIdx, toIdx) {
@@ -3596,21 +4407,24 @@
       let dist = Math.min(Math.abs(a - b), alive.length - Math.abs(a - b));
       const attacker = G.players[fromIdx];
       const defender = G.players[toIdx];
-      if (attacker.character.id === 'ROSE_DOOLAN') dist -= 1;
+      if (hasChar(attacker, 'ROSE_DOOLAN')) dist -= 1;
+      if (hasChar(attacker, 'LEG_ROSE_DOOLAN')) dist -= 2;
+      if (G.activeWwsEvent?.id === 'WWS_SACAGAWEYA') dist -= 1;
       if (!isEquipmentNegatedByBelleStar(attacker)) {
-        const scopes = attacker.equipment.filter(e => e.code === 'SCOPE' || e.code === 'BINOCULARS').length;
+        const scopes = attacker.equipment.filter(e => e.code === 'SCOPE' || e.code === 'BINOCULARS' || e.code === 'GR_SHOTGUN_A').length;
         dist -= scopes;
       }
-      if (defender.character.id === 'PAUL_REGRET') dist += 1;
+      if (hasChar(defender, 'PAUL_REGRET')) dist += 1;
+      if (hasChar(defender, 'LEG_PAUL_REGRET')) dist += 2;
       if (!isEquipmentNegatedByBelleStar(defender)) {
-        const mustangs = defender.equipment.filter(e => e.code === 'MUSTANG' || e.code === 'HIDEOUT').length;
+        const mustangs = defender.equipment.filter(e => e.code === 'MUSTANG' || e.code === 'HIDEOUT' || e.code === 'GR_HORSESHOE').length;
         dist += mustangs;
       }
       return Math.max(1, dist);
     }
 
     function checkSuzyLafayette(player) {
-      if (player && player.isAlive && player.character.id === 'SUZY_LAFAYETTE' && player.hand.length === 0) {
+      if (player && player.isAlive && hasChar(player, 'SUZY_LAFAYETTE') && player.hand.length === 0) {
         player.abilityRevealed = true;
         drawCards(player, 1, true);
         FX.showFloatText(player.id, '⚡ 수지 +1장!', '#fbbf24');
@@ -3619,7 +4433,7 @@
     }
 
     async function performDrawCheck(player, label, successFn) {
-      const isLucky = player.character.id === 'LUCKY_DUKE';
+      const isLucky = hasChar(player, 'LUCKY_DUKE');
       const count = isLucky ? 2 : 1;
       const drawn = [];
       for (let i = 0; i < count; i++) {
@@ -3698,10 +4512,10 @@
     async function playCardAction(player, card, presetTargetSeat = null) {
       if (G.isBusy || !player.isAlive) return;
       const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
-      const isBlackFlowerBonus = player.character.id === 'BLACK_FLOWER' && card.suit === '♣' && !G.blackFlowerUsedThisTurn
+      const isBlackFlowerBonus = hasChar(player, 'BLACK_FLOWER') && card.suit === '♣' && !G.blackFlowerUsedThisTurn
         && (card.code === 'BANG' || ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code));
       const isEffectiveBang = card.code === 'BANG'
-        || (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET')
+        || (card.code === 'MISSED' && hasChar(player, 'CALAMITY_JANET'))
         || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code))
         || isBlackFlowerBonus;
 
@@ -3710,8 +4524,10 @@
         return;
       }
       if (isEffectiveBang) {
-        const baseLimit = G.activeEvent?.id === 'SHOOTOUT' ? 2 : 1;
-        const maxBangs = (player.equipment.some(e => e.volcanic) || player.character.id === 'WILLY_THE_KID') ? 99 : baseLimit;
+        let baseLimit = (G.activeEvent?.id === 'SHOOTOUT' || G.activeWwsEvent?.id === 'WWS_SHOWDOWN') ? 2 : 1;
+        if (player.equipment.some(e => e.code === 'GR_BELT')) baseLimit += 1;
+        if (hasChar(player, 'JACKY_MURIETA') && (player.gold || 0) >= 2) baseLimit += 1;
+        const maxBangs = (player.equipment.some(e => e.volcanic) || hasChar(player, 'WILLY_THE_KID') || hasChar(player, 'LEG_WILLY_THE_KID')) ? 99 : baseLimit;
         if (G.bangsPlayedThisTurn >= maxBangs && !isBlackFlowerBonus) {
           if (player.id === G.mySeatIndex) showToast(`한 턴에 뱅!은 ${baseLimit}번만 사용할 수 있습니다! (볼캐닉/윌리 더 키드 제외)`);
           return;
@@ -3774,7 +4590,7 @@
         }
 
         // Der Spot - Burst Ringer: once per turn BANG! as Gatling
-        if (isEffectiveBang && player.character.id === 'DER_SPOT_BURST_RINGER' && !G.derSpotUsedThisTurn && presetTargetSeat === null) {
+        if (isEffectiveBang && hasChar(player, 'DER_SPOT_BURST_RINGER') && !G.derSpotUsedThisTurn && presetTargetSeat === null) {
           let useAsGatling = false;
           if (player.isAI) {
             useAsGatling = G.players.filter(p => p.id !== player.id && p.isAlive).length >= 2;
@@ -3834,7 +4650,7 @@
             G.blackFlowerUsedThisTurn = true;
             player.abilityRevealed = true;
             logBattle(`🌺 블랙 플라워 능력 발동! 클로버(♣) [${card.name}]을 추가 뱅!으로 발사합니다.`);
-          } else if (card.code === 'MISSED' && player.character.id === 'CALAMITY_JANET') {
+          } else if (card.code === 'MISSED' && hasChar(player, 'CALAMITY_JANET')) {
             player.abilityRevealed = true;
             logBattle(`💃 캘러미티 재닛 능력 발동! [빗나감!]을 [뱅!]으로 사용합니다.`);
           } else if (hasLemat && card.code !== 'BANG') {
@@ -3856,16 +4672,26 @@
         if (card.code === 'BEER' || card.code === 'LAST_CALL') {
           await FX.playBeer(card, player.id);
           G.discardPile.push(card);
-          const healAmt = (card.code === 'BEER' && player.character.id === 'TEQUILA_JOE') ? 2 : 1;
+          const healAmt = (card.code === 'BEER' && hasChar(player, 'TEQUILA_JOE')) ? 2 : 1;
           if (healAmt === 2) player.abilityRevealed = true;
           player.hp = Math.min(player.maxHp, player.hp + healAmt);
           FX.showFloatText(player.id, `+${healAmt} HP ${card.icon}`, '#4ade80');
           logBattle(`${card.icon} ${player.name}이(가) [${card.name}]로 체력을 ${healAmt} 회복했습니다 (HP: ${player.hp}/${player.maxHp}).`);
 
+          // Madame Yto (Gold Rush): draw 1 whenever anyone plays Beer
+          if (card.code === 'BEER') {
+            G.players.forEach(yto => {
+              if (yto.isAlive && hasChar(yto, 'MADAME_YTO')) {
+                yto.abilityRevealed = true;
+                drawCards(yto, 1, true);
+                logBattle(`🍺 마담 이토 능력 발동! 맥주 사용으로 1장 드로우.`);
+              }
+            });
+          }
           // Lemonade Jim ability (Shadow Valley): when another player plays Beer
           if (card.code === 'BEER') {
             for (const jim of G.players) {
-              if (!jim.isAlive || jim.id === player.id || jim.character.id !== 'LEMONADE_JIM') continue;
+              if (!jim.isAlive || jim.id === player.id || !hasChar(jim, 'LEMONADE_JIM')) continue;
               if (jim.hp >= jim.maxHp || jim.hand.length === 0) continue;
               let doHeal = jim.isAI;
               if (!jim.isAI && jim.id === G.mySeatIndex) {
@@ -3993,11 +4819,13 @@
           await FX.flyCard(card, 'center', 'discard', 300);
           drawCards(player, 2, true);
           logBattle(`🐴 ${player.name}이(가) 역마차로 카드 2장을 뽑았습니다.`);
+          await triggerWwsEventIfNeeded();
         } else if (card.code === 'WELLS_FARGO') {
           G.discardPile.push(card);
           await FX.flyCard(card, 'center', 'discard', 300);
           drawCards(player, 3, true);
           logBattle(`💰 ${player.name}이(가) 웰스 파고로 카드 3장을 뽑았습니다.`);
+          await triggerWwsEventIfNeeded();
         } else if (card.code === 'BRAWL') {
           G.discardPile.push(card);
           logBattle(`💥 ${player.name}이(가) [난투]를 일으켜 다른 모든 플레이어의 카드를 1장씩 제거합니다!`);
@@ -4014,7 +4842,7 @@
           for (let off = 1; off < G.players.length; off++) {
             const p = G.players[(player.id + off) % G.players.length];
             if (p.isAlive) {
-              if (p.character.id === 'APACHE_KID' && card.suit === '♦') {
+              if (hasChar(p, 'APACHE_KID') && card.suit === '♦') {
                 p.abilityRevealed = true;
                 logBattle(`🪶 아파치 키드가 ♦ 카드 효과를 무시했습니다!`);
                 continue;
@@ -4037,7 +4865,7 @@
           for (let off = 1; off < G.players.length; off++) {
             const p = G.players[(player.id + off) % G.players.length];
             if (p.isAlive) {
-              if (p.character.id === 'APACHE_KID' && card.suit === '♦') {
+              if (hasChar(p, 'APACHE_KID') && card.suit === '♦') {
                 p.abilityRevealed = true;
                 logBattle(`🪶 아파치 키드가 ♦ 카드 효과를 무시했습니다!`);
                 continue;
@@ -4072,7 +4900,7 @@
         let validCount = 0;
         G.players.forEach(p => {
           const valid = isValidTargetForCard(attacker, p, card, isEffectiveBang);
-          if (!valid && p.id !== attacker.id && p.isAlive && p.character.id === 'PAUL_REGRET' && !p.abilityRevealed && (isEffectiveBang || card.code === 'PANIC')) {
+          if (!valid && p.id !== attacker.id && p.isAlive && hasChar(p, 'PAUL_REGRET') && !p.abilityRevealed && (isEffectiveBang || card.code === 'PANIC')) {
             p.abilityRevealed = true;
             logBattle(`🐎 폴 리그렛 능력 공개! (상대가 볼 때 거리 +1)`);
           }
@@ -4122,7 +4950,7 @@
       G.autoTargetIndex = target.id;
       applyCameraTransform();
 
-      if (target.id !== attacker.id && target.character.id === 'APACHE_KID' && card.suit === '♦') {
+      if (target.id !== attacker.id && hasChar(target, 'APACHE_KID') && card.suit === '♦') {
         target.abilityRevealed = true;
         G.discardPile.push(card);
         FX.showFloatText(target.id, '🪶 ♦ 면역!', '#38bdf8');
@@ -4153,7 +4981,7 @@
       // Escape card or Mick Defender blocking non-BANG single-target brown cards
       if (!isEffectiveBang && ['PANIC', 'CAT_BALOU', 'RAG_TIME', 'DUEL'].includes(card.code)) {
         const hasEscape = target.hand.some(c => c.code === 'ESCAPE');
-        const isMick = target.character.id === 'MICK_DEFENDER';
+        const isMick = hasChar(target, 'MICK_DEFENDER');
         if (hasEscape || isMick) {
           const reqType = isMick ? 'MISSED' : 'ESCAPE';
           const res = await requestReaction(target, reqType, `${attacker.name}의 [${card.name}] 효과를 무효화하시겠습니까?`, false);
@@ -4171,9 +4999,9 @@
       if (isEffectiveBang || ['BANG', 'PUNCH', 'SPRINGFIELD', 'TOMAHAWK', 'AIM'].includes(card.code)) {
         if ((isEffectiveBang || card.code === 'BANG') && !skipBangCount) {
           G.bangsPlayedThisTurn++;
-          if (G.bangsPlayedThisTurn > 1 && attacker.character.id === 'WILLY_THE_KID') attacker.abilityRevealed = true;
+          if (G.bangsPlayedThisTurn > 1 && hasChar(attacker, 'WILLY_THE_KID')) attacker.abilityRevealed = true;
         }
-        if (attacker.character.id === 'ROSE_DOOLAN' && !attacker.abilityRevealed) {
+        if (hasChar(attacker, 'ROSE_DOOLAN') && !attacker.abilityRevealed) {
           attacker.abilityRevealed = true;
           logBattle(`🔎 로즈 둘란 능력 공개! (다른 모든 플레이어와의 거리 -1)`);
         }
@@ -4181,7 +5009,7 @@
         logBattle(`🔫 ${attacker.name}이(가) ${target.name}에게 [${card.name}]을(를) 사용했습니다!`);
 
         let unavoidable = false;
-        if ((isEffectiveBang || card.code === 'BANG') && attacker.character.id === 'COLORADO_BILL') {
+        if ((isEffectiveBang || card.code === 'BANG') && hasChar(attacker, 'COLORADO_BILL')) {
           attacker.abilityRevealed = true;
           const cbRes = await performDrawCheck(attacker, '콜로라도 빌 판정', c => c.suit === '♠');
           if (cbRes.success) {
@@ -4191,8 +5019,8 @@
         }
 
         const isSniperEvent = G.activeEvent?.id === 'SNIPER' && (isEffectiveBang || card.code === 'BANG');
-        const neededMissed = ((attacker.character.id === 'SLAB_THE_KILLER' && (isEffectiveBang || card.code === 'BANG')) || isSniperEvent) ? 2 : 1;
-        if (attacker.character.id === 'SLAB_THE_KILLER' && neededMissed === 2) attacker.abilityRevealed = true;
+        const neededMissed = ((hasChar(attacker, 'SLAB_THE_KILLER') && (isEffectiveBang || card.code === 'BANG')) || isSniperEvent) ? 2 : 1;
+        if (hasChar(attacker, 'SLAB_THE_KILLER') && neededMissed === 2) attacker.abilityRevealed = true;
 
         let dodged = 0, barrelUsed = false, jourdonnaisUsed = false, triggeredBackfire = false;
         if (!unavoidable) {
@@ -4268,7 +5096,7 @@
 
     async function checkHenryBlockCounter(victim, offender, refCard) {
       if (!victim || !victim.isAlive || !offender || !offender.isAlive || victim.id === offender.id) return;
-      if (victim.character.id !== 'HENRY_BLOCK') return;
+      if (!hasChar(victim, 'HENRY_BLOCK')) return;
       victim.abilityRevealed = true;
       logBattle(`🥊 헨리 블록 반격! ${offender.name}에게 즉시 뱅! 공격을 가합니다!`);
       G.autoTargetIndex = offender.id; applyCameraTransform();
@@ -4349,7 +5177,7 @@
       let barrelUsed = !!flags.barrelUsed;
       let jourdonnaisUsed = !!flags.jourdonnaisUsed;
 
-      if (allowBarrel && requiredCode === 'MISSED' && targetPlayer.character.id === 'JOURDONNAIS' && !jourdonnaisUsed) {
+      if (allowBarrel && requiredCode === 'MISSED' && hasChar(targetPlayer, 'JOURDONNAIS') && !jourdonnaisUsed) {
         jourdonnaisUsed = true;
         targetPlayer.abilityRevealed = true;
         const res = await performDrawCheck(targetPlayer, '주르도네 술통 판정', c => c.suit === '♥');
@@ -4375,8 +5203,8 @@
       const matchFn = (c) => {
         if (c.code === requiredCode) return true;
         if (requiredCode === 'MISSED' && (c.code === 'DODGE' || c.code === 'BACKFIRE' || c.code === 'ESCAPE')) return true;
-        if (targetPlayer.character.id === 'CALAMITY_JANET' && (c.code === 'BANG' || c.code === 'MISSED')) return true;
-        if (requiredCode === 'MISSED' && targetPlayer.character.id === 'ELENA_FUENTE') return true;
+        if (hasChar(targetPlayer, 'CALAMITY_JANET') && (c.code === 'BANG' || c.code === 'MISSED')) return true;
+        if (requiredCode === 'MISSED' && hasChar(targetPlayer, 'ELENA_FUENTE')) return true;
         return false;
       };
       const matchingCards = targetPlayer.hand
@@ -4406,7 +5234,7 @@
           logBattle(`🛡️ ${targetPlayer.name}이(가) [${played.name}]으로 방어했습니다.`);
           checkSuzyLafayette(targetPlayer);
         }
-        if (targetPlayer.character.id === 'MOLLY_STARK' && G.turnIndex !== targetPlayer.id) {
+        if (hasChar(targetPlayer, 'MOLLY_STARK') && G.turnIndex !== targetPlayer.id) {
           targetPlayer.abilityRevealed = true;
           drawCards(targetPlayer, 1, true);
           logBattle(`💫 몰리 스타크 능력 발동! 턴 외 카드 사용으로 1장 드로우.`);
@@ -4508,6 +5336,18 @@
       FX.showFloatText(player.id, `-${amount} HP 💥`, '#ef4444');
       logBattle(`💥 ${player.name} 피해 -${amount} (현재 HP: ${Math.max(0, player.hp)}/${player.maxHp})`);
 
+      if (player.hp <= 0 && hasChar(player, 'TEREN_KILL')) {
+        player.abilityRevealed = true;
+        const rev = G.drawPile.length > 0 ? G.drawPile.pop() : null;
+        if (rev) G.discardPile.push(rev);
+        if (rev && rev.suit !== '♠') {
+          player.hp = 1;
+          drawCards(player, 1, true);
+          FX.showFloatText(player.id, '💀 테렌 킬 부활!', '#4ade80');
+          logBattle(`💀 테렌 킬 능력 발동! 판정(${rev.suit}${rev.rank}) 성공으로 체력 1 부활 + 1장 드로우!`);
+        }
+      }
+
       if (player.hp <= 0) {
         const aliveCount = G.players.filter(p => p.isAlive).length;
         while (player.hp <= 0 && (aliveCount > 2 || G.settings.allowBeerAtTwo)) {
@@ -4522,7 +5362,7 @@
           checkSuzyLafayette(player);
         }
 
-        while (player.hp <= 0 && player.character.id === 'SID_KETCHUM' && player.hand.length >= 2) {
+        while (player.hp <= 0 && hasChar(player, 'SID_KETCHUM') && player.hand.length >= 2) {
           player.abilityRevealed = true;
           const d1 = player.hand.pop();
           const d2 = player.hand.pop();
@@ -4544,21 +5384,39 @@
         }
       }
 
-      if (player.character.id === 'BART_CASSIDY' && player.isAlive) {
-        player.abilityRevealed = true;
-        drawCards(player, amount, true);
-        logBattle(`🍺 바트 캐시디 능력 발동! 카드 ${amount}장 드로우.`);
+      // Gold Rush nugget gain on damage
+      if (G.settings.expansions.includes('GOLD_RUSH')) {
+        if (attacker && attacker.id !== player.id && attacker.isAlive) {
+          attacker.gold = (attacker.gold || 0) + amount;
+          FX.showFloatText(attacker.id, `+${amount} 🪙`, '#facc15');
+          logBattle(`🪙 ${attacker.name}이(가) 피해 보상으로 금덩이 +${amount} 획득! (보유: ${attacker.gold})`);
+        }
+        if (player.isAlive && (hasChar(player, 'SIMEON_PICOS') || player.equipment.some(e => e.code === 'GR_LUCKY_CHARM'))) {
+          player.abilityRevealed = true;
+          player.gold = (player.gold || 0) + amount;
+          FX.showFloatText(player.id, `+${amount} 🪙`, '#facc15');
+          logBattle(`🪙 ${player.name}이(가) 피격 보상으로 금덩이 +${amount} 획득!`);
+        }
+        updateWwsAndShopHUD();
       }
-      if (player.character.id === 'EL_GRINGO' && attacker && attacker.id !== player.id && attacker.hand.length > 0 && player.isAlive) {
+
+      if ((hasChar(player, 'BART_CASSIDY') || hasChar(player, 'LEG_BART_CASSIDY')) && player.isAlive) {
         player.abilityRevealed = true;
-        for (let i = 0; i < amount && attacker.hand.length > 0; i++) {
+        const drawAmt = hasChar(player, 'LEG_BART_CASSIDY') ? amount * 2 : amount;
+        drawCards(player, drawAmt, true);
+        logBattle(`🍺 ${player.character.name} 능력 발동! 카드 ${drawAmt}장 드로우.`);
+      }
+      if ((hasChar(player, 'EL_GRINGO') || hasChar(player, 'LEG_EL_GRINGO')) && attacker && attacker.id !== player.id && attacker.hand.length > 0 && player.isAlive) {
+        player.abilityRevealed = true;
+        const stealAmt = hasChar(player, 'LEG_EL_GRINGO') ? amount * 2 : amount;
+        for (let i = 0; i < stealAmt && attacker.hand.length > 0; i++) {
           const rIdx = Math.floor(Math.random() * attacker.hand.length);
           const stolen = attacker.hand.splice(rIdx, 1)[0];
           player.hand.push(stolen);
           FX.flyCard(stolen, attacker.id, player.id, 340, true);
           checkSuzyLafayette(attacker);
         }
-        logBattle(`🌵 엘 그링고 능력 발동! ${attacker.name}의 손패를 빼앗았습니다.`);
+        logBattle(`🌵 ${player.character.name} 능력 발동! ${attacker.name}의 손패를 빼앗았습니다.`);
       }
       syncAllBoards(); renderHand();
     }
@@ -4570,13 +5428,13 @@
       // Dodge City death trigger characters
       G.players.forEach(p => {
         if (!p.isAlive || p.id === victim.id) return;
-        if (p.character.id === 'GREG_DIGGER' && p.hp < p.maxHp) {
+        if (hasChar(p, 'GREG_DIGGER') && p.hp < p.maxHp) {
           p.abilityRevealed = true;
           p.hp = Math.min(p.maxHp, p.hp + 2);
           FX.showFloatText(p.id, '⛏️ +2 HP!', '#4ade80');
           logBattle(`⛏️ 그렉 디거 능력 발동! 체력을 2 회복했습니다.`);
         }
-        if (p.character.id === 'HERB_HUNTER') {
+        if (hasChar(p, 'HERB_HUNTER')) {
           p.abilityRevealed = true;
           drawCards(p, 2, true);
           FX.showFloatText(p.id, '🏹 +2장!', '#fbbf24');
@@ -4584,7 +5442,7 @@
         }
       });
 
-      const vulture = G.players.find(p => p.isAlive && p.character.id === 'VULTURE_SAM');
+      const vulture = G.players.find(p => p.isAlive && hasChar(p, 'VULTURE_SAM'));
       if (vulture) {
         vulture.abilityRevealed = true;
         const loot = [...victim.hand, ...victim.equipment];
@@ -4675,6 +5533,34 @@
       startTurnPhase();
     }
 
+    async function triggerWwsEventIfNeeded() {
+      if (!G.settings.expansions.includes('WILD_WEST_SHOW')) return;
+      if (G.wwsEventDeck.length === 0) return;
+      G.activeWwsEvent = G.wwsEventDeck.pop();
+      updateWwsAndShopHUD();
+      broadcastGameState(true);
+      logBattle(`🎪 [와일드 웨스트 쇼: ${G.activeWwsEvent.name}] ${G.activeWwsEvent.desc}`);
+      await FX.playTurnBanner(`${G.activeWwsEvent.icon} ${G.activeWwsEvent.name}!`);
+
+      const alive = G.players.filter(p => p.isAlive);
+      if (G.activeWwsEvent.id === 'WWS_DARLING') {
+        alive.forEach(p => { if (p.hp < p.maxHp) { p.hp++; FX.showFloatText(p.id, '💘 +1 HP!', '#4ade80'); } });
+      } else if (G.activeWwsEvent.id === 'WWS_HELENA') {
+        alive.forEach(p => drawCards(p, 1, true));
+      } else if (G.activeWwsEvent.id === 'WWS_DOROTHY') {
+        alive.forEach(p => {
+          if (p.hand.length > 0) G.discardPile.push(p.hand.pop());
+          drawCards(p, 2, true);
+        });
+      } else if (G.activeWwsEvent.id === 'WWS_BONE_ORCHARD' && alive.length < G.players.length) {
+        const minHp = Math.min(...alive.map(p => p.hp));
+        alive.filter(p => p.hp === minHp).forEach(p => drawCards(p, 2, true));
+      }
+      syncAllBoards();
+      renderHand();
+      broadcastGameState(true);
+    }
+
     async function triggerRoundEventIfNeeded(curP) {
       if (!G.settings.expansions.includes('HIGH_NOON_SET')) return;
       const alive = G.players.filter(p => p.isAlive);
@@ -4695,6 +5581,7 @@
       if (!G.activeEvent) return;
 
       updateEventHUD();
+      updateWwsAndShopHUD();
       broadcastGameState(true);
       logBattle(`☀️ [라운드 ${G.roundNumber} 이벤트: ${G.activeEvent.name}] ${G.activeEvent.desc}`);
       await FX.playTurnBanner(`${G.activeEvent.icon} ${G.activeEvent.name}!`);
@@ -4747,6 +5634,39 @@
         await FX.playTurnBanner(`${curP.name} (${curP.character.name})의 턴!`);
 
         // Ongoing Start-of-Turn Event Effects
+        if (G.activeWwsEvent?.id === 'WWS_LADY_ROSA' && curP.hp <= 2 && curP.hp < curP.maxHp) {
+          curP.hp++;
+          FX.showFloatText(curP.id, '🌹 +1 HP!', '#4ade80');
+          logBattle(`🌹 레이디 로사 효과! ${curP.name} 체력 +1 회복.`);
+        }
+        if (G.settings.expansions.includes('GOLD_RUSH')) {
+          if (hasChar(curP, 'DUTCH_WILL') || curP.equipment.some(e => e.code === 'GR_PICKAXE')) {
+            curP.gold = (curP.gold || 0) + 1;
+            FX.showFloatText(curP.id, '+1 🪙', '#facc15');
+          }
+          if (hasChar(curP, 'DON_BELL')) {
+            const dbRes = await performDrawCheck(curP, '돈 벨 판정', c => c.suit === '♥' || c.suit === '♦');
+            if (dbRes.success) {
+              curP.abilityRevealed = true;
+              curP.gold = (curP.gold || 0) + 1;
+              drawCards(curP, 1, true);
+              logBattle(`🔔 돈 벨 능력 성공! 금덩이 +1 & 1장 드로우.`);
+            }
+          }
+          updateWwsAndShopHUD();
+        }
+        if (hasChar(curP, 'YOUL_GRINNER')) {
+          G.players.forEach(op => {
+            if (op.isAlive && op.id !== curP.id && op.hand.length > curP.hand.length) {
+              curP.abilityRevealed = true;
+              const given = op.hand.pop();
+              if (given) curP.hand.push(given);
+            }
+          });
+        }
+        if (hasChar(curP, 'GREGORY_DECK') || hasChar(curP, 'LEG_BLACK_JACK') || curP.equipment.some(e => e.code === 'GR_GOLD_WATCH') || G.activeWwsEvent?.id === 'WWS_MISS_SUSANNA' || (hasChar(curP, 'RADDIE_SNAKE') && (curP.gold || 0) > 0)) {
+          drawCards(curP, 1, true);
+        }
         if (G.activeEvent?.id === 'RANCH' && curP.hp < curP.maxHp) {
           curP.hp = Math.min(curP.maxHp, curP.hp + 1);
           FX.showFloatText(curP.id, '🏡 +1 HP!', '#4ade80');
@@ -4811,7 +5731,7 @@
         }
 
         // Turn Start Draw
-        if (curP.character.id === 'KIT_CARLSON') {
+        if (hasChar(curP, 'KIT_CARLSON')) {
           curP.abilityRevealed = true;
           const top3 = [];
           for (let i = 0; i < 3; i++) {
@@ -4828,7 +5748,7 @@
           }
           SFX.playCardDraw();
           logBattle(`🔍 킷 칼슨 능력 발동! 3장 중 2장을 선택했습니다.`);
-        } else if (curP.character.id === 'PEDRO_RAMIREZ' && G.discardPile.length > 0) {
+        } else if (hasChar(curP, 'PEDRO_RAMIREZ') && G.discardPile.length > 0) {
           let useDisc = curP.isAI || curP.id !== G.mySeatIndex;
           if (!curP.isAI && curP.id === G.mySeatIndex) {
             const top = G.discardPile[G.discardPile.length - 1];
@@ -4845,7 +5765,7 @@
             drawCards(curP, 1, true);
             logBattle(`⚰️ 페드로 라미레스 능력 발동! 버림 더미에서 [${c.name}] 획득.`);
           } else drawCards(curP, 2, true);
-        } else if (curP.character.id === 'JESSE_JONES' && G.players.some(p => p.id !== curP.id && p.isAlive && p.hand.length > 0)) {
+        } else if (hasChar(curP, 'JESSE_JONES') && G.players.some(p => p.id !== curP.id && p.isAlive && p.hand.length > 0)) {
           const victims = G.players.filter(p => p.id !== curP.id && p.isAlive && p.hand.length > 0);
           let victim = (curP.isAI || curP.id !== G.mySeatIndex)
             ? victims[Math.floor(Math.random() * victims.length)]
@@ -4865,15 +5785,15 @@
           } else drawCards(curP, 2, true);
         } else {
           let drawAmt = 2;
-          if (curP.character.id === 'PIXIE_PETE') {
+          if (hasChar(curP, 'PIXIE_PETE')) {
             curP.abilityRevealed = true;
             drawAmt = 3;
             logBattle(`🧚 픽시 피트 능력 발동! 턴 시작 시 카드 3장을 뽑습니다.`);
-          } else if (curP.character.id === 'BILL_NOFACE') {
+          } else if (hasChar(curP, 'BILL_NOFACE')) {
             curP.abilityRevealed = true;
             drawAmt = 1 + Math.max(0, curP.maxHp - curP.hp);
             logBattle(`🎭 빌 노페이스 능력 발동! 1 + 잃은 체력만큼 총 ${drawAmt}장을 뽑습니다.`);
-          } else if (curP.character.id === 'TUCO_FRANZISKANER' && !curP.equipment.some(e => e.type === 'blue')) {
+          } else if (hasChar(curP, 'TUCO_FRANZISKANER') && !curP.equipment.some(e => e.type === 'blue')) {
             curP.abilityRevealed = true;
             drawAmt += 2;
             logBattle(`🏜️ 투코 프란치스카너 능력 발동! 파란 장비가 없어 2장 추가 드로우!`);
@@ -4883,7 +5803,7 @@
 
           // Evelyn Shebang: trade 1 draw for a free BANG! in range
           let evelynFreeTarget = null;
-          if (curP.character.id === 'EVELYN_SHEBANG' && drawAmt >= 2 && !curP.isAI && curP.id === G.mySeatIndex) {
+          if (hasChar(curP, 'EVELYN_SHEBANG') && drawAmt >= 2 && !curP.isAI && curP.id === G.mySeatIndex) {
             const inRange = G.players.filter(p => p.id !== curP.id && p.isAlive && calculateDistance(curP.id, p.id) <= getWeaponRange(curP));
             if (inRange.length > 0) {
               evelynFreeTarget = await openChoiceModal(
@@ -4913,7 +5833,7 @@
               await FX.playBangBlocked(virtualBang, curP.id, evelynFreeTarget.id);
             }
           }
-          if (curP.character.id === 'BLACK_JACK' && drawn[1]) {
+          if (hasChar(curP, 'BLACK_JACK') && drawn[1]) {
             const isRed = drawn[1].suit === '♥' || drawn[1].suit === '♦';
             if (isRed) {
               curP.abilityRevealed = true;
@@ -4944,14 +5864,14 @@
           ai.hand = ai.hand.filter(c => c.id !== beer.id);
           await FX.playBeer(beer, ai.id);
           G.discardPile.push(beer);
-          ai.hp = Math.min(ai.maxHp, ai.hp + (ai.character.id === 'TEQUILA_JOE' ? 2 : 1));
+          ai.hp = Math.min(ai.maxHp, ai.hp + (hasChar(ai, 'TEQUILA_JOE') ? 2 : 1));
           FX.showFloatText(ai.id, '+1 HP 🍺', '#4ade80');
           logBattle(`🍺 ${ai.name}(AI) 맥주 회복.`);
           syncAllBoards(); broadcastGameState();
           await sleep(420);
         }
 
-        while (ai.character.id === 'SID_KETCHUM' && ai.hp < ai.maxHp && ai.hand.length >= 2) {
+        while (hasChar(ai, 'SID_KETCHUM') && ai.hp < ai.maxHp && ai.hand.length >= 2) {
           ai.abilityRevealed = true;
           const d1 = ai.hand.pop();
           const d2 = ai.hand.pop();
@@ -5011,10 +5931,10 @@
         }
 
         const aiBaseLimit = G.activeEvent?.id === 'SHOOTOUT' ? 2 : 1;
-        const maxBangs = (ai.equipment.some(e => e.volcanic) || ai.character.id === 'WILLY_THE_KID') ? 99 : aiBaseLimit;
+        const maxBangs = (ai.equipment.some(e => e.volcanic) || hasChar(ai, 'WILLY_THE_KID')) ? 99 : aiBaseLimit;
         while (G.bangsPlayedThisTurn < maxBangs && ai.isAlive) {
           let bang = ai.hand.find(c => c.code === 'BANG');
-          if (!bang && ai.character.id === 'CALAMITY_JANET') {
+          if (!bang && hasChar(ai, 'CALAMITY_JANET')) {
             const missedList = ai.hand.filter(c => c.code === 'MISSED');
             if (missedList.length >= 2) bang = missedList[0];
           }
@@ -5034,7 +5954,7 @@
           const sheriff = (G.settings.useRoles && ai.role.team === 'OUT') ? pool.find(p => p.role.id === 'SHERIFF') : null;
           const target = sheriff || pool[Math.floor(Math.random() * pool.length)];
           ai.hand = ai.hand.filter(c => c.id !== bang.id);
-          if (bang.code === 'MISSED' && ai.character.id === 'CALAMITY_JANET') {
+          if (bang.code === 'MISSED' && hasChar(ai, 'CALAMITY_JANET')) {
             ai.abilityRevealed = true;
             logBattle(`💃 ${ai.name}(AI) 캘러미티 재닛 능력 발동! [빗나감!]을 [뱅!]으로 사용.`);
           }
@@ -5741,7 +6661,7 @@
       const room = lobby.rooms.find(r => r.id === roomId);
       if (Net.roomUnsub) { Net.roomUnsub(); Net.roomUnsub = null; }
 
-      if (!remoteDeleted && Net.online && Net.db && roomId && room) {
+      if (!remoteDeleted && !G.isSpectator && Net.online && Net.db && roomId && room) {
         if (room.hostClientId === Net.clientId) {
           await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
         } else {
@@ -5754,6 +6674,9 @@
 
       lobby.activeRoomId = null;
       localStorage.removeItem('bang_active_room');
+      G.isSpectator = false;
+      document.getElementById('spectator-badge')?.classList.add('hidden');
+      document.querySelector('#screen-game footer')?.classList.remove('hidden');
       Net.isHost = false;
       Net.lastStateJson = '';
       Net.lastFxId = '';
@@ -5762,7 +6685,10 @@
       Net.lastReactionId = '';
       G.players = [];
       G.activeEvent = null;
+      G.activeWwsEvent = null;
+      G.shopDisplay = [];
       G.roundNumber = 0;
+      document.getElementById('modal-gold-shop')?.classList.add('hidden');
 
       document.getElementById('modal-game-over').classList.add('hidden');
       document.getElementById('modal-reaction').classList.add('hidden');
@@ -5775,10 +6701,230 @@
       renderRoomList();
     }
 
+    /* ===================================================================
+       16. OFFICIAL CARD CODEX & RULES GUIDE MODAL
+       =================================================================== */
+    const CodexState = { category: 'RULES', exp: 'BASE' };
+
+    const CODEX_EXPS = [
+      { id: 'BASE',           label: '기본판' },
+      { id: 'DODGE_CITY',     label: '🌵 닷지시티' },
+      { id: 'HIGH_NOON_SET',  label: '☀️ 하이눈 & 한줌' },
+      { id: 'SHADOW_VALLEY',  label: '🌑 그림자 계곡' },
+      { id: 'WILD_WEST_SHOW', label: '🎪 와일드 웨스트 쇼' },
+      { id: 'GOLD_RUSH',      label: '🪙 골드러쉬' },
+      { id: 'LEGENDS',        label: '👑 전설적인 무법자들' }
+    ];
+
+    function openCodexModal() {
+      renderCodexTabs();
+      renderCodexContent();
+      document.getElementById('modal-codex')?.classList.remove('hidden');
+    }
+
+    function closeCodexModal() {
+      document.getElementById('modal-codex')?.classList.add('hidden');
+    }
+
+    function selectCodexCategory(cat) {
+      CodexState.category = cat;
+      document.querySelectorAll('.codex-cat-btn').forEach(btn => {
+        const active = btn.dataset.cat === cat;
+        btn.className = active
+          ? 'codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-stone-950'
+          : 'codex-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-200 hover:bg-stone-700';
+      });
+      renderCodexTabs();
+      renderCodexContent();
+    }
+
+    function selectCodexExp(expId) {
+      CodexState.exp = expId;
+      renderCodexTabs();
+      renderCodexContent();
+    }
+
+    function renderCodexTabs() {
+      const wrap = document.getElementById('codex-exp-tabs');
+      if (!wrap) return;
+      let list = CODEX_EXPS;
+      if (CodexState.category === 'CHARS') {
+        list = CODEX_EXPS.filter(e => e.id !== 'HIGH_NOON_SET');
+      } else if (CodexState.category === 'CARDS') {
+        list = CODEX_EXPS.filter(e => e.id !== 'LEGENDS');
+      }
+      if (!list.some(e => e.id === CodexState.exp)) CodexState.exp = list[0].id;
+      wrap.innerHTML = list.map(e => `
+        <button onclick="selectCodexExp('${e.id}')"
+          class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition ${CodexState.exp === e.id ? 'bg-emerald-500 text-stone-950 font-black' : 'bg-stone-900 text-stone-300 border border-stone-700 hover:border-amber-500'}">
+          ${e.label}
+        </button>`).join('');
+    }
+
+    function getUniqueDeckCardsByExp(expId) {
+      const baseDeck = buildOfficial80Deck([]);
+      const baseKeys = new Set(baseDeck.map(c => `${c.code}|${c.name}`));
+      if (expId === 'BASE') {
+        const seen = new Set();
+        return baseDeck.filter(c => { const k = `${c.code}|${c.name}`; if (seen.has(k)) return false; seen.add(k); return true; });
+      }
+      if (expId === 'DODGE_CITY' || expId === 'SHADOW_VALLEY') {
+        const full = buildOfficial80Deck([expId]);
+        const seen = new Set();
+        return full.filter(c => {
+          const k = `${c.code}|${c.name}`;
+          if (baseKeys.has(k) || seen.has(k)) return false;
+          seen.add(k); return true;
+        });
+      }
+      return [];
+    }
+
+    function renderCodexContent() {
+      const body = document.getElementById('codex-content');
+      if (!body) return;
+      const cat = CodexState.category;
+      const exp = CodexState.exp;
+
+      if (cat === 'RULES') {
+        const ruleBlocks = {
+          BASE: [
+            ['🎯 턴 진행 순서', '1) 덱에서 카드 2장 뽑기 → 2) 원하는 만큼 카드 사용 (뱅!은 턴당 1회 기본) → 3) 현재 생명력만큼 손패 남기고 초과분 버리기.'],
+            ['📏 거리와 사거리', '양옆 플레이어가 거리 1입니다. 무기 사거리 이내의 대상에게만 뱅!을 쏠 수 있으며, 조준경(-1)과 야생마(+1)가 거리를 바꿉니다.'],
+            ['🍺 맥주 규칙', '체력을 1 회복하며, 빈사 상태(HP 0)에서 자동으로 사용되어 살아날 수 있습니다. 단, 생존자가 2명일 때는 효과가 없습니다(세부 설정으로 변경 가능).'],
+            ['💀 처치 보상 · 페널티', '무법자를 처치하면 즉시 카드 3장 보상! 보안관이 부관을 처치하면 보안관의 모든 손패·장비가 제거됩니다.']
+          ],
+          DODGE_CITY: [
+            ['🌿 초록색 테두리 카드', '내 앞에 내려놓은 턴에는 사용할 수 없으며, 다음 내 턴부터(방어용 초록 카드는 상대 턴부터) 1회 발동 후 버려집니다.'],
+            ['🃏 추가 비용 카드', '스프링필드·위스키·데킬라·난투·래그타임 등은 손패 1장을 추가로 함께 버려야 발동합니다.']
+          ],
+          HIGH_NOON_SET: [
+            ['☀️ 라운드 이벤트', '매 라운드 첫 플레이어 턴이 돌아올 때마다 새 이벤트 카드가 공개되어 전체 규칙을 바꿉니다. 마지막에는 최종 이벤트(하이눈 / 한 줌의 카드)가 발동합니다.']
+          ],
+          SHADOW_VALLEY: [
+            ['🌑 그림자 계곡 신규 룰', '방울뱀(매 턴 ♠ 판정 시 1 피해)·현상금(뱅! 명중 시 공격자 1장 드로우)·조준(뱅!과 함께 써서 2 피해)·역화(회피+반격) 등 고화력 심리전이 추가됩니다.']
+          ],
+          WILD_WEST_SHOW: [
+            ['🎪 와일드 웨스트 쇼 이벤트', '누군가 역마차 또는 웰스 파고를 사용할 때마다 새로운 쇼 이벤트가 펼쳐지며, 최종 쇼 발동 시 직업과 무관하게 최후의 1인이 승리합니다.']
+          ],
+          GOLD_RUSH: [
+            ['🪙 금덩이와 🏪 상점', '다른 플레이어에게 피해를 1 입힐 때마다 금덩이(🪙) 1개를 얻습니다. 내 턴에 상점 버튼으로 특수 장비를 구매할 수 있습니다.']
+          ],
+          LEGENDS: [
+            ['👑 전설적인 무법자들', '기본 16인 캐릭터의 강화된 전설 버전이 추가됩니다. 기본 캐릭터와 함께 등장하며, 방 설정에서 기본 캐릭터를 뺄 수도 있습니다.']
+          ]
+        };
+        const items = ruleBlocks[exp] || ruleBlocks.BASE;
+        body.innerHTML = items.map(([title, desc]) => `
+          <div class="bg-stone-900/90 border border-amber-800/60 rounded-2xl p-4">
+            <div class="text-sm font-black text-amber-300 mb-1">${title}</div>
+            <p class="text-xs text-stone-200 leading-relaxed card-desc-text">${desc}</p>
+          </div>`).join('');
+        return;
+      }
+
+      if (cat === 'ROLES') {
+        const roleList = [ROLES.SHERIFF, ROLES.DEPUTY, ROLES.OUTLAW, ROLES.RENEGADE, ROLES.FREE];
+        body.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${roleList.map(r => `
+              <div class="bg-stone-900/90 border border-amber-700/60 rounded-2xl p-4 flex items-start gap-3">
+                <div class="text-4xl">${r.icon}</div>
+                <div>
+                  <div class="text-sm font-black text-amber-300">${r.name} <span class="text-[10px] text-stone-400">(${r.en})</span></div>
+                  <p class="text-xs text-stone-200 mt-1 card-desc-text">${r.desc}</p>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div class="bg-stone-900/80 border border-stone-800 rounded-2xl p-3.5 text-xs text-stone-300 leading-relaxed">
+            <strong class="text-amber-300">인원별 직업 구성:</strong> 2인(직업 없음 결투) · 3인(보안관1·배신자1·무법자1) · 4인(보안관1·배신자1·무법자2) · 5인(+부관1) · 6인(+무법자1) · 7인(+부관1)
+          </div>`;
+        return;
+      }
+
+      if (cat === 'CHARS') {
+        const chars = getCharactersByPack(exp);
+        body.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">${chars.map(c => `
+          <div class="bg-stone-900/90 border border-amber-800/60 rounded-2xl p-3 flex items-start gap-2.5">
+            <div class="text-3xl flex-shrink-0">${c.icon}</div>
+            <div class="min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-black text-amber-200 truncate">${c.name}</span>
+                <span class="text-[10px] font-black text-amber-400 flex-shrink-0">🔫 ${c.hp}</span>
+              </div>
+              <p class="text-[11px] text-stone-300 mt-1 card-desc-text">${c.desc}</p>
+            </div>
+          </div>`).join('')}</div>`;
+        return;
+      }
+
+      if (cat === 'CARDS') {
+        if (exp === 'HIGH_NOON_SET') {
+          const allEv = [...HIGH_NOON_FISTFUL_EVENTS, ...HIGH_NOON_FINALE_EVENTS];
+          body.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">${allEv.map(ev => `
+            <div class="bg-orange-950/35 border border-orange-700/60 rounded-2xl p-3 flex items-start gap-2.5">
+              <div class="text-2xl">${ev.icon}</div>
+              <div>
+                <div class="text-xs font-black text-orange-300">${ev.name}</div>
+                <p class="text-[11px] text-stone-200 mt-0.5 card-desc-text">${ev.desc}</p>
+              </div>
+            </div>`).join('')}</div>`;
+          return;
+        }
+        if (exp === 'WILD_WEST_SHOW') {
+          const allWws = [...WWS_EVENTS, WWS_FINALE];
+          body.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">${allWws.map(ev => `
+            <div class="bg-fuchsia-950/35 border border-fuchsia-700/60 rounded-2xl p-3 flex items-start gap-2.5">
+              <div class="text-2xl">${ev.icon}</div>
+              <div>
+                <div class="text-xs font-black text-fuchsia-300">${ev.name}</div>
+                <p class="text-[11px] text-stone-200 mt-0.5 card-desc-text">${ev.desc}</p>
+              </div>
+            </div>`).join('')}</div>`;
+          return;
+        }
+        if (exp === 'GOLD_RUSH') {
+          body.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">${GOLD_RUSH_SHOP_ITEMS.map(it => `
+            <div class="bg-yellow-950/35 border border-yellow-700/60 rounded-2xl p-3 flex items-start gap-2.5">
+              <div class="text-2xl">${it.icon}</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-xs font-black text-yellow-200 truncate">${it.name}</span>
+                  <span class="text-[10px] font-black text-yellow-400">🪙 ${it.cost}</span>
+                </div>
+                <p class="text-[11px] text-stone-200 mt-0.5 card-desc-text">${it.desc}</p>
+              </div>
+            </div>`).join('')}</div>`;
+          return;
+        }
+        const cards = getUniqueDeckCardsByExp(exp);
+        body.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">${cards.map(c => {
+          const bdr = c.type === 'blue' ? 'border-blue-600/70 bg-blue-950/25' : (c.type === 'green' ? 'border-emerald-600/70 bg-emerald-950/25' : 'border-amber-800/70 bg-stone-900/90');
+          const badge = c.type === 'blue' ? '파란 장비' : (c.type === 'green' ? '초록 카드' : '갈색 액션');
+          return `
+            <div class="border ${bdr} rounded-2xl p-3 flex items-start gap-2.5">
+              <div class="text-2xl flex-shrink-0">${c.icon}</div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-xs font-black text-amber-100 truncate">${c.name}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-stone-800 text-stone-300 font-bold flex-shrink-0">${badge}</span>
+                </div>
+                <p class="text-[11px] text-stone-300 mt-1 card-desc-text">${highlightCardDesc(c.desc)}</p>
+              </div>
+            </div>`;
+        }).join('')}</div>`;
+      }
+    }
+
     // Expose inline HTML onclick/oninput/onchange handlers from ES module scope
     Object.assign(window, {
+      openCodexModal,
+      closeCodexModal,
+      selectCodexCategory,
+      selectCodexExp,
       openSettingsModal,
       closeSettingsModal,
+      unlockSuperMode,
       onVolumeSliderChange,
       setCardPlayMode,
       setOverviewStyle,
@@ -5786,18 +6932,28 @@
       openCreateRoomModal,
       closeCreateRoomModal,
       onRoomMaxChange,
+      onExpansionSelectionChange,
+      selectSuperBanPack,
+      toggleSuperBanChar,
+      toggleSuperFixedChar,
       createRoomSubmit,
       attemptJoinRoom,
+      spectateRoom,
       closePwModal,
       confirmJoinWithPw,
       leaveWaitingRoom,
       addAISlot,
       removeAISlot,
+      kickPlayerSlot,
       fillEmptySlotsWithAI,
       startOpeningCeremony,
       flipRoleCard,
       goToCharStep,
       showCurrentEventToast,
+      showCurrentWwsToast,
+      openGoldShopModal,
+      closeGoldShopModal,
+      buyGoldShopItem,
       setCameraMode,
       toggleCameraBar,
       closeOverviewGrid,

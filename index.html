@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>BangAi</title>
   <meta name="description" content="AI 카드게임" />
   <meta property="og:title" content="BangAi" />
@@ -11,7 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Rye&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
-    button, .hand-card-item, .parchment-board { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    button, .hand-card-item, .parchment-board { touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+    #screen-game header { padding-top: env(safe-area-inset-top, 0px); position: relative; z-index: 50; }
+    #screen-game header button { min-height: 32px; -webkit-touch-callout: none; }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
       background: #140b06; color: #fef3c7;
@@ -417,13 +419,25 @@
           <p class="text-stone-400 text-sm mt-1">서부 총격 심리전 · 공식 덱 · 인물 능력 완비 · 실시간 멀티플레이어</p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+          <button id="btn-auth-open" onclick="openAuthModal()"
+            class="px-3 py-2 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-200 border border-emerald-500/80 rounded-xl text-xs sm:text-sm font-black transition whitespace-nowrap">
+            👤 로그인
+          </button>
+          <button onclick="openLeaderboardModal()"
+            class="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-yellow-300 border border-yellow-600/80 rounded-xl text-xs sm:text-sm font-black transition whitespace-nowrap">
+            🏆 랭킹 · 전적
+          </button>
+          <button onclick="openCosmeticShopModal()"
+            class="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-fuchsia-300 border border-fuchsia-600/80 rounded-xl text-xs sm:text-sm font-black transition whitespace-nowrap">
+            💎 상점
+          </button>
           <button onclick="openCodexModal()"
-            class="px-3 py-2 bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-600/80 rounded-xl text-sm font-black transition whitespace-nowrap"
+            class="px-3 py-2 bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-600/80 rounded-xl text-xs sm:text-sm font-black transition whitespace-nowrap"
             title="기본 룰 · 직업 · 인물 · 카드 도감">
             📖 카드 도감
           </button>
           <button onclick="openSettingsModal()"
-            class="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-amber-300 border border-amber-800/80 rounded-xl text-sm font-bold transition whitespace-nowrap"
+            class="px-3 py-2 bg-stone-900 hover:bg-stone-800 text-amber-300 border border-amber-800/80 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap"
             title="음량 및 카드 조작 설정">
             ⚙️ 설정
           </button>
@@ -774,14 +788,19 @@
     </div>
   </div>
 
-  <!-- User Preferences Modal (Volume & Card Play Mode) -->
-  <div id="modal-settings" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
+  <!-- User Preferences & Cosmetics Equip Modal -->
+  <div id="modal-settings" class="hidden fixed inset-0 z-[65] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-5 sm:p-6 max-w-md w-full shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-3 flex-shrink-0">
         <h3 class="text-lg font-black text-amber-400">⚙️ 게임 환경 설정</h3>
-        <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
+        <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-white font-bold px-1">✕</button>
       </div>
-      <div class="space-y-5 mb-6 text-xs">
+      <!-- Settings Main Tabs: General vs Cosmetics Equip -->
+      <div class="grid grid-cols-2 gap-2 mb-4 flex-shrink-0">
+        <button id="settings-tab-general" onclick="switchSettingsTab('general')" class="py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950">⚙️ 일반 설정</button>
+        <button id="settings-tab-cosmetic" onclick="switchSettingsTab('cosmetic')" class="py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">🎨 꾸미기 장착</button>
+      </div>
+      <div id="settings-panel-general" class="space-y-4 mb-5 text-xs overflow-y-auto thin-scroll flex-1 pr-0.5">
         <!-- Volume Control -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
@@ -841,7 +860,17 @@
           </div>
         </div>
       </div>
-      <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">확인</button>
+      <!-- Cosmetics Equip Sub-Panel inside Settings -->
+      <div id="settings-panel-cosmetic" class="hidden flex-1 flex flex-col overflow-hidden mb-4 text-xs">
+        <div class="flex flex-wrap gap-1.5 mb-3 flex-shrink-0">
+          <button onclick="selectEquipCategory('emojiSet')" data-ecat="emojiSet" class="equip-cat-btn px-2.5 py-1.5 rounded-lg font-black bg-amber-500 text-stone-950">😊 특수 이모지</button>
+          <button onclick="selectEquipCategory('chatColor')" data-ecat="chatColor" class="equip-cat-btn px-2.5 py-1.5 rounded-lg font-bold bg-stone-800 text-stone-300">💬 채팅 색깔</button>
+          <button onclick="selectEquipCategory('avatar')" data-ecat="avatar" class="equip-cat-btn px-2.5 py-1.5 rounded-lg font-bold bg-stone-800 text-stone-300">🤠 프로필</button>
+          <button onclick="selectEquipCategory('frame')" data-ecat="frame" class="equip-cat-btn px-2.5 py-1.5 rounded-lg font-bold bg-stone-800 text-stone-300">🖼️ 테두리</button>
+        </div>
+        <div id="settings-equip-list" class="flex-1 overflow-y-auto thin-scroll space-y-2 pr-0.5"></div>
+      </div>
+      <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm flex-shrink-0">확인</button>
     </div>
   </div>
 
@@ -1088,7 +1117,8 @@
       <div class="w-full h-2.5 bg-stone-800 rounded-full overflow-hidden mb-1.5">
         <div id="reaction-timer-bar" class="h-full bg-gradient-to-r from-amber-400 to-red-500 transition-all duration-1000" style="width: 100%;"></div>
       </div>
-      <div id="reaction-timer-text" class="text-xs font-bold text-amber-300 mb-5">남은 시간: 10초</div>
+      <div id="reaction-timer-text" class="text-xs font-bold text-amber-300 mb-3">남은 시간: 10초</div>
+      <div id="reaction-card-choices" class="flex flex-wrap justify-center gap-2 mb-4 max-h-40 overflow-y-auto thin-scroll"></div>
       <div class="flex gap-3">
         <button onclick="handleReactionResponse(false)" class="flex-1 py-2.5 bg-red-950 hover:bg-red-900 text-red-200 border border-red-700 font-bold rounded-xl text-sm">맞기 / 포기</button>
         <button id="btn-reaction-use" onclick="handleReactionResponse(true)" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm shadow-lg">방어 카드 사용</button>
@@ -1117,16 +1147,93 @@
     </div>
   </div>
 
-  <!-- Game Over Modal -->
-  <div id="modal-game-over" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-4 border-amber-500 rounded-3xl p-7 max-w-lg w-full text-center shadow-2xl">
-      <div class="text-5xl mb-2">🏆</div>
-      <h2 id="gameover-title" class="text-3xl font-black text-amber-400 mb-1">대결 종료!</h2>
-      <p id="gameover-desc" class="text-sm text-stone-300 mb-5"></p>
-      <div id="gameover-roster" class="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 mb-6 space-y-2 text-xs text-left"></div>
+  <!-- Game Over Modal (With Ranks, Score/Points & Match Log Review) -->
+  <div id="modal-game-over" class="hidden fixed inset-0 z-[65] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-4 border-amber-500 rounded-3xl p-6 max-w-xl w-full max-h-[90vh] flex flex-col text-center shadow-2xl">
+      <div class="text-4xl mb-1">🏆</div>
+      <h2 id="gameover-title" class="text-2xl sm:text-3xl font-black text-amber-400 mb-1">대결 종료!</h2>
+      <p id="gameover-desc" class="text-xs sm:text-sm text-stone-300 mb-4"></p>
+      <div id="gameover-roster" class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3.5 mb-3 space-y-2 text-xs text-left overflow-y-auto thin-scroll max-h-52"></div>
+      <div class="mb-4 text-left">
+        <button onclick="document.getElementById('gameover-log-box').classList.toggle('hidden')" class="w-full py-2 px-3 bg-stone-900 hover:bg-stone-800 border border-amber-800/70 rounded-xl text-xs font-bold text-amber-300 flex items-center justify-between">
+          <span>📜 이번 판 전체 대결 기록 보기</span>
+          <span>▾</span>
+        </button>
+        <div id="gameover-log-box" class="hidden mt-2 bg-stone-900/90 border border-stone-800 rounded-xl p-3 max-h-40 overflow-y-auto thin-scroll space-y-1 text-[11px] text-stone-300"></div>
+      </div>
       <button onclick="executeExitToLobby()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-base shadow-xl">
         살롱 로비로 돌아가기
       </button>
+    </div>
+  </div>
+
+  <!-- Login / Account Modal -->
+  <div id="modal-auth" class="hidden fixed inset-0 z-[65] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-emerald-500 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
+        <h3 class="text-lg font-black text-emerald-300">👤 계정 로그인 / 가입</h3>
+        <button onclick="closeAuthModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
+      </div>
+      <div id="auth-logged-in-view" class="hidden space-y-3 text-center">
+        <div id="auth-profile-preview" class="text-5xl">🤠</div>
+        <div id="auth-user-name" class="text-lg font-black text-amber-300"></div>
+        <div class="grid grid-cols-3 gap-2 text-xs bg-stone-900 p-3 rounded-xl border border-stone-800">
+          <div><div class="text-stone-400">점수</div><div id="auth-user-score" class="text-sm font-black text-yellow-300">0</div></div>
+          <div><div class="text-stone-400">포인트</div><div id="auth-user-points" class="text-sm font-black text-fuchsia-300">0P</div></div>
+          <div><div class="text-stone-400">승리</div><div id="auth-user-wins" class="text-sm font-black text-emerald-300">0승</div></div>
+        </div>
+        <button onclick="logoutAccount()" class="w-full py-2.5 bg-red-900 hover:bg-red-800 text-red-100 font-black rounded-xl text-xs">로그아웃</button>
+      </div>
+      <div id="auth-form-view" class="space-y-3">
+        <input id="auth-input-id" type="text" maxlength="12" placeholder="아이디 (닉네임으로 사용)"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
+        <input id="auth-input-pw" type="password" maxlength="20" placeholder="비밀번호 (4자 이상)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();submitAuth('login');}"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
+        <div class="flex gap-2 pt-1">
+          <button onclick="submitAuth('login')" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm">로그인</button>
+          <button onclick="submitAuth('register')" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">회원가입</button>
+        </div>
+        <p class="text-[11px] text-stone-400 text-center">로그인하면 랭킹 점수·포인트·꾸미기 아이템·전적이 저장됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard & Match History Modal -->
+  <div id="modal-leaderboard" class="hidden fixed inset-0 z-[65] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-yellow-500 rounded-3xl p-5 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-3">
+        <h3 class="text-lg font-black text-yellow-300">🏆 랭킹 리더보드 · 전적</h3>
+        <button onclick="closeLeaderboardModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mb-3 flex-shrink-0">
+        <button id="lb-tab-rank" onclick="switchLeaderboardTab('rank')" class="py-2 rounded-xl text-xs font-black bg-yellow-500 text-stone-950">🏆 전체 랭킹</button>
+        <button id="lb-tab-history" onclick="switchLeaderboardTab('history')" class="py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">📊 최근 전적</button>
+      </div>
+      <div id="leaderboard-body" class="flex-1 overflow-y-auto thin-scroll space-y-2 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- Cosmetic Points Shop Modal -->
+  <div id="modal-cosmetic-shop" class="hidden fixed inset-0 z-[65] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-fuchsia-500 rounded-3xl p-5 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-3">
+        <div>
+          <h3 class="text-lg font-black text-fuchsia-300">💎 포인트 꾸미기 상점</h3>
+          <p class="text-[11px] text-stone-400">게임 보상으로 모은 포인트로 이모지·채팅 색상·프로필·테두리를 구매하세요!</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-1 bg-fuchsia-950 border border-fuchsia-500/70 rounded-full text-xs font-black text-fuchsia-200">💎 <span id="cshop-points">0</span>P</span>
+          <button onclick="closeCosmeticShopModal()" class="text-stone-400 hover:text-white font-bold px-1">✕</button>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-1.5 mb-3 flex-shrink-0 text-xs">
+        <button onclick="selectShopCategory('emojiSet')" data-scat="emojiSet" class="cshop-cat-btn px-3 py-1.5 rounded-xl font-black bg-fuchsia-500 text-stone-950">😊 특수 이모지</button>
+        <button onclick="selectShopCategory('chatColor')" data-scat="chatColor" class="cshop-cat-btn px-3 py-1.5 rounded-xl font-bold bg-stone-800 text-stone-300">💬 채팅 색깔</button>
+        <button onclick="selectShopCategory('avatar')" data-scat="avatar" class="cshop-cat-btn px-3 py-1.5 rounded-xl font-bold bg-stone-800 text-stone-300">🤠 대기 프로필</button>
+        <button onclick="selectShopCategory('frame')" data-scat="frame" class="cshop-cat-btn px-3 py-1.5 rounded-xl font-bold bg-stone-800 text-stone-300">🖼️ 테두리</button>
+      </div>
+      <div id="cosmetic-shop-grid" class="flex-1 overflow-y-auto thin-scroll grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs"></div>
     </div>
   </div>
 
@@ -1137,7 +1244,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import {
-      getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc,
+      getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs,
       onSnapshot, runTransaction
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
@@ -1353,6 +1460,8 @@
           activeEvent: G.activeEvent,
           activeWwsEvent: G.activeWwsEvent,
           shopDisplay: G.shopDisplay,
+          battleLogs: G.battleLogs.slice(-80),
+          eliminationOrder: G.eliminationOrder,
           roundNumber: G.roundNumber
         };
         const json = JSON.stringify(snap);
@@ -2083,12 +2192,55 @@
             <div class="text-4xl my-2">${item.icon}</div>
             <div class="text-[11px] text-stone-300 leading-snug card-desc-text">${item.desc}</div>
           </div>
-          <button onclick="buyGoldShopItem(${idx})" ${canBuy ? '' : 'disabled'}
-            class="w-full py-2 bg-yellow-500 hover:bg-yellow-400 disabled:bg-stone-800 disabled:text-stone-500 text-stone-950 font-black text-xs rounded-xl transition">
-            ${canBuy ? `🪙 ${price} 구매하기` : (isMyTurn ? '금덩이 부족' : '내 턴에만 구매 가능')}
-          </button>`;
+          <div class="flex flex-col gap-1.5">
+            <button onclick="buyGoldShopItem(${idx})" ${canBuy ? '' : 'disabled'}
+              class="w-full py-2 bg-yellow-500 hover:bg-yellow-400 disabled:bg-stone-800 disabled:text-stone-500 text-stone-950 font-black text-xs rounded-xl transition">
+              ${canBuy ? `🪙 ${price} 구매하기` : (isMyTurn ? '금덩이 부족' : '내 턴에만 구매 가능')}
+            </button>
+            <button onclick="rerollGoldShopItem(${idx})" ${isMyTurn && (me.gold || 0) >= 1 ? '' : 'disabled'}
+              class="w-full py-1.5 bg-stone-800 hover:bg-amber-700 disabled:opacity-40 text-amber-200 border border-amber-700/70 font-bold text-[11px] rounded-xl transition">
+              🎲 리롤 (🪙 1)
+            </button>
+          </div>`;
         grid.appendChild(card);
       });
+    }
+
+    async function rerollGoldShopItem(idx) {
+      const me = G.players[G.mySeatIndex];
+      if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy || !me.isAlive) return;
+      if ((me.gold || 0) < 1 || !G.shopDisplay[idx]) return;
+
+      if (Net.online && !Net.isHost) {
+        await patchRoom(lobby.activeRoomId, {
+          guestAction: {
+            id: `act_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+            type: 'REROLL_SHOP',
+            seat: G.mySeatIndex,
+            turnSeq: G.turnSeq,
+            shopIdx: idx
+          }
+        });
+        return;
+      }
+      executeRerollShopItem(me, idx);
+      broadcastGameState(true);
+    }
+
+    function executeRerollShopItem(player, idx) {
+      if ((player.gold || 0) < 1 || !G.shopDisplay[idx]) return;
+      player.gold -= 1;
+      const oldItem = G.shopDisplay[idx];
+      if (G.shopDeck.length === 0) G.shopDeck = buildGoldShopDeck();
+      G.shopDeck.unshift(oldItem);
+      const nextItem = G.shopDeck.pop();
+      G.shopDisplay[idx] = nextItem;
+      SFX.playCardDraw();
+      logBattle(`🎲 ${player.name}이(가) 금덩이 1개로 상점 [${oldItem.name}]을(를) [${nextItem.name}](으)로 리롤했습니다.`);
+      updateWwsAndShopHUD();
+      if (!document.getElementById('modal-gold-shop')?.classList.contains('hidden')) {
+        renderGoldShopModal();
+      }
     }
 
     async function buyGoldShopItem(idx) {
@@ -2697,14 +2849,17 @@
       grid.innerHTML = '';
       (room.slots || []).forEach((slot, idx) => {
         const card = document.createElement('div');
-        card.className = 'bg-stone-900/90 border border-amber-900/70 rounded-2xl p-3.5 flex items-center justify-between';
+        const isMeSlot = slot && slot.clientId === Net.clientId;
+        const frameCls = isMeSlot ? getEquippedFrameClass() : 'border-amber-900/70';
+        card.className = `bg-stone-900/90 border-2 ${frameCls} rounded-2xl p-3.5 flex items-center justify-between`;
         if (slot) {
-          const isMe = slot.clientId === Net.clientId;
+          const isMe = isMeSlot;
+          const avIcon = isMe ? getEquippedAvatarIcon() : (slot.isAI ? '🤖' : '🤠');
           card.innerHTML = `
             <div class="flex items-center gap-2.5">
-              <span class="w-8 h-8 rounded-full bg-amber-900/60 border border-amber-600 flex items-center justify-center text-sm font-black text-amber-300">${idx + 1}P</span>
+              <span class="w-9 h-9 rounded-full bg-amber-900/60 border border-amber-500 flex items-center justify-center text-base font-black text-amber-300">${avIcon}</span>
               <div>
-                <div class="text-sm font-bold text-amber-100">${slot.name} ${isMe ? '(나)' : ''}</div>
+                <div class="text-sm font-bold text-amber-100">${idx + 1}P · ${slot.name} ${isMe ? '(나)' : ''}</div>
                 <div class="text-[11px] text-stone-400">${slot.isHost ? '👑 방장' : (slot.isAI ? '🤖 AI 총잡이' : '🤠 참가자')}</div>
               </div>
             </div>
@@ -3034,6 +3189,10 @@
       activeWwsEvent: null,
       shopDeck: [],
       shopDisplay: [],
+      battleLogs: [],
+      eliminationOrder: [],
+      gameOverRecorded: false,
+      _busySince: 0,
       roundNumber: 0,
       roundStarterIndex: 0,
       turnIndex: 0,
@@ -3093,6 +3252,9 @@
       G.activeWwsEvent = null;
       G.shopDeck = G.settings.expansions.includes('GOLD_RUSH') ? buildGoldShopDeck() : [];
       G.shopDisplay = [];
+      G.battleLogs = [];
+      G.eliminationOrder = [];
+      G.gameOverRecorded = false;
       refillGoldShopDisplay();
       G.roundNumber = 0;
       G.turnSeq = 0;
@@ -3166,6 +3328,9 @@
       G.activeWwsEvent = null;
       G.shopDeck = G.settings.expansions.includes('GOLD_RUSH') ? buildGoldShopDeck() : [];
       G.shopDisplay = [];
+      G.battleLogs = [];
+      G.eliminationOrder = [];
+      G.gameOverRecorded = false;
       refillGoldShopDisplay();
       G.roundNumber = 0;
       G.turnSeq = 0;
@@ -3297,9 +3462,17 @@
           G.activeEvent = snap.activeEvent || null;
           G.activeWwsEvent = snap.activeWwsEvent || null;
           G.shopDisplay = Array.isArray(snap.shopDisplay) ? snap.shopDisplay : [];
+          if (Array.isArray(snap.battleLogs)) {
+            G.battleLogs = snap.battleLogs;
+            renderBattleLogList();
+          }
+          if (Array.isArray(snap.eliminationOrder)) G.eliminationOrder = snap.eliminationOrder;
           G.roundNumber = snap.roundNumber || 1;
           updateEventHUD();
           updateWwsAndShopHUD();
+          if (!document.getElementById('modal-gold-shop')?.classList.contains('hidden')) {
+            renderGoldShopModal();
+          }
           document.getElementById('deck-count-label').innerText = `덱 ${snap.drawCount ?? 0}장`;
           document.getElementById('hud-turn-player').innerText = `${G.players[G.turnIndex]?.name || '-'} (${G.turnIndex + 1}P)`;
           syncAllBoards();
@@ -3321,9 +3494,13 @@
 
       if (!G.isSpectator && room.reactionReq && room.reactionReq.id !== Net.lastReactionId && room.reactionReq.targetSeat === G.mySeatIndex) {
         Net.lastReactionId = room.reactionReq.id;
-        showLocalReactionModal(room.reactionReq).then(async (usedCard) => {
+        showLocalReactionModal(room.reactionReq).then(async (choice) => {
           await patchRoom(room.id, {
-            reactionResp: { id: room.reactionReq.id, usedCard: !!usedCard }
+            reactionResp: {
+              id: room.reactionReq.id,
+              usedCard: !!choice,
+              chosenId: typeof choice === 'string' ? choice : null
+            }
           });
         });
       }
@@ -3358,6 +3535,9 @@
         nextTurn();
       } else if (act.type === 'BUY_SHOP') {
         await executeBuyShopItem(actor, act.shopIdx);
+        broadcastGameState(true);
+      } else if (act.type === 'REROLL_SHOP') {
+        executeRerollShopItem(actor, act.shopIdx);
         broadcastGameState(true);
       } else if (act.type === 'END_TURN') {
         nextTurn();
@@ -3898,6 +4078,7 @@
 
     function bootApp() {
       syncResponsiveLayout();
+      refreshAccountUI();
       renderRoomList();
       initRealtimeBackend();
 
@@ -5113,8 +5294,8 @@
        10. REACTION SYSTEM (LOCAL + ONLINE GUEST + BARREL / DODGE / GREEN)
        =================================================================== */
     function showLocalReactionModal(req) {
-      const me = G.players[G.mySeatIndex];
       const matchIds = req.matchingCardIds || [];
+      const cardOptions = req.cardOptions || [];
       G.glowHandCardIds = new Set(matchIds);
       renderHand();
 
@@ -5124,7 +5305,35 @@
         const bar = document.getElementById('reaction-timer-bar');
         const txt = document.getElementById('reaction-timer-text');
         const btnUse = document.getElementById('btn-reaction-use');
+        const choicesWrap = document.getElementById('reaction-card-choices');
         btnUse.innerText = req.btnLabel || '🛡️ 방어 카드 사용';
+
+        let finished = false;
+        const finish = (val) => {
+          if (finished) return;
+          finished = true;
+          clearInterval(timer);
+          modal.classList.add('hidden');
+          G.glowHandCardIds.clear();
+          renderHand();
+          resolve(val);
+        };
+
+        if (choicesWrap) {
+          choicesWrap.innerHTML = '';
+          if (cardOptions.length > 1) {
+            btnUse.classList.add('hidden');
+            cardOptions.forEach(opt => {
+              const b = document.createElement('button');
+              b.className = 'px-3 py-2 bg-stone-900 hover:bg-amber-500 hover:text-stone-950 text-amber-200 border-2 border-amber-500/80 rounded-xl text-xs font-black transition shadow';
+              b.innerText = opt.label;
+              b.onclick = () => finish(opt.id);
+              choicesWrap.appendChild(b);
+            });
+          } else {
+            btnUse.classList.remove('hidden');
+          }
+        }
 
         modal.classList.remove('hidden');
         let left = 10;
@@ -5135,21 +5344,11 @@
           left--;
           bar.style.width = `${(left / 10) * 100}%`;
           txt.innerText = `남은 시간: ${left}초`;
-          if (left <= 0) {
-            clearInterval(timer);
-            modal.classList.add('hidden');
-            G.glowHandCardIds.clear();
-            renderHand();
-            resolve(false);
-          }
+          if (left <= 0) finish(false);
         }, 1000);
 
         window.handleReactionResponse = (useCard) => {
-          clearInterval(timer);
-          modal.classList.add('hidden');
-          G.glowHandCardIds.clear();
-          renderHand();
-          resolve(!!useCard);
+          finish(useCard ? (cardOptions[0]?.id || true) : false);
         };
       });
     }
@@ -5167,7 +5366,8 @@
             settled = true;
             clearTimeout(timeout);
             unsub();
-            resolve(!!data.reactionResp.usedCard);
+            if (!data.reactionResp.usedCard) resolve(false);
+            else resolve(data.reactionResp.chosenId || true);
           }
         });
       });
@@ -5196,14 +5396,16 @@
       }
 
       // Check ready Green defense equipment (Dodge City)
-      const readyGreenDef = (requiredCode === 'MISSED' && !isEquipmentNegatedByBelleStar(targetPlayer))
-        ? targetPlayer.equipment.find(e => e.type === 'green' && e.ready && isGreenDefenseCard(e.code))
-        : null;
+      const readyGreenDefs = (requiredCode === 'MISSED' && !isEquipmentNegatedByBelleStar(targetPlayer))
+        ? targetPlayer.equipment.filter(e => e.type === 'green' && e.ready && isGreenDefenseCard(e.code))
+        : [];
+      const readyGreenDef = readyGreenDefs[0] || null;
 
       const matchFn = (c) => {
+        if (requiredCode === 'MISSED' && hasChar(targetPlayer, 'BIG_SPENCER') && c.code === 'MISSED') return false;
         if (c.code === requiredCode) return true;
         if (requiredCode === 'MISSED' && (c.code === 'DODGE' || c.code === 'BACKFIRE' || c.code === 'ESCAPE')) return true;
-        if (hasChar(targetPlayer, 'CALAMITY_JANET') && (c.code === 'BANG' || c.code === 'MISSED')) return true;
+        if ((hasChar(targetPlayer, 'CALAMITY_JANET') || hasChar(targetPlayer, 'LEG_CALAMITY_JANET')) && (c.code === 'BANG' || c.code === 'MISSED')) return true;
         if (requiredCode === 'MISSED' && hasChar(targetPlayer, 'ELENA_FUENTE')) return true;
         return false;
       };
@@ -5214,24 +5416,30 @@
       if (!readyGreenDef && matchingCards.length === 0) return false;
 
       let usedBackfire = false;
-      const consumeDefense = async () => {
-        if (readyGreenDef) {
-          targetPlayer.equipment = targetPlayer.equipment.filter(e => e.id !== readyGreenDef.id);
-          G.discardPile.push(readyGreenDef);
-          await FX.flyCard(readyGreenDef, targetPlayer.id, 'discard', 300);
+      const consumeDefense = async (chosenId = null) => {
+        const pickedGreen = chosenId
+          ? readyGreenDefs.find(g => g.id === chosenId)
+          : (chosenId === null ? readyGreenDef : null);
+        const pickedHand = chosenId
+          ? matchingCards.find(c => c.id === chosenId)
+          : matchingCards[0];
+
+        if (pickedGreen) {
+          targetPlayer.equipment = targetPlayer.equipment.filter(e => e.id !== pickedGreen.id);
+          G.discardPile.push(pickedGreen);
+          FX.flyCard(pickedGreen, targetPlayer.id, 'discard', 260);
           SFX.playRicochet();
-          if (readyGreenDef.code === 'BIBLE') drawCards(targetPlayer, 1, true);
-          logBattle(`🌿 ${targetPlayer.name}이(가) 초록 카드 [${readyGreenDef.name}]으로 방어했습니다!`);
-        } else {
-          const played = matchingCards[0];
-          if (played.code === 'BACKFIRE') usedBackfire = true;
-          targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== played.id);
-          if (played.code !== requiredCode && !['DODGE', 'BACKFIRE', 'ESCAPE'].includes(played.code)) targetPlayer.abilityRevealed = true;
-          G.discardPile.push(played);
-          await FX.flyCard(played, targetPlayer.id, 'discard', 300);
+          if (pickedGreen.code === 'BIBLE') drawCards(targetPlayer, 1, true);
+          logBattle(`🌿 ${targetPlayer.name}이(가) 초록 카드 [${pickedGreen.name}]으로 방어했습니다!`);
+        } else if (pickedHand) {
+          if (pickedHand.code === 'BACKFIRE') usedBackfire = true;
+          targetPlayer.hand = targetPlayer.hand.filter(c => c.id !== pickedHand.id);
+          if (pickedHand.code !== requiredCode && !['DODGE', 'BACKFIRE', 'ESCAPE'].includes(pickedHand.code)) targetPlayer.abilityRevealed = true;
+          G.discardPile.push(pickedHand);
+          FX.flyCard(pickedHand, targetPlayer.id, 'discard', 260);
           SFX.playRicochet();
-          if (played.code === 'DODGE') drawCards(targetPlayer, 1, true);
-          logBattle(`🛡️ ${targetPlayer.name}이(가) [${played.name}]으로 방어했습니다.`);
+          if (pickedHand.code === 'DODGE') drawCards(targetPlayer, 1, true);
+          logBattle(`🛡️ ${targetPlayer.name}이(가) [${pickedHand.name}(${pickedHand.suit}${pickedHand.rank})]으로 방어했습니다.`);
           checkSuzyLafayette(targetPlayer);
         }
         if (hasChar(targetPlayer, 'MOLLY_STARK') && G.turnIndex !== targetPlayer.id) {
@@ -5244,34 +5452,36 @@
       };
 
       if (targetPlayer.isAI) {
-        await sleep(360);
+        await sleep(320);
         await consumeDefense();
         return { defended: true, barrelUsed, jourdonnaisUsed, backfire: usedBackfire };
       }
 
+      const cardOptions = [
+        ...readyGreenDefs.map(g => ({ id: g.id, label: `🌿 ${g.name} [초록]` })),
+        ...matchingCards.map(c => ({ id: c.id, label: `${c.icon} ${c.name} (${c.suit}${c.rank})` }))
+      ];
       const primaryName = readyGreenDef ? readyGreenDef.name : matchingCards[0].name;
       const btnLabel = requiredCode === 'MISSED' ? `🛡️ ${primaryName} 사용` : (requiredCode === 'ESCAPE' ? `🏃 ${primaryName} 사용` : `🎯 ${primaryName} 제출`);
 
-      let accepted = false;
+      const reqObj = {
+        id: `rx_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+        targetSeat: targetPlayer.id,
+        desc: messageDesc,
+        btnLabel,
+        matchingCardIds: matchingCards.map(c => c.id),
+        cardOptions
+      };
+      let chosenResult = false;
       if (targetPlayer.id === G.mySeatIndex) {
-        accepted = await showLocalReactionModal({
-          desc: messageDesc,
-          btnLabel,
-          matchingCardIds: matchingCards.map(c => c.id)
-        });
+        chosenResult = await showLocalReactionModal(reqObj);
       } else if (Net.online && Net.isHost && lobby.activeRoomId) {
         broadcastGameState(true);
-        accepted = await waitRemoteReaction(lobby.activeRoomId, {
-          id: `rx_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
-          targetSeat: targetPlayer.id,
-          desc: messageDesc,
-          btnLabel,
-          matchingCardIds: matchingCards.map(c => c.id)
-        });
+        chosenResult = await waitRemoteReaction(lobby.activeRoomId, reqObj);
       }
 
-      if (accepted) {
-        await consumeDefense();
+      if (chosenResult) {
+        await consumeDefense(typeof chosenResult === 'string' ? chosenResult : null);
         return { defended: true, barrelUsed, jourdonnaisUsed, backfire: usedBackfire };
       }
       return false;
@@ -5423,9 +5633,10 @@
 
     function handlePlayerDeath(victim, killer) {
       victim.isAlive = false;
+      if (!G.eliminationOrder.includes(victim.id)) G.eliminationOrder.push(victim.id);
       logBattle(`☠️ ${victim.name} 탈락! 공개된 직업: [${victim.role.name}]`);
 
-      // Dodge City death trigger characters
+      // Dodge City & Legends death trigger characters
       G.players.forEach(p => {
         if (!p.isAlive || p.id === victim.id) return;
         if (hasChar(p, 'GREG_DIGGER') && p.hp < p.maxHp) {
@@ -5442,16 +5653,19 @@
         }
       });
 
-      const vulture = G.players.find(p => p.isAlive && hasChar(p, 'VULTURE_SAM'));
+      const vulture = G.players.find(p => p.isAlive && (hasChar(p, 'VULTURE_SAM') || hasChar(p, 'LEG_VULTURE_SAM')));
       if (vulture) {
         vulture.abilityRevealed = true;
         const loot = [...victim.hand, ...victim.equipment];
         vulture.hand.push(...loot);
+        if (hasChar(vulture, 'LEG_VULTURE_SAM') && vulture.hp < vulture.maxHp) {
+          vulture.hp = Math.min(vulture.maxHp, vulture.hp + 2);
+        }
         loot.slice(0, 4).forEach((c, i) => {
           setTimeout(() => FX.flyCard(c, victim.id, vulture.id, 380, true), i * 110);
         });
         FX.showFloatText(vulture.id, `🦅 +${loot.length}장 흡수!`, '#fbbf24');
-        logBattle(`🦅 벌쳐 샘이 ${victim.name}의 모든 카드(${loot.length}장)를 흡수했습니다!`);
+        logBattle(`🦅 ${getCharDisplayName(vulture)}이(가) ${victim.name}의 모든 카드(${loot.length}장)를 흡수했습니다!`);
       } else {
         G.discardPile.push(...victim.hand, ...victim.equipment);
       }
@@ -5506,16 +5720,77 @@
       return false;
     }
 
+    const RANK_SCORE_TABLE = {
+      2: [4, -2],
+      3: [6, 2, -2],
+      4: [8, 4, 0, -2],
+      5: [10, 5, 2, 0, -2],
+      6: [12, 7, 4, 1, -1, -2],
+      7: [14, 8, 5, 3, 1, -1, -2]
+    };
+
+    function computeFinalRankings(title) {
+      const N = G.players.length;
+      const scores = RANK_SCORE_TABLE[N] || RANK_SCORE_TABLE[4];
+      const isLawWin = title.includes('보안관');
+      const isOutlawWin = title.includes('무법자');
+      const isRenegadeWin = title.includes('배신자');
+
+      const ranked = [...G.players].sort((a, b) => {
+        const aWin = !G.settings.useRoles
+          ? a.isAlive
+          : ((isLawWin && a.role.team === 'LAW') || (isOutlawWin && a.role.team === 'OUT') || (isRenegadeWin && a.role.id === 'RENEGADE'));
+        const bWin = !G.settings.useRoles
+          ? b.isAlive
+          : ((isLawWin && b.role.team === 'LAW') || (isOutlawWin && b.role.team === 'OUT') || (isRenegadeWin && b.role.id === 'RENEGADE'));
+        if (aWin !== bWin) return aWin ? -1 : 1;
+        if (a.isAlive !== b.isAlive) return a.isAlive ? -1 : 1;
+        const aElim = G.eliminationOrder.indexOf(a.id);
+        const bElim = G.eliminationOrder.indexOf(b.id);
+        return bElim - aElim; // eliminated later = higher rank
+      });
+
+      return ranked.map((p, idx) => {
+        const scoreDelta = scores[idx] ?? -2;
+        const pointsEarned = Math.max(5, Math.max(0, scoreDelta) * 10 + 10);
+        return { player: p, rank: idx + 1, scoreDelta, pointsEarned };
+      });
+    }
+
     function showGameOver(title, desc) {
       document.getElementById('gameover-title').innerText = title;
       document.getElementById('gameover-desc').innerText = desc;
+      const rankings = computeFinalRankings(title);
       const roster = document.getElementById('gameover-roster');
-      roster.innerHTML = G.players.map(p => `
-        <div class="flex items-center justify-between border-b border-stone-800 pb-1.5">
-          <span class="font-bold text-amber-200">${p.id + 1}P ${p.name} (${p.character.name})</span>
-          <span class="px-2 py-0.5 rounded bg-amber-900/50 text-amber-300 font-bold">${p.role.icon} ${p.role.name} · ${p.isAlive ? '🟢 생존' : '☠️ 탈락'}</span>
-        </div>`).join('');
+      roster.innerHTML = rankings.map(({ player: p, rank, scoreDelta, pointsEarned }) => {
+        const scoreStr = scoreDelta >= 0 ? `+${scoreDelta}점` : `${scoreDelta}점`;
+        const scoreCls = scoreDelta > 0 ? 'text-emerald-300' : (scoreDelta < 0 ? 'text-red-400' : 'text-stone-300');
+        return `
+        <div class="flex items-center justify-between gap-2 border-b border-stone-800 pb-1.5">
+          <div class="min-w-0 truncate">
+            <span class="font-black text-yellow-300 mr-1.5">${rank}등</span>
+            <span class="font-bold text-amber-200">${p.name}</span>
+            <span class="text-[10px] text-stone-400 ml-1">(${getCharDisplayName(p)})</span>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="font-black ${scoreCls}">${scoreStr}</span>
+            <span class="text-fuchsia-300 font-bold">+${pointsEarned}P</span>
+            <span class="px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 font-bold">${p.role.icon} ${p.role.name}</span>
+          </div>
+        </div>`;
+      }).join('');
+
+      const logBox = document.getElementById('gameover-log-box');
+      if (logBox) {
+        logBox.innerHTML = (G.battleLogs.length > 0 ? G.battleLogs : ['기록 없음'])
+          .map(line => `<div class="border-b border-stone-800/60 pb-0.5">${escapeHtml(line)}</div>`).join('');
+      }
       document.getElementById('modal-game-over').classList.remove('hidden');
+
+      if (!G.gameOverRecorded) {
+        G.gameOverRecorded = true;
+        recordMatchResultAndRewards(title, rankings);
+      }
     }
 
     /* ===================================================================
@@ -5987,7 +6262,13 @@
 
     async function handleEndTurnClick() {
       const me = G.players[G.mySeatIndex];
-      if (!me || G.turnIndex !== G.mySeatIndex || G.isBusy || G.isAdvancingTurn) return;
+      if (!me || G.isSpectator || G.turnIndex !== G.mySeatIndex) return;
+      // Auto-recover if isBusy/isAdvancingTurn ever got stuck > 7s
+      if ((G.isBusy || G.isAdvancingTurn) && Date.now() - (G._busySince || 0) > 7000) {
+        G.isBusy = false;
+        G.isAdvancingTurn = false;
+      }
+      if (G.isBusy || G.isAdvancingTurn) return;
       const limit = getHandEndTurnLimit(me);
       if (me.hand.length > limit) {
         G.selectionMode = 'discard';
@@ -5998,6 +6279,7 @@
         return;
       }
       G.isBusy = true;
+      G._busySince = Date.now();
       const endBtn = document.getElementById('btn-end-turn');
       if (endBtn) endBtn.disabled = true;
       if (Net.online && !Net.isHost) {
@@ -6110,7 +6392,10 @@
       }
       if (stolen) {
         thief.hand.push(stolen);
-        await FX.flyCard(stolen, victim.id, thief.id, 360, true);
+        FX.flyCard(stolen, victim.id, thief.id, 300, true);
+        FX.showFloatText(victim.id, `🤏 [${stolen.name}] 강탈당함!`, '#f97316');
+        FX.showFloatText(thief.id, `🤏 [${stolen.name}] 획득!`, '#4ade80');
+        logBattle(`🤏 ${thief.name}이(가) ${victim.name}에게서 [${stolen.name}] 카드를 강탈했습니다!`);
         checkSuzyLafayette(victim);
       }
     }
@@ -6121,7 +6406,7 @@
         const opts = [];
         if (victim.hand.length > 0) opts.push({ label: `🃏 손패 무작위 1장 (${victim.hand.length}장)`, value: { from: 'hand' } });
         victim.equipment.forEach((eq, idx) => opts.push({ label: `${eq.icon} 장착 [${eq.name}]`, value: { from: 'equip', idx } }));
-        const pick = await openChoiceModal(`🔥 ${victim.name} 카드 제거 (캣 벌로우)`, '버리게 할 카드를 선택하세요.', opts);
+        const pick = await openChoiceModal(`🔥 ${victim.name} 카드 제거 (캣 발루)`, '버리게 할 카드를 선택하세요.', opts);
         if (pick.from === 'hand' && victim.hand.length > 0) disc = victim.hand.splice(Math.floor(Math.random() * victim.hand.length), 1)[0];
         else if (pick.from === 'equip') disc = victim.equipment.splice(pick.idx, 1)[0];
       } else {
@@ -6130,7 +6415,9 @@
       }
       if (disc) {
         G.discardPile.push(disc);
-        await FX.flyCard(disc, victim.id, 'discard', 360);
+        FX.flyCard(disc, victim.id, 'discard', 300);
+        FX.showFloatText(victim.id, `🔥 [${disc.name}] 제거됨!`, '#ef4444');
+        logBattle(`🔥 ${victim.name}의 [${disc.name}] 카드가 제거되었습니다!`);
         checkSuzyLafayette(victim);
       }
     }
@@ -6198,6 +6485,7 @@
 
     function spawnChatBubble(msg) {
       if (document.getElementById('screen-game').classList.contains('hidden')) return;
+      if (msg.isSpectator || msg.seat < 0) return;
       const layer = document.getElementById('speech-bubble-layer');
       const vp = document.getElementById('table-viewport');
       if (!layer || !vp || G.players.length === 0) return;
@@ -6322,10 +6610,11 @@
         const isMe = m.clientId === Net.clientId;
         const safeText = escapeHtml(m.text || '');
         const safeName = escapeHtml(m.sender || '총잡이');
+        const colStyle = m.chatColor && !m.isEmote ? `style="color:${m.chatColor}"` : '';
         return `
           <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
             <span class="text-[10px] text-stone-400 mb-0.5">${safeName} · ${m.time || ''}</span>
-            <div class="px-2.5 py-1.5 rounded-xl max-w-[90%] break-words ${isMe ? 'bg-emerald-800/80 text-emerald-50' : 'bg-stone-800 text-amber-100'} ${m.isEmote ? 'text-xl' : 'text-xs'}">${safeText}</div>
+            <div class="px-2.5 py-1.5 rounded-xl max-w-[90%] break-words ${isMe ? 'bg-emerald-800/80 text-emerald-50' : 'bg-stone-800 text-amber-100'} ${m.isEmote ? 'text-xl' : 'text-xs font-bold'}" ${colStyle}>${safeText}</div>
           </div>`;
       }).join('');
       box.scrollTop = box.scrollHeight;
@@ -6343,14 +6632,18 @@
       if (!text) return;
       if (customText === null && input) input.value = '';
 
-      const mePlayer = G.players[G.mySeatIndex];
-      const sender = mePlayer ? mePlayer.name : (document.getElementById('lobby-nickname')?.value.trim() || '총잡이');
+      const mePlayer = G.isSpectator ? null : G.players[G.mySeatIndex];
+      const baseNick = Account.user?.username || document.getElementById('lobby-nickname')?.value.trim() || '관전자';
+      const sender = G.isSpectator ? `👁️ ${baseNick}` : (mePlayer ? mePlayer.name : baseNick);
+      const chatColor = getEquippedChatColorHex();
       const now = new Date();
       const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       const msg = {
         id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
         sender,
-        seat: G.mySeatIndex,
+        seat: G.isSpectator ? -1 : G.mySeatIndex,
+        isSpectator: !!G.isSpectator,
+        chatColor,
         clientId: Net.clientId,
         text,
         isEmote: !!isEmote,
@@ -6568,20 +6861,20 @@
         const layer = document.getElementById('fx-layer');
         if (!layer) return;
         SFX.playCardDraw();
-        await this.flyCard(card, 'deck', 'center', 260, true);
+        await this.flyCard(card, 'deck', 'center', 240, true);
         const center = this.getPoint('center');
         const wrap = document.createElement('div');
-        wrap.className = 'absolute flex flex-col items-center pointer-events-none z-50';
+        wrap.className = 'absolute flex flex-col items-center pointer-events-none z-50 bg-stone-950/92 border-2 border-amber-400 rounded-3xl px-6 py-4 shadow-[0_0_50px_rgba(0,0,0,0.95)]';
         wrap.style.left = `${center.x}px`; wrap.style.top = `${center.y}px`;
-        wrap.style.transform = 'translate(-50%, -50%)';
-        wrap.innerHTML = `<div class="mb-2 px-3 py-1 rounded-full text-xs font-black ${isSuccess ? 'bg-emerald-600 text-white' : 'bg-red-700 text-white'} shadow-lg whitespace-nowrap">${label}: ${card.suit}${card.rank} (${isSuccess ? '성공!' : '실패'})</div>`;
+        wrap.style.transform = 'translate(-50%, -50%) scale(1.25)';
+        wrap.innerHTML = `<div class="mb-2 px-4 py-1 rounded-full text-sm font-black ${isSuccess ? 'bg-emerald-600 text-white' : 'bg-red-700 text-white'} shadow-lg whitespace-nowrap">🃏 ${label}: ${card.suit}${card.rank} (${isSuccess ? '✅ 성공!' : '❌ 실패!'})</div>`;
         const cardEl = this.createCardEl(card, false);
         cardEl.style.position = 'relative';
         wrap.appendChild(cardEl);
         layer.appendChild(wrap);
-        await sleep(900);
+        await sleep(1250);
         wrap.remove();
-        await this.flyCard(card, 'center', 'discard', 240, false);
+        FX.flyCard(card, 'center', 'discard', 240, false);
       }
     };
 
@@ -6630,7 +6923,16 @@
       toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
     }
 
+    function renderBattleLogList() {
+      const list = document.getElementById('log-list');
+      if (!list) return;
+      list.innerHTML = G.battleLogs.map(m => `<div class="border-b border-stone-800/70 pb-1">${escapeHtml(m)}</div>`).join('');
+      list.scrollTop = list.scrollHeight;
+    }
+
     function logBattle(msg) {
+      G.battleLogs.push(msg);
+      if (G.battleLogs.length > 100) G.battleLogs.shift();
       const list = document.getElementById('log-list');
       if (!list) return;
       const item = document.createElement('div');
@@ -6916,8 +7218,431 @@
       }
     }
 
+    /* ===================================================================
+       17. ACCOUNTS, RANKING LEADERBOARD, POINTS SHOP & COSMETICS EQUIP
+       =================================================================== */
+    const ACCOUNTS_COL = 'bang_accounts_v1';
+    const HISTORY_COL = 'bang_match_history_v1';
+
+    const COSMETIC_CATALOG = {
+      emojiSet: [
+        { id: 'default', name: '기본 이모지', cost: 0, preview: '🤠🔫😂😱😡🍺', emotes: [] },
+        { id: 'vip_west', name: '서부 VIP 이모지 팩', cost: 80, preview: '🦅🌵🎰💣🐎👑', emotes: ['🦅','🌵','🎰','💣','🐎','👑'] },
+        { id: 'neon_pro', name: '네온 프리미엄 이모지 팩', cost: 150, preview: '⚡💎🔥🌌👻🐉', emotes: ['⚡','💎','🔥','🌌','👻','🐉'] }
+      ],
+      chatColor: [
+        { id: 'default', name: '기본 화이트', cost: 0, hex: '#f5f5f4', preview: '기본 채팅 색상' },
+        { id: 'gold', name: '황금 보안관', cost: 60, hex: '#fde047', preview: '황금빛 채팅 텍스트' },
+        { id: 'emerald', name: '에메랄드 선인장', cost: 60, hex: '#6ee7b7', preview: '청량한 초록빛 채팅' },
+        { id: 'sky', name: '서부 하늘빛', cost: 60, hex: '#7dd3fc', preview: '시원한 하늘빛 채팅' },
+        { id: 'rose', name: '크림슨 로즈', cost: 90, hex: '#fda4af', preview: '강렬한 장밋빛 채팅' },
+        { id: 'purple', name: '미스틱 퍼플', cost: 120, hex: '#d8b4fe', preview: '신비로운 보랏빛 채팅' }
+      ],
+      avatar: [
+        { id: 'default', name: '기본 총잡이', cost: 0, icon: '🤠', preview: '🤠 기본 프로필' },
+        { id: 'eagle', name: '황금 독수리', cost: 50, icon: '🦅', preview: '🦅 서부의 매' },
+        { id: 'skull', name: '무법자 해골', cost: 70, icon: '💀', preview: '💀 무법자 상징' },
+        { id: 'crown', name: '황금 왕관', cost: 120, icon: '👑', preview: '👑 챔피언 프로필' },
+        { id: 'dragon', name: '전설의 드래곤', cost: 180, icon: '🐉', preview: '🐉 전설 등급' },
+        { id: 'hat', name: '신사 모자', cost: 90, icon: '🎩', preview: '🎩 살롱 신사' }
+      ],
+      frame: [
+        { id: 'default', name: '기본 테두리', cost: 0, cls: 'border-amber-900/70', preview: '기본 마호가니 테두리' },
+        { id: 'gold', name: '황금빛 테두리', cost: 100, cls: 'border-yellow-400 ring-2 ring-yellow-400/60', preview: '화려한 황금빛 프레임' },
+        { id: 'emerald', name: '에메랄드 테두리', cost: 100, cls: 'border-emerald-400 ring-2 ring-emerald-400/60', preview: '빛나는 에메랄드 프레임' },
+        { id: 'crimson', name: '크림슨 테두리', cost: 140, cls: 'border-red-500 ring-2 ring-red-500/60', preview: '강렬한 붉은 프레임' },
+        { id: 'neon', name: '네온 퍼플 테두리', cost: 200, cls: 'border-fuchsia-400 ring-2 ring-fuchsia-400/70', preview: '프리미엄 네온 프레임' }
+      ]
+    };
+
+    const Account = {
+      user: JSON.parse(localStorage.getItem('bang_account_user') || 'null'),
+      shopCat: 'emojiSet',
+      equipCat: 'emojiSet',
+      lbTab: 'rank'
+    };
+
+    function simpleHash(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return 'h_' + (h >>> 0).toString(16);
+    }
+
+    function getEquippedChatColorHex() {
+      const id = Account.user?.equipped?.chatColor || 'default';
+      return COSMETIC_CATALOG.chatColor.find(x => x.id === id)?.hex || '#f5f5f4';
+    }
+
+    function getEquippedAvatarIcon() {
+      const id = Account.user?.equipped?.avatar || 'default';
+      return COSMETIC_CATALOG.avatar.find(x => x.id === id)?.icon || '🤠';
+    }
+
+    function getEquippedFrameClass() {
+      const id = Account.user?.equipped?.frame || 'default';
+      return COSMETIC_CATALOG.frame.find(x => x.id === id)?.cls || 'border-amber-900/70';
+    }
+
+    function syncEmotePickerWithCosmetics() {
+      const picker = document.getElementById('emote-picker-popup');
+      if (!picker) return;
+      const base = ['🤠','🔫','😂','😱','😡','🍺','💀','👍','🙏','😈','🔥','❤️'];
+      const setId = Account.user?.equipped?.emojiSet || 'default';
+      const extra = COSMETIC_CATALOG.emojiSet.find(x => x.id === setId)?.emotes || [];
+      const all = [...base, ...extra];
+      picker.innerHTML = all.map(em => `<button onclick="sendEmote('${em}')" class="w-9 h-9 text-xl hover:bg-amber-500/20 rounded-xl transition active:scale-90">${em}</button>`).join('');
+    }
+
+    function refreshAccountUI() {
+      const btn = document.getElementById('btn-auth-open');
+      const nickInput = document.getElementById('lobby-nickname');
+      if (Account.user) {
+        const av = getEquippedAvatarIcon();
+        if (btn) btn.innerText = `${av} ${Account.user.username} (${Account.user.score || 0}점 · ${Account.user.points || 0}P)`;
+        if (nickInput && !nickInput.value.trim()) nickInput.value = Account.user.username;
+      } else {
+        if (btn) btn.innerText = '👤 로그인';
+      }
+      syncEmotePickerWithCosmetics();
+    }
+
+    async function saveAccountToCloud() {
+      if (!Account.user) return;
+      Account.user.updatedAt = Date.now();
+      localStorage.setItem('bang_account_user', JSON.stringify(Account.user));
+      refreshAccountUI();
+      if (Net.online && Net.db) {
+        try {
+          await setDoc(doc(Net.db, ACCOUNTS_COL, Account.user.id), Account.user, { merge: true });
+        } catch (e) {
+          console.warn('Account cloud sync skipped (check Firestore rules for bang_accounts_v1):', e);
+        }
+      }
+    }
+
+    function openAuthModal() {
+      const loggedIn = !!Account.user;
+      document.getElementById('auth-logged-in-view')?.classList.toggle('hidden', !loggedIn);
+      document.getElementById('auth-form-view')?.classList.toggle('hidden', loggedIn);
+      if (loggedIn) {
+        document.getElementById('auth-profile-preview').innerText = getEquippedAvatarIcon();
+        document.getElementById('auth-user-name').innerText = Account.user.username;
+        document.getElementById('auth-user-score').innerText = `${Account.user.score || 0}점`;
+        document.getElementById('auth-user-points').innerText = `${Account.user.points || 0}P`;
+        document.getElementById('auth-user-wins').innerText = `${Account.user.wins || 0}승 / ${Account.user.games || 0}전`;
+      }
+      document.getElementById('modal-auth')?.classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-auth')?.classList.add('hidden');
+    }
+
+    async function submitAuth(mode) {
+      const username = (document.getElementById('auth-input-id')?.value || '').trim();
+      const pw = (document.getElementById('auth-input-pw')?.value || '').trim();
+      if (!username) { showToast('아이디를 입력해 주세요.'); return; }
+      if (pw.length < 4) { showToast('비밀번호는 4자 이상 입력해 주세요.'); return; }
+      const accId = 'u_' + username.toLowerCase().replace(/[^a-z0-9가-힣_]/g, '');
+      const pwHash = simpleHash(pw);
+
+      try {
+        if (Net.online && Net.db) {
+          const ref = doc(Net.db, ACCOUNTS_COL, accId);
+          const snap = await getDoc(ref);
+          if (mode === 'register') {
+            if (snap.exists()) { showToast('이미 존재하는 아이디입니다.'); return; }
+            Account.user = {
+              id: accId, username, passwordHash: pwHash,
+              score: 0, points: 50, wins: 0, games: 0,
+              ownedItems: ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default'],
+              equipped: { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' },
+              updatedAt: Date.now()
+            };
+            await setDoc(ref, Account.user);
+            showToast(`🎉 회원가입 완료! 환영합니다 ${username}님 (+50P 지급)`);
+          } else {
+            if (!snap.exists()) { showToast('존재하지 않는 아이디입니다. 회원가입을 해주세요.'); return; }
+            const data = snap.data();
+            if (data.passwordHash !== pwHash) { showToast('비밀번호가 일치하지 않습니다.'); return; }
+            Account.user = data;
+            showToast(`👋 ${username}님 환영합니다!`);
+          }
+        } else {
+          Account.user = {
+            id: accId, username, passwordHash: pwHash,
+            score: Account.user?.score || 0, points: Account.user?.points ?? 50,
+            wins: Account.user?.wins || 0, games: Account.user?.games || 0,
+            ownedItems: Account.user?.ownedItems || ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default'],
+            equipped: Account.user?.equipped || { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' },
+            updatedAt: Date.now()
+          };
+          showToast(`👋 로컬 계정 [${username}] 로그인 완료!`);
+        }
+        localStorage.setItem('bang_account_user', JSON.stringify(Account.user));
+        const nickEl = document.getElementById('lobby-nickname');
+        if (nickEl) nickEl.value = Account.user.username;
+        refreshAccountUI();
+        closeAuthModal();
+      } catch (e) {
+        console.warn('Auth error:', e);
+        showToast('계정 처리 중 오류가 발생했습니다. Firestore 규칙에 bang_accounts_v1을 허용해 주세요.');
+      }
+    }
+
+    function logoutAccount() {
+      Account.user = null;
+      localStorage.removeItem('bang_account_user');
+      refreshAccountUI();
+      closeAuthModal();
+      showToast('로그아웃되었습니다.');
+    }
+
+    async function recordMatchResultAndRewards(title, rankings) {
+      const summary = {
+        id: `mh_${Date.now()}`,
+        date: new Date().toLocaleString('ko-KR'),
+        title,
+        players: rankings.map(r => ({
+          name: r.player.name,
+          role: r.player.role.name,
+          rank: r.rank,
+          scoreDelta: r.scoreDelta,
+          pointsEarned: r.pointsEarned
+        })),
+        logCount: G.battleLogs.length,
+        logs: G.battleLogs.slice(-40)
+      };
+
+      const localHist = JSON.parse(localStorage.getItem('bang_match_history') || '[]');
+      localHist.unshift(summary);
+      localStorage.setItem('bang_match_history', JSON.stringify(localHist.slice(0, 20)));
+
+      if (Account.user && !G.isSpectator) {
+        const myRankObj = rankings.find(r => r.player.id === G.mySeatIndex);
+        if (myRankObj) {
+          Account.user.score = (Account.user.score || 0) + myRankObj.scoreDelta;
+          Account.user.points = (Account.user.points || 0) + myRankObj.pointsEarned;
+          Account.user.games = (Account.user.games || 0) + 1;
+          if (myRankObj.rank === 1) Account.user.wins = (Account.user.wins || 0) + 1;
+          await saveAccountToCloud();
+        }
+      }
+      if (Net.online && Net.db && Net.isHost) {
+        try {
+          await setDoc(doc(Net.db, HISTORY_COL, summary.id), summary);
+        } catch (e) {}
+      }
+    }
+
+    function openLeaderboardModal() {
+      document.getElementById('modal-leaderboard')?.classList.remove('hidden');
+      switchLeaderboardTab(Account.lbTab || 'rank');
+    }
+
+    function closeLeaderboardModal() {
+      document.getElementById('modal-leaderboard')?.classList.add('hidden');
+    }
+
+    async function switchLeaderboardTab(tab) {
+      Account.lbTab = tab;
+      document.getElementById('lb-tab-rank').className = tab === 'rank'
+        ? 'py-2 rounded-xl text-xs font-black bg-yellow-500 text-stone-950'
+        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      document.getElementById('lb-tab-history').className = tab === 'history'
+        ? 'py-2 rounded-xl text-xs font-black bg-yellow-500 text-stone-950'
+        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+
+      const body = document.getElementById('leaderboard-body');
+      if (!body) return;
+
+      if (tab === 'rank') {
+        body.innerHTML = '<div class="text-center text-stone-400 py-8">⏳ 랭킹 불러오는 중...</div>';
+        let list = [];
+        if (Net.online && Net.db) {
+          try {
+            const snap = await getDocs(collection(Net.db, ACCOUNTS_COL));
+            snap.forEach(d => list.push(d.data()));
+          } catch (e) {}
+        }
+        if (list.length === 0 && Account.user) list = [Account.user];
+        list.sort((a, b) => (b.score || 0) - (a.score || 0));
+        if (list.length === 0) {
+          body.innerHTML = '<div class="text-center text-stone-400 py-8">등록된 랭커가 아직 없습니다. 로그인 후 대결해 보세요!</div>';
+          return;
+        }
+        body.innerHTML = list.slice(0, 30).map((u, idx) => {
+          const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}위`));
+          const av = COSMETIC_CATALOG.avatar.find(x => x.id === u.equipped?.avatar)?.icon || '🤠';
+          return `
+            <div class="bg-stone-900/90 border border-stone-800 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="font-black text-yellow-300 w-8">${medal}</span>
+                <span class="text-xl">${av}</span>
+                <div>
+                  <div class="font-black text-amber-100">${escapeHtml(u.username)}</div>
+                  <div class="text-[10px] text-stone-400">${u.wins || 0}승 / ${u.games || 0}전</div>
+                </div>
+              </div>
+              <div class="font-black text-yellow-300 text-sm">${u.score || 0}점</div>
+            </div>`;
+        }).join('');
+      } else {
+        const hist = JSON.parse(localStorage.getItem('bang_match_history') || '[]');
+        if (hist.length === 0) {
+          body.innerHTML = '<div class="text-center text-stone-400 py-8">저장된 최근 전적이 없습니다.</div>';
+          return;
+        }
+        body.innerHTML = hist.map((m, i) => `
+          <div class="bg-stone-900/90 border border-stone-800 rounded-2xl p-3 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-black text-amber-300">${escapeHtml(m.title)}</span>
+              <span class="text-[10px] text-stone-400">${escapeHtml(m.date)}</span>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              ${(m.players || []).map(p => `<span class="px-2 py-0.5 rounded bg-stone-800 text-[10px] text-stone-200">${p.rank}등 ${escapeHtml(p.name)} (${p.scoreDelta >= 0 ? '+' : ''}${p.scoreDelta}점)</span>`).join('')}
+            </div>
+          </div>`).join('');
+      }
+    }
+
+    function openCosmeticShopModal() {
+      document.getElementById('modal-cosmetic-shop')?.classList.remove('hidden');
+      selectShopCategory(Account.shopCat || 'emojiSet');
+    }
+
+    function closeCosmeticShopModal() {
+      document.getElementById('modal-cosmetic-shop')?.classList.add('hidden');
+    }
+
+    function selectShopCategory(cat) {
+      Account.shopCat = cat;
+      document.querySelectorAll('.cshop-cat-btn').forEach(b => {
+        const active = b.dataset.scat === cat;
+        b.className = active
+          ? 'cshop-cat-btn px-3 py-1.5 rounded-xl font-black bg-fuchsia-500 text-stone-950'
+          : 'cshop-cat-btn px-3 py-1.5 rounded-xl font-bold bg-stone-800 text-stone-300 hover:bg-stone-700';
+      });
+      renderCosmeticShop();
+    }
+
+    function renderCosmeticShop() {
+      const ptsEl = document.getElementById('cshop-points');
+      if (ptsEl) ptsEl.innerText = String(Account.user?.points || 0);
+      const grid = document.getElementById('cosmetic-shop-grid');
+      if (!grid) return;
+      const items = COSMETIC_CATALOG[Account.shopCat] || [];
+      const owned = new Set(Account.user?.ownedItems || ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default']);
+
+      grid.innerHTML = items.map(it => {
+        const key = `${Account.shopCat}:${it.id}`;
+        const isOwned = it.cost === 0 || owned.has(key);
+        const canBuy = !!Account.user && !isOwned && (Account.user.points || 0) >= it.cost;
+        return `
+          <div class="bg-stone-900 border border-stone-700 rounded-2xl p-3.5 flex flex-col justify-between gap-2">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-black text-amber-200">${it.name}</span>
+                <span class="font-black text-fuchsia-300">${it.cost === 0 ? '무료' : `💎 ${it.cost}P`}</span>
+              </div>
+              <div class="text-sm py-1.5 px-2 bg-stone-950 rounded-lg text-center" ${it.hex ? `style="color:${it.hex}"` : ''}>${it.preview}</div>
+            </div>
+            <button onclick="buyCosmeticItem('${Account.shopCat}','${it.id}')" ${isOwned || !canBuy ? 'disabled' : ''}
+              class="w-full py-1.5 rounded-xl font-black text-xs transition ${isOwned ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : (canBuy ? 'bg-fuchsia-500 hover:bg-fuchsia-400 text-stone-950' : 'bg-stone-800 text-stone-500')}">
+              ${isOwned ? '✅ 보유 중 (설정에서 장착)' : (!Account.user ? '로그인 필요' : (canBuy ? `💎 ${it.cost}P 구매` : '포인트 부족'))}
+            </button>
+          </div>`;
+      }).join('');
+    }
+
+    async function buyCosmeticItem(cat, id) {
+      if (!Account.user) { showToast('로그인 후 구매할 수 있습니다.'); return; }
+      const item = (COSMETIC_CATALOG[cat] || []).find(x => x.id === id);
+      if (!item) return;
+      const key = `${cat}:${id}`;
+      Account.user.ownedItems = Account.user.ownedItems || [];
+      if (Account.user.ownedItems.includes(key)) return;
+      if ((Account.user.points || 0) < item.cost) { showToast('포인트가 부족합니다.'); return; }
+      Account.user.points -= item.cost;
+      Account.user.ownedItems.push(key);
+      await saveAccountToCloud();
+      renderCosmeticShop();
+      showToast(`🎉 [${item.name}] 구매 완료! ⚙️ 설정 → 꾸미기 장착에서 착용하세요.`);
+    }
+
+    function switchSettingsTab(tab) {
+      const isGen = tab === 'general';
+      document.getElementById('settings-panel-general')?.classList.toggle('hidden', !isGen);
+      document.getElementById('settings-panel-cosmetic')?.classList.toggle('hidden', isGen);
+      document.getElementById('settings-tab-general').className = isGen
+        ? 'py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950'
+        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      document.getElementById('settings-tab-cosmetic').className = !isGen
+        ? 'py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950'
+        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      if (!isGen) selectEquipCategory(Account.equipCat || 'emojiSet');
+    }
+
+    function selectEquipCategory(cat) {
+      Account.equipCat = cat;
+      document.querySelectorAll('.equip-cat-btn').forEach(b => {
+        const active = b.dataset.ecat === cat;
+        b.className = active
+          ? 'equip-cat-btn px-2.5 py-1.5 rounded-lg font-black bg-amber-500 text-stone-950'
+          : 'equip-cat-btn px-2.5 py-1.5 rounded-lg font-bold bg-stone-800 text-stone-300 hover:bg-stone-700';
+      });
+      const listEl = document.getElementById('settings-equip-list');
+      if (!listEl) return;
+      const items = COSMETIC_CATALOG[cat] || [];
+      const owned = new Set(Account.user?.ownedItems || ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default']);
+      const curEquipped = Account.user?.equipped?.[cat] || 'default';
+
+      listEl.innerHTML = items.map(it => {
+        const isOwned = it.cost === 0 || owned.has(`${cat}:${it.id}`);
+        const isEq = curEquipped === it.id;
+        return `
+          <div class="bg-stone-900 border ${isEq ? 'border-amber-400' : 'border-stone-800'} rounded-xl px-3 py-2.5 flex items-center justify-between gap-2">
+            <div>
+              <div class="font-black text-amber-100">${it.name}</div>
+              <div class="text-[11px] text-stone-400" ${it.hex ? `style="color:${it.hex}"` : ''}>${it.preview}</div>
+            </div>
+            <button onclick="equipCosmeticItem('${cat}','${it.id}')" ${!isOwned ? 'disabled' : ''}
+              class="px-3 py-1.5 rounded-lg font-black text-[11px] whitespace-nowrap ${isEq ? 'bg-emerald-600 text-white' : (isOwned ? 'bg-amber-500 hover:bg-amber-400 text-stone-950' : 'bg-stone-800 text-stone-500')}">
+              ${isEq ? '장착 중' : (isOwned ? '장착하기' : '미보유')}
+            </button>
+          </div>`;
+      }).join('');
+    }
+
+    async function equipCosmeticItem(cat, id) {
+      if (!Account.user) {
+        showToast('로그인하면 꾸미기 장착이 저장됩니다.');
+        return;
+      }
+      Account.user.equipped = Account.user.equipped || { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' };
+      Account.user.equipped[cat] = id;
+      await saveAccountToCloud();
+      selectEquipCategory(cat);
+      showToast('✨ 꾸미기 장착이 적용되었습니다!');
+    }
+
     // Expose inline HTML onclick/oninput/onchange handlers from ES module scope
     Object.assign(window, {
+      openAuthModal,
+      closeAuthModal,
+      submitAuth,
+      logoutAccount,
+      openLeaderboardModal,
+      closeLeaderboardModal,
+      switchLeaderboardTab,
+      openCosmeticShopModal,
+      closeCosmeticShopModal,
+      selectShopCategory,
+      buyCosmeticItem,
+      switchSettingsTab,
+      selectEquipCategory,
+      equipCosmeticItem,
+      rerollGoldShopItem,
       openCodexModal,
       closeCodexModal,
       selectCodexCategory,

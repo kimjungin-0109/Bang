@@ -406,6 +406,46 @@
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col">
 
+  <!-- ==================== 0. ENTRY AUTH GATE (LOGIN / REGISTER / GUEST) ==================== -->
+  <section id="screen-auth-gate" class="hidden fixed inset-0 z-[68] flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_#3b1f0d_0%,_#180c06_65%,_#0a0502_100%)] p-4 overflow-y-auto">
+    <div class="max-w-md w-full bg-stone-950/95 border-2 border-amber-600/85 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+      <div class="text-4xl mb-1">🤠</div>
+      <h1 class="font-western text-4xl text-amber-400 tracking-wider drop-shadow mb-1">BANG!</h1>
+      <p class="text-xs text-stone-400 mb-6">로그인하고 랭킹·포인트·꾸미기를 저장하거나 게스트로 바로 입장하세요.</p>
+
+      <div class="space-y-2.5 text-left mb-4">
+        <input id="gate-input-id" type="text" maxlength="12" placeholder="아이디 (닉네임으로 사용)"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <input id="gate-input-pw" type="password" maxlength="20" placeholder="비밀번호 (4자 이상)"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();submitGateAuth('login');}"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5 mb-4">
+        <button onclick="submitGateAuth('login')"
+          class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
+          🔑 로그인
+        </button>
+        <button onclick="submitGateAuth('register')"
+          class="py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
+          ✨ 회원가입
+        </button>
+      </div>
+
+      <div class="relative flex items-center justify-center my-4">
+        <div class="border-t border-stone-800 w-full"></div>
+        <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">또는</span>
+        <div class="border-t border-stone-800 w-full"></div>
+      </div>
+
+      <button onclick="enterAsGuest()"
+        class="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-200 border border-amber-700/70 font-bold rounded-xl text-sm transition active:scale-95">
+        🌵 게스트로 바로 입장하기
+      </button>
+      <p class="text-[10px] text-stone-500 mt-2">게스트는 랭킹 점수와 포인트가 저장되지 않습니다.</p>
+    </div>
+  </section>
+
   <!-- ==================== 1. UNIFIED SALOON LOBBY SCREEN ==================== -->
   <section id="screen-lobby" class="fixed inset-0 z-50 flex flex-col bg-[radial-gradient(ellipse_at_top,_#3b1f0d_0%,_#180c06_65%,_#0a0502_100%)] overflow-y-auto p-4 sm:p-8">
     <div class="max-w-4xl w-full mx-auto my-auto bg-stone-950/90 border-2 border-amber-700/70 rounded-3xl p-6 sm:p-8 shadow-2xl">
@@ -4082,6 +4122,10 @@
       renderRoomList();
       initRealtimeBackend();
 
+      if (!Account.user && sessionStorage.getItem('bang_guest_entered') !== '1') {
+        document.getElementById('screen-auth-gate')?.classList.remove('hidden');
+      }
+
       if (!Prefs.playMode) {
         document.getElementById('modal-first-playmode')?.classList.remove('hidden');
       }
@@ -4130,12 +4174,6 @@
           if (idx < G.players.length) setCameraMode('focus', idx);
         }
       });
-    }
-
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', bootApp);
-    } else {
-      bootApp();
     }
 
     /* ===================================================================
@@ -7338,11 +7376,26 @@
       document.getElementById('modal-auth')?.classList.add('hidden');
     }
 
-    async function submitAuth(mode) {
-      const username = (document.getElementById('auth-input-id')?.value || '').trim();
-      const pw = (document.getElementById('auth-input-pw')?.value || '').trim();
-      if (!username) { showToast('아이디를 입력해 주세요.'); return; }
-      if (pw.length < 4) { showToast('비밀번호는 4자 이상 입력해 주세요.'); return; }
+    function enterAsGuest() {
+      sessionStorage.setItem('bang_guest_entered', '1');
+      document.getElementById('screen-auth-gate')?.classList.add('hidden');
+      showToast('🌵 게스트로 살롱에 입장했습니다.');
+    }
+
+    async function submitGateAuth(mode) {
+      const idEl = document.getElementById('gate-input-id');
+      const pwEl = document.getElementById('gate-input-pw');
+      const ok = await submitAuth(mode, idEl?.value || '', pwEl?.value || '');
+      if (ok) {
+        document.getElementById('screen-auth-gate')?.classList.add('hidden');
+      }
+    }
+
+    async function submitAuth(mode, overrideId = null, overridePw = null) {
+      const username = (overrideId !== null ? overrideId : (document.getElementById('auth-input-id')?.value || '')).trim();
+      const pw = (overridePw !== null ? overridePw : (document.getElementById('auth-input-pw')?.value || '')).trim();
+      if (!username) { showToast('아이디를 입력해 주세요.'); return false; }
+      if (pw.length < 4) { showToast('비밀번호는 4자 이상 입력해 주세요.'); return false; }
       const accId = 'u_' + username.toLowerCase().replace(/[^a-z0-9가-힣_]/g, '');
       const pwHash = simpleHash(pw);
 
@@ -7351,7 +7404,7 @@
           const ref = doc(Net.db, ACCOUNTS_COL, accId);
           const snap = await getDoc(ref);
           if (mode === 'register') {
-            if (snap.exists()) { showToast('이미 존재하는 아이디입니다.'); return; }
+            if (snap.exists()) { showToast('이미 존재하는 아이디입니다.'); return false; }
             Account.user = {
               id: accId, username, passwordHash: pwHash,
               score: 0, points: 50, wins: 0, games: 0,
@@ -7362,9 +7415,9 @@
             await setDoc(ref, Account.user);
             showToast(`🎉 회원가입 완료! 환영합니다 ${username}님 (+50P 지급)`);
           } else {
-            if (!snap.exists()) { showToast('존재하지 않는 아이디입니다. 회원가입을 해주세요.'); return; }
+            if (!snap.exists()) { showToast('존재하지 않는 아이디입니다. 회원가입을 해주세요.'); return false; }
             const data = snap.data();
-            if (data.passwordHash !== pwHash) { showToast('비밀번호가 일치하지 않습니다.'); return; }
+            if (data.passwordHash !== pwHash) { showToast('비밀번호가 일치하지 않습니다.'); return false; }
             Account.user = data;
             showToast(`👋 ${username}님 환영합니다!`);
           }
@@ -7384,17 +7437,24 @@
         if (nickEl) nickEl.value = Account.user.username;
         refreshAccountUI();
         closeAuthModal();
+        document.getElementById('screen-auth-gate')?.classList.add('hidden');
+        return true;
       } catch (e) {
         console.warn('Auth error:', e);
         showToast('계정 처리 중 오류가 발생했습니다. Firestore 규칙에 bang_accounts_v1을 허용해 주세요.');
+        return false;
       }
     }
 
     function logoutAccount() {
       Account.user = null;
       localStorage.removeItem('bang_account_user');
+      sessionStorage.removeItem('bang_guest_entered');
+      const nickEl = document.getElementById('lobby-nickname');
+      if (nickEl) nickEl.value = '';
       refreshAccountUI();
       closeAuthModal();
+      document.getElementById('screen-auth-gate')?.classList.remove('hidden');
       showToast('로그아웃되었습니다.');
     }
 
@@ -7628,6 +7688,8 @@
 
     // Expose inline HTML onclick/oninput/onchange handlers from ES module scope
     Object.assign(window, {
+      enterAsGuest,
+      submitGateAuth,
       openAuthModal,
       closeAuthModal,
       submitAuth,
@@ -7703,6 +7765,12 @@
       onClickGreenEquip,
       handleReactionResponse: () => {}
     });
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
   </script>
 </body>
 </html>

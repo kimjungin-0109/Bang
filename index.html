@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Rye&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    button, .hand-card-item, .parchment-board { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     html, body {
       margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
       background: #140b06; color: #fef3c7;
@@ -796,6 +797,23 @@
             </button>
           </div>
         </div>
+
+        <!-- Overview Display Style -->
+        <div>
+          <label class="block font-bold text-stone-200 mb-2">🗺️ 전체 보기 방식</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button id="btn-overview-grid" onclick="setOverviewStyle('grid')"
+              class="py-3 px-3 rounded-xl border-2 font-black text-center transition border-amber-400 bg-amber-500/20 text-amber-200">
+              📋 그리드 보기 (기본)
+              <div class="text-[10px] font-normal text-stone-300 mt-0.5">블러 배경 + 등분 정방향 판</div>
+            </button>
+            <button id="btn-overview-table" onclick="setOverviewStyle('table')"
+              class="py-3 px-3 rounded-xl border-2 font-bold text-center transition border-stone-700 bg-stone-900 text-stone-300 hover:border-stone-500">
+              🗺️ 전체 판 보기 (기존)
+              <div class="text-[10px] font-normal text-stone-400 mt-0.5">테이블 전체를 한눈에 축소</div>
+            </button>
+          </div>
+        </div>
       </div>
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">확인</button>
     </div>
@@ -1263,7 +1281,8 @@
        =================================================================== */
     const Prefs = {
       volume: parseInt(localStorage.getItem('bang_volume') ?? '100', 10),
-      playMode: localStorage.getItem('bang_play_mode') // null (first visit) | 'drag' | 'select'
+      playMode: localStorage.getItem('bang_play_mode'), // null (first visit) | 'drag' | 'select'
+      overviewStyle: localStorage.getItem('bang_overview_style') || 'grid' // 'grid' | 'table'
     };
 
     function openSettingsModal() {
@@ -1272,6 +1291,7 @@
       if (slider) slider.value = Prefs.volume;
       if (label) label.innerText = `${Prefs.volume}%`;
       updatePlayModeButtons();
+      updateOverviewStyleButtons();
       document.getElementById('modal-settings').classList.remove('hidden');
     }
 
@@ -1311,6 +1331,25 @@
       const idleCls = 'py-3 px-3 rounded-xl border-2 font-bold text-center transition border-stone-700 bg-stone-900 text-stone-300 hover:border-stone-500';
       dragBtn.className = Prefs.playMode === 'drag' ? activeCls : idleCls;
       selBtn.className = Prefs.playMode === 'select' ? activeCls : idleCls;
+    }
+
+    function setOverviewStyle(style) {
+      Prefs.overviewStyle = style === 'table' ? 'table' : 'grid';
+      localStorage.setItem('bang_overview_style', Prefs.overviewStyle);
+      updateOverviewStyleButtons();
+      if (!document.getElementById('screen-game').classList.contains('hidden') && G.cameraMode === 'overview') {
+        setCameraMode('overview');
+      }
+    }
+
+    function updateOverviewStyleButtons() {
+      const gridBtn = document.getElementById('btn-overview-grid');
+      const tableBtn = document.getElementById('btn-overview-table');
+      if (!gridBtn || !tableBtn) return;
+      const activeCls = 'py-3 px-3 rounded-xl border-2 font-black text-center transition border-amber-400 bg-amber-500/20 text-amber-200';
+      const idleCls = 'py-3 px-3 rounded-xl border-2 font-bold text-center transition border-stone-700 bg-stone-900 text-stone-300 hover:border-stone-500';
+      gridBtn.className = Prefs.overviewStyle === 'grid' ? activeCls : idleCls;
+      tableBtn.className = Prefs.overviewStyle === 'table' ? activeCls : idleCls;
     }
 
     class SoundEngine {
@@ -2975,7 +3014,7 @@
 
       const ov = document.getElementById('overview-grid-overlay');
       if (ov) {
-        if (mode === 'overview' && G.selectionMode !== 'target') {
+        if (mode === 'overview' && G.selectionMode !== 'target' && Prefs.overviewStyle !== 'table') {
           openOverviewGrid();
         } else {
           ov.classList.add('hidden');
@@ -3174,6 +3213,7 @@
       }
 
       const rail = document.getElementById('hand-rail');
+      const prevScrollLeft = rail.scrollLeft;
       rail.innerHTML = '';
       me.hand.forEach(card => {
         const isBlue = card.type === 'blue';
@@ -3347,6 +3387,7 @@
 
         rail.appendChild(el);
       });
+      rail.scrollLeft = prevScrollLeft;
     }
 
     function initCentralDropZone() {
@@ -4025,9 +4066,9 @@
 
     async function selectTargetPlayer(attacker, card, isEffectiveBang = false) {
       const prevCam = G.cameraMode;
+      G.selectionMode = 'target';
       setCameraMode('overview');
       return new Promise((resolve) => {
-        G.selectionMode = 'target';
         let validCount = 0;
         G.players.forEach(p => {
           const valid = isValidTargetForCard(attacker, p, card, isEffectiveBang);
@@ -5740,6 +5781,7 @@
       closeSettingsModal,
       onVolumeSliderChange,
       setCardPlayMode,
+      setOverviewStyle,
       selectFirstPlayMode,
       openCreateRoomModal,
       closeCreateRoomModal,

@@ -262,10 +262,46 @@
       cursor: pointer;
       transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, opacity 0.2s ease;
     }
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .hand-card-item {
-        width: 96px;
-        height: 128px;
+        width: 90px;
+        height: 120px;
+      }
+      #left-camera-bar {
+        width: auto;
+        min-width: 76px;
+        max-width: 112px;
+        top: 8px;
+        left: 8px;
+        padding: 4px 6px;
+      }
+      #dock-chat-widget {
+        top: 8px !important;
+        right: 8px !important;
+        bottom: auto !important;
+        left: auto !important;
+      }
+      #chat-history-popup, #emote-picker-popup {
+        order: 2;
+      }
+      #target-select-banner {
+        top: 46px !important;
+        padding: 6px 12px !important;
+        max-width: calc(100vw - 16px);
+      }
+      #hud-status-group {
+        position: fixed;
+        right: 8px;
+        bottom: 174px;
+        z-index: 34;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        pointer-events: auto;
+      }
+      #hud-status-group > * {
+        max-width: 210px !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75);
       }
     }
     .card-desc-text {
@@ -488,24 +524,26 @@
   <!-- ==================== 4. MAIN GAME SCREEN ==================== -->
   <div id="screen-game" class="hidden h-screen w-screen flex flex-col overflow-hidden">
 
-    <!-- TOP MAHOGANY HUD BAR (Slim 44px, High Contrast) -->
-    <header class="h-11 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-800/80 px-3 sm:px-4 flex items-center justify-between gap-2 z-30 shadow-lg">
-      <div class="flex items-center gap-2 min-w-0">
-        <span class="font-western text-lg sm:text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
-        <div class="px-2.5 py-0.5 bg-stone-900 border border-amber-600/80 rounded-lg text-xs font-bold text-amber-100 whitespace-nowrap truncate">
-          턴: <span id="hud-turn-player" class="text-amber-300">-</span>
+    <!-- TOP MAHOGANY HUD BAR (Responsive: Slim Mobile / Full PC) -->
+    <header class="h-10 md:h-11 flex-shrink-0 bg-gradient-to-b from-[#2b160a] to-[#1a0d05] border-b-2 border-amber-800/80 px-2 md:px-4 flex items-center justify-between gap-1.5 md:gap-2 z-30 shadow-lg">
+      <div class="flex items-center gap-1.5 md:gap-2 min-w-0">
+        <span class="font-western text-base md:text-xl text-amber-400 whitespace-nowrap tracking-wider">BANG!</span>
+        <div id="hud-status-group" class="flex items-center gap-1.5 md:gap-2 min-w-0">
+          <div class="px-2.5 py-0.5 bg-stone-950/95 border border-amber-600/85 rounded-lg text-[11px] md:text-xs font-bold text-amber-100 whitespace-nowrap truncate">
+            턴: <span id="hud-turn-player" class="text-amber-300">-</span>
+          </div>
+          <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-0.5 bg-orange-950/95 hover:bg-orange-900 border border-orange-500/85 rounded-lg text-[11px] md:text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 라운드 이벤트">
+            ☀️ 이벤트
+          </button>
         </div>
-        <button id="hud-event-pill" onclick="showCurrentEventToast()" class="hidden px-2.5 py-0.5 bg-orange-950/95 hover:bg-orange-900 border border-orange-500/80 rounded-lg text-xs font-black text-orange-200 whitespace-nowrap truncate max-w-[170px] transition" title="현재 라운드 이벤트">
-          ☀️ 이벤트
-        </button>
       </div>
 
-      <!-- Right Controls (High-Contrast Icons) -->
-      <div class="flex items-center gap-1.5 flex-shrink-0">
-        <button onclick="openSettingsModal()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm" title="음량 및 카드 방식 설정">⚙️ 설정</button>
-        <button id="btn-mute" onclick="toggleMute()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm">🔊</button>
-        <button onclick="toggleLogDrawer()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm">📜 기록</button>
-        <button onclick="openExitConfirm()" class="px-2.5 py-1 bg-red-900 hover:bg-red-800 text-red-50 text-xs font-bold rounded-lg border border-red-500/80 whitespace-nowrap shadow-sm">나가기</button>
+      <!-- Right Controls (Icon-compact on Mobile, Labeled on PC) -->
+      <div class="flex items-center gap-1 md:gap-1.5 flex-shrink-0">
+        <button onclick="openSettingsModal()" class="px-2 md:px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm" title="음량 및 카드 방식 설정">⚙️<span class="hidden md:inline"> 설정</span></button>
+        <button id="btn-mute" onclick="toggleMute()" class="px-2 md:px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-200 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm">🔊</button>
+        <button onclick="toggleLogDrawer()" class="px-2 md:px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-100 text-xs font-bold rounded-lg border border-amber-600/70 whitespace-nowrap shadow-sm" title="대결 기록">📜<span class="hidden md:inline"> 기록</span></button>
+        <button onclick="openExitConfirm()" class="px-2 md:px-2.5 py-1 bg-red-900 hover:bg-red-800 text-red-50 text-[11px] md:text-xs font-bold rounded-lg border border-red-500/80 whitespace-nowrap shadow-sm">나가기</button>
       </div>
     </header>
 
@@ -552,19 +590,25 @@
         <div id="fx-layer" class="absolute inset-0 pointer-events-none z-40"></div>
       </div>
 
-      <!-- Left-Top Vertical Camera & View Bar -->
-      <nav id="left-camera-bar" class="absolute top-2.5 left-2.5 z-35 w-[82px] sm:w-[92px] bg-stone-950/90 border border-amber-700/75 rounded-2xl p-1.5 shadow-2xl backdrop-blur-sm flex flex-col gap-1 max-h-[calc(100%-20px)] overflow-y-auto thin-scroll">
-        <div class="text-[9px] font-black text-amber-400/90 text-center tracking-wider">화면 크기</div>
-        <div class="flex items-center justify-between gap-0.5 bg-stone-900/90 border border-stone-700/80 rounded-lg px-1 py-0.5">
-          <button onclick="adjustZoom(-0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">-</button>
-          <span id="hud-zoom-val" class="text-[10px] font-black text-amber-300 text-center whitespace-nowrap">100%</span>
-          <button onclick="adjustZoom(0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">+</button>
+      <!-- Left-Top Vertical Camera & View Bar (PC: Always Open / Mobile: Collapsible) -->
+      <nav id="left-camera-bar" class="absolute top-2.5 left-2.5 z-35 w-[92px] bg-stone-950/92 border border-amber-700/80 rounded-2xl p-1.5 shadow-2xl backdrop-blur-sm flex flex-col gap-1 max-h-[calc(100%-20px)] overflow-y-auto thin-scroll">
+        <button id="btn-cam-bar-toggle" onclick="toggleCameraBar()" class="md:hidden w-full py-1 px-1.5 bg-amber-600/90 text-stone-950 text-[11px] font-black rounded-xl flex items-center justify-between gap-1">
+          <span>🎥 화면</span>
+          <span id="cam-bar-arrow">▾</span>
+        </button>
+        <div id="left-camera-bar-body" class="flex flex-col gap-1">
+          <div class="text-[9px] font-black text-amber-400/90 text-center tracking-wider">화면 크기</div>
+          <div class="flex items-center justify-between gap-0.5 bg-stone-900/90 border border-stone-700/80 rounded-lg px-1 py-0.5">
+            <button onclick="adjustZoom(-0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">-</button>
+            <span id="hud-zoom-val" class="text-[10px] font-black text-amber-300 text-center whitespace-nowrap">100%</span>
+            <button onclick="adjustZoom(0.15)" class="w-5 h-5 flex items-center justify-center bg-stone-800 hover:bg-stone-700 text-amber-200 font-black rounded text-xs">+</button>
+          </div>
+          <div class="h-px bg-amber-900/60 my-0.5"></div>
+          <button id="cam-btn-overview" onclick="setCameraMode('overview')" class="w-full py-1 px-1.5 text-[11px] font-bold rounded-lg text-center transition bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700">전체 0</button>
+          <button id="cam-btn-auto" onclick="setCameraMode('auto')" class="w-full py-1 px-1.5 text-[11px] font-black rounded-lg text-center transition bg-amber-500 text-stone-950">자동 A</button>
+          <div class="h-px bg-amber-900/60 my-0.5"></div>
+          <div id="cam-seat-buttons" class="flex flex-col gap-1"></div>
         </div>
-        <div class="h-px bg-amber-900/60 my-0.5"></div>
-        <button id="cam-btn-overview" onclick="setCameraMode('overview')" class="w-full py-1 px-1.5 text-[11px] font-bold rounded-lg text-center transition bg-stone-800 text-stone-200 hover:bg-stone-700 border border-stone-700">전체 0</button>
-        <button id="cam-btn-auto" onclick="setCameraMode('auto')" class="w-full py-1 px-1.5 text-[11px] font-black rounded-lg text-center transition bg-amber-500 text-stone-950">자동 A</button>
-        <div class="h-px bg-amber-900/60 my-0.5"></div>
-        <div id="cam-seat-buttons" class="flex flex-col gap-1"></div>
       </nav>
 
       <!-- Blurred Full-Grid Overview Overlay -->
@@ -651,20 +695,20 @@
       </div>
     </main>
 
-    <!-- BOTTOM MAHOGANY HAND DOCK (Compact & Zero Clipping!) -->
-    <footer class="h-[196px] sm:h-[212px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/75 px-3 sm:px-4 pt-1.5 pb-1.5 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative overflow-visible">
+    <!-- BOTTOM MAHOGANY HAND DOCK (Mobile: 168px / PC: 212px, Zero Clipping!) -->
+    <footer class="h-[168px] md:h-[212px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/75 px-2.5 md:px-4 pt-1.5 pb-1.5 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative overflow-visible">
       <!-- Floating Quick-Action Pill for Selected Card -->
-      <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-40 bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2.5">
+      <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-45 bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span id="pill-card-name" class="text-xs font-black text-amber-200">카드</span>
         <button id="pill-btn-play" onclick="playSelectedHandCard()" class="px-3.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-black rounded-full transition">사용하기</button>
         <button onclick="clearSelectedHandCard()" class="text-stone-400 hover:text-white text-xs font-bold px-1">✕</button>
       </div>
 
       <!-- Top Control Strip inside Dock -->
-      <div class="flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="px-3 py-1 bg-stone-950/85 border border-amber-800/70 rounded-full text-xs font-bold text-amber-200">
-            내 손패 <span id="my-hand-count" class="text-amber-400 font-black">0</span>장 · 턴 종료 한도 <span id="my-hp-limit" class="text-emerald-400 font-black">4</span>장
+      <div class="flex items-center justify-between gap-1.5 md:gap-2">
+        <div class="flex items-center gap-1.5 md:gap-2 min-w-0">
+          <span class="px-2 md:px-3 py-0.5 md:py-1 bg-stone-950/85 border border-amber-800/70 rounded-full text-[11px] md:text-xs font-bold text-amber-200 whitespace-nowrap">
+            손패 <span id="my-hand-count" class="text-amber-400 font-black">0</span><span class="hidden md:inline">장</span> · 한도 <span id="my-hp-limit" class="text-emerald-400 font-black">4</span><span class="hidden md:inline">장</span>
           </span>
           <button id="btn-sid-heal" onclick="startSidHealMode()" class="hidden px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-black rounded-full shadow transition">
             💉 시드 케첨: 2장 버리고 +1 HP
@@ -2871,7 +2915,39 @@
     /* ===================================================================
        7. CAMERA SYSTEM (Auto Zoom 1.48x + Deep Focus Zoom 2.35x + Overview)
        =================================================================== */
+    function isMobileLayout() {
+      return window.innerWidth <= 768;
+    }
+
+    function toggleCameraBar(forceOpen = null) {
+      const body = document.getElementById('left-camera-bar-body');
+      const arrow = document.getElementById('cam-bar-arrow');
+      if (!body) return;
+      const shouldOpen = forceOpen !== null ? forceOpen : body.classList.contains('hidden');
+      body.classList.toggle('hidden', !shouldOpen);
+      if (arrow) arrow.innerText = shouldOpen ? '▴' : '▾';
+    }
+
+    let _lastMobileState = null;
+    function syncResponsiveLayout() {
+      const mobile = isMobileLayout();
+      document.body.classList.toggle('is-mobile', mobile);
+      document.body.classList.toggle('is-pc', !mobile);
+      if (_lastMobileState !== mobile) {
+        _lastMobileState = mobile;
+        // Mobile defaults to compact/collapsed bars so nothing overlaps the table; PC stays open
+        toggleCameraBar(!mobile);
+        const chatGrp = document.getElementById('chat-input-group');
+        const chatBtn = document.getElementById('btn-chat-collapse');
+        if (chatGrp && chatBtn) {
+          chatGrp.classList.toggle('hidden', mobile);
+          chatBtn.innerText = mobile ? '◂' : '▸';
+        }
+      }
+    }
+
     function computeFitScale() {
+      syncResponsiveLayout();
       const vp = document.getElementById('table-viewport');
       if (!vp) return;
       const vw = vp.clientWidth || window.innerWidth;
@@ -2885,6 +2961,8 @@
       if (focusIdx !== null) G.focusPlayerIndex = focusIdx;
       G.panX = 0;
       G.panY = 0;
+
+      if (isMobileLayout()) toggleCameraBar(false);
 
       const autoBtn = document.getElementById('cam-btn-auto');
       const overBtn = document.getElementById('cam-btn-overview');
@@ -2930,6 +3008,11 @@
         wrap.style.transform = `translate(-50%, -50%) rotate(${shouldUnrotate ? 0 : geo.rotation}deg)`;
       });
 
+      const vp = document.getElementById('table-viewport');
+      const vw = vp ? vp.clientWidth : window.innerWidth;
+      const vh = vp ? vp.clientHeight : (window.innerHeight - 220);
+      const mobile = isMobileLayout();
+
       if (G.cameraMode === 'overview') {
         const scale = G.fitScale * G.userZoom;
         world.style.transform = `translate(${G.panX}px, ${G.panY}px) scale(${scale})`;
@@ -2939,6 +3022,13 @@
       if (G.cameraMode === 'auto') {
         const focusIdx = G.autoTargetIndex !== null ? G.autoTargetIndex : G.turnIndex;
         const geo = getSeatGeometry(focusIdx, G.players.length);
+        if (mobile) {
+          const mobileAutoScale = Math.min((vw - 24) / 450, (vh - 44) / 300) * G.userZoom;
+          const dx = (1000 - geo.x) * mobileAutoScale + G.panX;
+          const dy = (630 - (geo.y - 24)) * mobileAutoScale + G.panY;
+          world.style.transform = `translate(${dx}px, ${dy}px) scale(${mobileAutoScale})`;
+          return;
+        }
         const scale = G.fitScale * 1.48 * G.userZoom;
         const isMySeat = focusIdx === G.mySeatIndex;
         const midX = isMySeat ? 1000 : (geo.x * 0.64 + 1000 * 0.36);
@@ -2951,13 +3041,16 @@
 
       const targetIdx = G.focusPlayerIndex;
       const geo = getSeatGeometry(targetIdx, G.players.length);
-      const scale = G.fitScale * 2.35 * G.userZoom;
+      const scale = mobile
+        ? Math.min((vw - 20) / 410, (vh - 36) / 250) * G.userZoom
+        : G.fitScale * 2.35 * G.userZoom;
       const dx = (1000 - geo.x) * scale + G.panX;
-      const dy = (630 - (geo.y - 32)) * scale + G.panY;
+      const dy = (630 - (geo.y - 28)) * scale + G.panY;
       world.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     }
 
     function bootApp() {
+      syncResponsiveLayout();
       renderRoomList();
       initRealtimeBackend();
 
@@ -5664,6 +5757,7 @@
       goToCharStep,
       showCurrentEventToast,
       setCameraMode,
+      toggleCameraBar,
       closeOverviewGrid,
       adjustZoom,
       toggleMute,

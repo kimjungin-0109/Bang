@@ -430,7 +430,10 @@
         <p class="text-[10px] text-stone-500 pt-1">게스트는 랭킹 점수와 포인트가 저장되지 않습니다.</p>
       </div>
 
-      <!-- Step 2A: Login View (NO nickname field) -->
+      <!-- Error Box for clear auth feedback -->
+      <div id="gate-auth-error" class="hidden mb-3 px-3 py-2 bg-red-950/90 border border-red-500/80 rounded-xl text-[11px] font-bold text-red-200 text-left break-words"></div>
+
+      <!-- Step 2A: Login View (NO nickname field; supports ID or Email) -->
       <div id="gate-step-login" class="hidden space-y-3 text-left">
         <div class="flex items-center justify-between mb-1">
           <span class="text-sm font-black text-emerald-300">🔑 로그인</span>
@@ -442,21 +445,21 @@
         </button>
         <div class="relative flex items-center justify-center my-2">
           <div class="border-t border-stone-800 w-full"></div>
-          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">이메일 로그인</span>
+          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">아이디 / 이메일 로그인</span>
           <div class="border-t border-stone-800 w-full"></div>
         </div>
-        <input id="gate-login-email" type="email" maxlength="60" placeholder="이메일 주소"
+        <input id="gate-login-email" type="text" maxlength="60" placeholder="아이디 또는 이메일 주소"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <input id="gate-login-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();submitGateAuth('login');}"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <button onclick="submitGateAuth('login')"
           class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
-          이메일로 로그인하기
+          아이디 / 이메일로 로그인하기
         </button>
       </div>
 
-      <!-- Step 2B: Register View (Nickname field ONLY here) -->
+      <!-- Step 2B: Register View (Nickname field ONLY here; supports ID or Email) -->
       <div id="gate-step-register" class="hidden space-y-3 text-left">
         <div class="flex items-center justify-between mb-1">
           <span class="text-sm font-black text-amber-300">✨ 회원가입</span>
@@ -468,14 +471,14 @@
         </button>
         <div class="relative flex items-center justify-center my-2">
           <div class="border-t border-stone-800 w-full"></div>
-          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">이메일 회원가입</span>
+          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">아이디 / 이메일 회원가입</span>
           <div class="border-t border-stone-800 w-full"></div>
         </div>
         <input id="gate-reg-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
           class="w-full bg-stone-900 border border-amber-700/90 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
-        <input id="gate-reg-email" type="email" maxlength="60" placeholder="이메일 주소 *"
+        <input id="gate-reg-email" type="text" maxlength="60" placeholder="사용할 아이디 또는 이메일 *"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
-        <input id="gate-reg-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상) *"
+        <input id="gate-reg-pw" type="password" maxlength="32" placeholder="사용할 비밀번호 (6자 이상) *"
           onkeydown="if(event.key==='Enter'){event.preventDefault();submitGateAuth('register');}"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
         <button onclick="submitGateAuth('register')"
@@ -875,10 +878,11 @@
         <h3 onclick="tapSettingsTitleForSuper()" class="text-lg font-black text-amber-400 cursor-pointer select-none">⚙️ 게임 환경 설정</h3>
         <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-white font-bold px-1">✕</button>
       </div>
-      <!-- Settings Main Tabs: General vs Cosmetics Equip -->
-      <div class="grid grid-cols-2 gap-2 mb-4 flex-shrink-0">
-        <button id="settings-tab-general" onclick="switchSettingsTab('general')" class="py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950">⚙️ 일반 설정</button>
-        <button id="settings-tab-cosmetic" onclick="switchSettingsTab('cosmetic')" class="py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">🎨 꾸미기 장착</button>
+      <!-- Settings Main Tabs: General vs Cosmetics Equip vs Code Redeem -->
+      <div class="grid grid-cols-3 gap-1.5 mb-4 flex-shrink-0">
+        <button id="settings-tab-general" onclick="switchSettingsTab('general')" class="py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950">⚙️ 일반</button>
+        <button id="settings-tab-cosmetic" onclick="switchSettingsTab('cosmetic')" class="py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">🎨 꾸미기</button>
+        <button id="settings-tab-code" onclick="switchSettingsTab('code')" class="py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">🎟️ 코드 입력</button>
       </div>
       <div id="settings-panel-general" class="space-y-4 mb-5 text-xs overflow-y-auto thin-scroll flex-1 pr-0.5">
         <!-- Volume Control -->
@@ -925,20 +929,6 @@
             </button>
           </div>
         </div>
-
-        <!-- SUPER Code Unlock (Hidden until unlocked or 5x secret title tap) -->
-        <div id="super-code-section" class="hidden pt-3 border-t border-stone-800">
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="font-black text-amber-300 tracking-wider">⚡ SUPER</label>
-            <span id="super-status-badge" class="text-[10px] font-bold text-stone-400">잠김</span>
-          </div>
-          <div class="flex gap-2">
-            <input id="input-super-code" type="password" placeholder="SUPER 코드 입력"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();unlockSuperMode();}"
-              class="flex-1 bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-xs text-amber-100 focus:outline-none focus:border-amber-400" />
-            <button onclick="unlockSuperMode()" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-black rounded-xl text-xs whitespace-nowrap">적용</button>
-          </div>
-        </div>
       </div>
       <!-- Cosmetics Equip Sub-Panel inside Settings -->
       <div id="settings-panel-cosmetic" class="hidden flex-1 flex flex-col overflow-hidden mb-4 text-xs">
@@ -949,6 +939,24 @@
           <button onclick="selectEquipCategory('frame')" data-ecat="frame" class="equip-cat-btn px-2.5 py-1.5 rounded-lg font-bold bg-stone-800 text-stone-300">🖼️ 테두리</button>
         </div>
         <div id="settings-equip-list" class="flex-1 overflow-y-auto thin-scroll space-y-2 pr-0.5"></div>
+      </div>
+      <!-- Code Redemption Sub-Panel inside Settings (English Uppercase Only) -->
+      <div id="settings-panel-code" class="hidden flex-1 flex flex-col gap-3 mb-4 text-xs">
+        <div class="bg-stone-900/90 border border-amber-700/70 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="font-black text-amber-300 text-sm">🎟️ 프로모션 · 특수 코드 입력</span>
+            <span id="super-status-badge" class="text-[10px] font-bold text-stone-400"></span>
+          </div>
+          <p class="text-[11px] text-stone-400">코드는 영어 대문자만 입력할 수 있습니다.</p>
+          <div class="flex gap-2">
+            <input id="input-super-code" type="text" maxlength="20" placeholder="CODE (영문 대문자)"
+              oninput="this.value=this.value.replace(/[^a-zA-Z]/g,'').toUpperCase();"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();unlockSuperMode();}"
+              style="text-transform: uppercase;"
+              class="flex-1 bg-stone-950 border border-amber-700/80 rounded-xl px-3 py-2.5 text-sm font-black tracking-widest text-amber-200 focus:outline-none focus:border-amber-400" />
+            <button onclick="unlockSuperMode()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-xs whitespace-nowrap">적용</button>
+          </div>
+        </div>
       </div>
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm flex-shrink-0">확인</button>
     </div>
@@ -1275,7 +1283,7 @@
         </button>
         <input id="auth-input-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
           class="hidden w-full bg-stone-900 border border-amber-800/80 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
-        <input id="auth-input-id" type="email" maxlength="60" placeholder="이메일 주소"
+        <input id="auth-input-id" type="text" maxlength="60" placeholder="아이디 또는 이메일 주소"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <input id="auth-input-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();submitAuth(Account.authModalMode||'login');}"
@@ -1715,17 +1723,37 @@
       }
     }
 
-    function unlockSuperMode() {
+    async function unlockSuperMode() {
       const input = document.getElementById('input-super-code');
-      const code = (input?.value || '').trim();
-      if (code === 'toatoto') {
+      const code = (input?.value || '').replace(/[^a-zA-Z]/g, '').toUpperCase();
+      if (input) input.value = '';
+      if (!code) { showToast('영어 대문자 코드를 입력해 주세요.'); return; }
+
+      if (code === 'SUOER') {
         Prefs.superUnlocked = true;
-        if (input) input.value = '';
         updateSuperStatusBadge();
-        showToast('⚡ SUPER 설정이 해금되었습니다! (1판 종료 또는 재접속 시 초기화)');
-      } else {
-        showToast('코드가 올바르지 않습니다.');
+        showToast('⚡ SUPER 설정이 해금되었습니다! 방 만들기 하단을 확인하세요. (1판 종료/재접속 시 초기화)');
+        return;
       }
+
+      if (code === 'TOATOTO') {
+        if (!Account.user) {
+          showToast('💎 포인트 코드는 로그인한 계정에서만 사용할 수 있습니다.');
+          return;
+        }
+        Account.user.redeemedCodes = Array.isArray(Account.user.redeemedCodes) ? Account.user.redeemedCodes : [];
+        if (Account.user.redeemedCodes.includes('TOATOTO')) {
+          showToast('이미 사용한 코드입니다. (TOATOTO)');
+          return;
+        }
+        Account.user.redeemedCodes.push('TOATOTO');
+        Account.user.points = (Account.user.points || 0) + 500;
+        await saveAccountToCloud();
+        showToast('💎 코드 [TOATOTO] 적용 완료! +500P를 획득했습니다!');
+        return;
+      }
+
+      showToast('올바르지 않은 코드입니다.');
     }
 
     function closeSettingsModal() {
@@ -7570,19 +7598,35 @@
       refreshAccountUI();
     }
 
-    async function loginWithGoogle() {
-      if (!Net.auth) { showToast('Firebase 초기화 중입니다. 잠시 후 다시 눌러주세요.'); return; }
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      if (isMobileLayout()) {
-        try {
-          await signInWithRedirect(Net.auth, provider);
-          return;
-        } catch (err) {
-          showToast(`Google 로그인 오류: ${err.code || err.message}`);
-          return;
+    function showGateError(msg) {
+      const box = document.getElementById('gate-auth-error');
+      if (box) {
+        if (msg) {
+          box.innerText = `⚠️ ${msg}`;
+          box.classList.remove('hidden');
+        } else {
+          box.classList.add('hidden');
         }
       }
+      if (msg) showToast(msg);
+    }
+
+    function normalizeLoginToEmail(raw) {
+      const cleaned = String(raw || '').trim();
+      if (!cleaned) return '';
+      if (cleaned.includes('@')) return cleaned;
+      const asciiOnly = cleaned.toLowerCase().replace(/[^a-z0-9._-]/g, '');
+      if (asciiOnly.length >= 2 && asciiOnly === cleaned.toLowerCase()) {
+        return `${asciiOnly}@bangai.local`;
+      }
+      return `id_${simpleHash(cleaned.toLowerCase())}@bangai.local`;
+    }
+
+    async function loginWithGoogle() {
+      showGateError('');
+      if (!Net.auth) { showGateError('Firebase 초기화 중입니다. 잠시 후 다시 눌러주세요.'); return; }
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
       try {
         const res = await signInWithPopup(Net.auth, provider);
         await loadOrCreateFirebaseProfile(res.user);
@@ -7592,14 +7636,16 @@
       } catch (err) {
         console.warn('Google popup signIn error:', err);
         if (err.code === 'auth/unauthorized-domain') {
-          showToast('Firebase → Authentication → 설정 → 승인된 도메인에 현재 주소를 추가해 주세요!');
+          showGateError(`승인되지 않은 도메인(${location.hostname})입니다! Firebase 콘솔 → Authentication → 설정 → 승인된 도메인에 "${location.hostname}"을 추가해 주세요.`);
         } else if (err.code === 'auth/operation-not-allowed') {
-          showToast('Firebase 콘솔 → Authentication → Sign-in method에서 [Google]을 켜주세요!');
-        } else if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/internal-error', 'auth/popup-closed-by-user'].includes(err.code)) {
-          showToast('팝업이 닫혀 리다이렉트 방식으로 다시 연결합니다...');
-          try { await signInWithRedirect(Net.auth, provider); } catch (e2) { showToast(`Google 로그인 오류: ${e2.code || e2.message}`); }
+          showGateError('Firebase 콘솔 → Authentication → Sign-in method에서 [Google]을 사용 설정해 주세요.');
+        } else if (err.code === 'auth/popup-blocked') {
+          showGateError('브라우저에서 팝업이 차단되어 리다이렉트로 연결합니다...');
+          try { await signInWithRedirect(Net.auth, provider); } catch (e2) { showGateError(`Google 로그인 오류: ${e2.code || e2.message}`); }
+        } else if (err.code === 'auth/popup-closed-by-user') {
+          showGateError('구글 로그인 창이 닫혔습니다. (현재 도메인이 Firebase 승인된 도메인에 없거나 팝업이 차단된 경우 바로 닫힐 수 있습니다 — 아이디/비밀번호 로그인을 이용해 주세요!)');
         } else {
-          showToast(`Google 로그인 오류: ${err.code || err.message}`);
+          showGateError(`Google 로그인 오류 (${err.code || 'unknown'}): ${err.message || ''}`);
         }
       }
     }
@@ -7664,14 +7710,16 @@
     }
 
     async function submitAuth(mode, overrideId = null, overridePw = null, overrideNick = null) {
-      if (!Net.auth) { showToast('Firebase 초기화 중입니다. 잠시 후 다시 시도해 주세요.'); return false; }
+      showGateError('');
+      if (!Net.auth) { showGateError('Firebase 초기화 중입니다. 잠시 후 다시 시도해 주세요.'); return false; }
       const nick = (overrideNick !== null ? overrideNick : (document.getElementById('auth-input-nick')?.value || '')).trim();
-      const email = (overrideId !== null ? overrideId : (document.getElementById('auth-input-id')?.value || '')).trim();
+      const rawId = (overrideId !== null ? overrideId : (document.getElementById('auth-input-id')?.value || '')).trim();
       const pw = (overridePw !== null ? overridePw : (document.getElementById('auth-input-pw')?.value || '')).trim();
-      if (mode === 'register' && !nick) { showToast('사용할 닉네임을 입력해 주세요.'); return false; }
-      if (!email || !email.includes('@')) { showToast('올바른 이메일 주소를 입력해 주세요.'); return false; }
-      if (pw.length < 6) { showToast('Firebase 비밀번호는 6자 이상 입력해 주세요.'); return false; }
+      if (mode === 'register' && !nick) { showGateError('사용할 닉네임을 입력해 주세요.'); return false; }
+      if (!rawId || rawId.length < 2) { showGateError('아이디(2자 이상) 또는 이메일을 입력해 주세요.'); return false; }
+      if (pw.length < 6) { showGateError('비밀번호는 6자 이상 입력해 주세요.'); return false; }
 
+      const email = normalizeLoginToEmail(rawId);
       try {
         const res = mode === 'register'
           ? await createUserWithEmailAndPassword(Net.auth, email, pw)
@@ -7687,16 +7735,16 @@
           : `👋 ${Account.user?.username}님 로그인 완료!`);
         return true;
       } catch (e) {
-        console.warn('Firebase email auth error:', e);
+        console.warn('Firebase email/id auth error:', e);
         const msgMap = {
           'auth/operation-not-allowed': 'Firebase 콘솔 → Authentication → Sign-in method에서 [이메일/비밀번호]를 켜주세요!',
-          'auth/email-already-in-use': '이미 가입된 이메일입니다. 로그인을 눌러주세요.',
-          'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않습니다.',
-          'auth/user-not-found': '가입되지 않은 이메일입니다. 회원가입을 먼저 해주세요.',
+          'auth/email-already-in-use': '이미 사용 중인 아이디(이메일)입니다. 로그인을 눌러주세요.',
+          'auth/invalid-credential': '아이디(이메일) 또는 비밀번호가 올바르지 않습니다.',
+          'auth/user-not-found': '가입되지 않은 아이디입니다. 회원가입을 먼저 해주세요.',
           'auth/wrong-password': '비밀번호가 일치하지 않습니다.',
           'auth/weak-password': '비밀번호는 6자 이상이어야 합니다.'
         };
-        showToast(msgMap[e.code] || `인증 오류: ${e.code || e.message}`);
+        showGateError(msgMap[e.code] || `인증 오류 (${e.code || 'error'}): ${e.message || ''}`);
         return false;
       }
     }
@@ -7898,15 +7946,21 @@
 
     function switchSettingsTab(tab) {
       const isGen = tab === 'general';
+      const isCos = tab === 'cosmetic';
+      const isCode = tab === 'code';
       document.getElementById('settings-panel-general')?.classList.toggle('hidden', !isGen);
-      document.getElementById('settings-panel-cosmetic')?.classList.toggle('hidden', isGen);
-      document.getElementById('settings-tab-general').className = isGen
-        ? 'py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950'
-        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
-      document.getElementById('settings-tab-cosmetic').className = !isGen
-        ? 'py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950'
-        : 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
-      if (!isGen) selectEquipCategory(Account.equipCat || 'emojiSet');
+      document.getElementById('settings-panel-cosmetic')?.classList.toggle('hidden', !isCos);
+      document.getElementById('settings-panel-code')?.classList.toggle('hidden', !isCode);
+      const act = 'py-2 rounded-xl text-xs font-black bg-amber-500 text-stone-950';
+      const idle = 'py-2 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      const tGen = document.getElementById('settings-tab-general');
+      const tCos = document.getElementById('settings-tab-cosmetic');
+      const tCode = document.getElementById('settings-tab-code');
+      if (tGen) tGen.className = isGen ? act : idle;
+      if (tCos) tCos.className = isCos ? act : idle;
+      if (tCode) tCode.className = isCode ? act : idle;
+      if (isCos) selectEquipCategory(Account.equipCat || 'emojiSet');
+      if (isCode) updateSuperStatusBadge();
     }
 
     function selectEquipCategory(cat) {

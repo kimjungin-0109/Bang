@@ -439,7 +439,7 @@
           <span class="text-sm font-black text-emerald-300">🔑 로그인</span>
           <button onclick="switchGateStep('menu')" class="text-xs text-stone-400 hover:text-amber-200 font-bold">← 뒤로</button>
         </div>
-        <button onclick="loginWithGoogle()"
+        <button onclick="loginWithGoogle('login')"
           class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition active:scale-95">
           <span>🔵</span> Google 계정으로 로그인
         </button>
@@ -459,13 +459,15 @@
         </button>
       </div>
 
-      <!-- Step 2B: Register View (Nickname field ONLY here; supports ID or Email) -->
+      <!-- Step 2B: Register View (Nickname field ONLY here; supports Google & ID/Email) -->
       <div id="gate-step-register" class="hidden space-y-3 text-left">
         <div class="flex items-center justify-between mb-1">
           <span class="text-sm font-black text-amber-300">✨ 회원가입</span>
           <button onclick="switchGateStep('menu')" class="text-xs text-stone-400 hover:text-amber-200 font-bold">← 뒤로</button>
         </div>
-        <button onclick="loginWithGoogle()"
+        <input id="gate-reg-nick" type="text" maxlength="12" placeholder="사용할 닉네임 * (구글 · 아이디 가입 공통)"
+          class="w-full bg-stone-900 border border-amber-600 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <button onclick="loginWithGoogle('register')"
           class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition active:scale-95">
           <span>🔵</span> Google 계정으로 간편 가입
         </button>
@@ -474,8 +476,6 @@
           <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">아이디 / 이메일 회원가입</span>
           <div class="border-t border-stone-800 w-full"></div>
         </div>
-        <input id="gate-reg-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
-          class="w-full bg-stone-900 border border-amber-700/90 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
         <input id="gate-reg-email" type="text" maxlength="60" placeholder="사용할 아이디 또는 이메일 *"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
         <input id="gate-reg-pw" type="password" maxlength="32" placeholder="사용할 비밀번호 (6자 이상) *"
@@ -1277,12 +1277,12 @@
           <button id="auth-tab-login" onclick="switchAuthModalTab('login')" class="py-1.5 rounded-xl text-xs font-black bg-emerald-500 text-stone-950">🔑 로그인</button>
           <button id="auth-tab-register" onclick="switchAuthModalTab('register')" class="py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">✨ 회원가입</button>
         </div>
-        <button onclick="loginWithGoogle()"
+        <input id="auth-input-nick" type="text" maxlength="12" placeholder="사용할 닉네임 * (구글 · 아이디 가입 공통)"
+          class="hidden w-full bg-stone-900 border border-amber-600 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <button id="auth-google-btn" onclick="loginWithGoogle(Account.authModalMode||'login')"
           class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition">
           <span>🔵</span> Google 계정으로 로그인
         </button>
-        <input id="auth-input-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
-          class="hidden w-full bg-stone-900 border border-amber-800/80 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
         <input id="auth-input-id" type="text" maxlength="60" placeholder="아이디 또는 이메일 주소"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <input id="auth-input-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
@@ -7566,8 +7566,10 @@
 
     async function loadOrCreateFirebaseProfile(fbUser, customNick = '') {
       if (!fbUser || fbUser.isAnonymous) return;
+      const pendingNick = (sessionStorage.getItem('bang_pending_google_nick') || '').trim();
+      const effectiveNick = (customNick || pendingNick).trim();
       const accId = 'acc2_' + fbUser.uid;
-      const fallbackName = (customNick || fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '총잡이')).slice(0, 12);
+      const fallbackName = (effectiveNick || fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '총잡이')).slice(0, 12);
       const cloudRes = await cloudGetAccount(accId);
       const localMap = getLocalAccountsMap();
       let profile = cloudRes?.data || localMap[accId];
@@ -7586,10 +7588,11 @@
           updatedAt: Date.now()
         };
         await cloudSaveAccount(profile);
-      } else if (customNick && customNick !== profile.username) {
-        profile.username = customNick.slice(0, 12);
+      } else if (effectiveNick && effectiveNick !== profile.username) {
+        profile.username = effectiveNick.slice(0, 12);
         await cloudSaveAccount(profile);
       }
+      if (pendingNick) sessionStorage.removeItem('bang_pending_google_nick');
       Account.user = profile;
       localStorage.setItem('bang_account_user', JSON.stringify(profile));
       saveLocalAccount(profile);
@@ -7622,17 +7625,36 @@
       return `id_${simpleHash(cleaned.toLowerCase())}@bangai.local`;
     }
 
-    async function loginWithGoogle() {
+    async function loginWithGoogle(mode = 'login') {
       showGateError('');
       if (!Net.auth) { showGateError('Firebase 초기화 중입니다. 잠시 후 다시 눌러주세요.'); return; }
+      let customNick = '';
+      if (mode === 'register') {
+        const modalOpen = !document.getElementById('modal-auth')?.classList.contains('hidden');
+        const nickEl = document.getElementById(modalOpen ? 'auth-input-nick' : 'gate-reg-nick');
+        customNick = (nickEl?.value || '').trim();
+        if (!customNick) {
+          showGateError('구글 회원가입에 사용할 닉네임을 먼저 입력해 주세요.');
+          nickEl?.focus();
+          return;
+        }
+        sessionStorage.setItem('bang_pending_google_nick', customNick);
+      } else {
+        sessionStorage.removeItem('bang_pending_google_nick');
+      }
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       try {
         const res = await signInWithPopup(Net.auth, provider);
-        await loadOrCreateFirebaseProfile(res.user);
+        if (customNick) {
+          try { await updateProfile(res.user, { displayName: customNick }); } catch (e) {}
+        }
+        await loadOrCreateFirebaseProfile(res.user, customNick);
         closeAuthModal();
         hideAuthGateAndProceed();
-        showToast(`👋 ${Account.user?.username || '총잡이'}님 Google 로그인 완료!`);
+        showToast(mode === 'register'
+          ? `🎉 ${Account.user?.username || customNick}님 Google 회원가입 완료!`
+          : `👋 ${Account.user?.username || '총잡이'}님 Google 로그인 완료!`);
       } catch (err) {
         console.warn('Google popup signIn error:', err);
         if (err.code === 'auth/unauthorized-domain') {
@@ -7643,8 +7665,10 @@
           showGateError('브라우저에서 팝업이 차단되어 리다이렉트로 연결합니다...');
           try { await signInWithRedirect(Net.auth, provider); } catch (e2) { showGateError(`Google 로그인 오류: ${e2.code || e2.message}`); }
         } else if (err.code === 'auth/popup-closed-by-user') {
+          sessionStorage.removeItem('bang_pending_google_nick');
           showGateError('구글 로그인 창이 닫혔습니다. (현재 도메인이 Firebase 승인된 도메인에 없거나 팝업이 차단된 경우 바로 닫힐 수 있습니다 — 아이디/비밀번호 로그인을 이용해 주세요!)');
         } else {
+          sessionStorage.removeItem('bang_pending_google_nick');
           showGateError(`Google 로그인 오류 (${err.code || 'unknown'}): ${err.message || ''}`);
         }
       }
@@ -7684,8 +7708,10 @@
       const tLogin = document.getElementById('auth-tab-login');
       const tReg = document.getElementById('auth-tab-register');
       const subBtn = document.getElementById('auth-submit-btn');
+      const gBtn = document.getElementById('auth-google-btn');
       if (tLogin) tLogin.className = !isReg ? 'py-1.5 rounded-xl text-xs font-black bg-emerald-500 text-stone-950' : 'py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
       if (tReg) tReg.className = isReg ? 'py-1.5 rounded-xl text-xs font-black bg-amber-500 text-stone-950' : 'py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      if (gBtn) gBtn.innerHTML = isReg ? '<span>🔵</span> Google 계정으로 간편 가입' : '<span>🔵</span> Google 계정으로 로그인';
       if (subBtn) {
         subBtn.innerText = isReg ? '회원가입 (+50P 지급)' : '로그인';
         subBtn.className = isReg

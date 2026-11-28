@@ -1302,7 +1302,7 @@
   <div id="modal-exit-confirm" class="hidden fixed inset-0 z-[66] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-red-700 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
       <h3 class="text-lg font-black text-amber-300 mb-2">로비로 나가시겠습니까?</h3>
-      <p class="text-xs text-stone-400 mb-5">진행 중인 게임에서 퇴장하고 살롱 방 목록으로 돌아갑니다.</p>
+      <p class="text-xs text-stone-400 mb-5">진행 중인 게임에서 나가면 <strong class="text-red-300">사망 처리</strong>되며, 현재 순위로 점수와 포인트가 먼저 결산됩니다.</p>
       <div class="flex gap-2.5">
         <button onclick="closeExitConfirm()" class="flex-1 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold rounded-xl text-sm">계속 플레이</button>
         <button onclick="executeExitToLobby()" class="flex-1 py-2.5 bg-red-700 hover:bg-red-600 text-white font-black rounded-xl text-sm">나가기</button>
@@ -1610,7 +1610,13 @@
         if (idx >= 0) lobby.rooms[idx] = room;
         else lobby.rooms.unshift(room);
 
+        const wasHost = Net.isHost;
         Net.isHost = room.hostClientId === Net.clientId;
+        const becameHost = !wasHost && Net.isHost;
+        if (becameHost) {
+          startHostHeartbeat();
+          showToast('👑 이전 방장이 퇴장하여 방장 권한을 이어받았습니다.');
+        }
         if (room.settings) G.settings = normalizeSettings(room.settings);
 
         // Kick detection for guest in waiting room
@@ -1631,7 +1637,7 @@
         } else if (room.status === 'CEREMONY') {
           handleRemoteCeremonySync(room);
         } else if (room.status === 'PLAYING') {
-          handleRemoteGameSync(room);
+          handleRemoteGameSync(room, becameHost);
         }
       });
     }
@@ -3866,12 +3872,12 @@
       });
     }
 
-    function handleRemoteGameSync(room) {
+    function handleRemoteGameSync(room, becameHost = false) {
       if (!room.stateJson) return;
       const isGameHidden = document.getElementById('screen-game').classList.contains('hidden');
       const stateChanged = room.stateJson !== Net.lastStateJson;
 
-      if (isGameHidden || stateChanged) {
+      if (isGameHidden || stateChanged || becameHost) {
         const snap = JSON.parse(room.stateJson);
 
         if (isGameHidden) {
@@ -3893,8 +3899,7 @@
           G.mySeatIndex = myIdx >= 0 ? myIdx : 0;
           G.focusPlayerIndex = G.mySeatIndex;
           if (Net.isHost && G.drawPile.length === 0) {
-            // Host refreshed mid-game: rebuild remaining deck from unused cards
-            G.drawPile = buildOfficial80Deck(G.settings.expansions).slice(0, snap.drawCount || 40);
+            G.drawPile = buildOfficial80Deck(G.settings.expansions, G.settings.superCustomDeck, G.settings.superIncludeFinale).slice(0, snap.drawCount || 40);
           }
 
           buildSeatButtonsHUD();
@@ -3916,14 +3921,15 @@
           }
         }
 
-        if (!Net.isHost && (stateChanged || isGameHidden)) {
+        if ((!Net.isHost && (stateChanged || isGameHidden)) || becameHost) {
           Net.lastStateJson = room.stateJson;
           G.players = snap.players;
           G.discardPile = snap.discardPile || [];
           G.turnIndex = snap.turnIndex;
           G.turnSeq = snap.turnSeq || 0;
           G.bangsPlayedThisTurn = snap.bangsPlayedThisTurn || 0;
-          G.isBusy = snap.isBusy;
+          G.isBusy = becameHost ? false : snap.isBusy;
+          G.isAdvancingTurn = false;
           G.autoTargetIndex = snap.autoTargetIndex ?? null;
           if (snap.settings) G.settings = normalizeSettings(snap.settings);
           G.activeEvent = snap.activeEvent || null;
@@ -3935,6 +3941,9 @@
           }
           if (Array.isArray(snap.eliminationOrder)) G.eliminationOrder = snap.eliminationOrder;
           G.roundNumber = snap.roundNumber || 1;
+          if (becameHost && G.drawPile.length === 0) {
+            G.drawPile = buildOfficial80Deck(G.settings.expansions, G.settings.superCustomDeck, G.settings.superIncludeFinale).slice(0, Math.max(10, snap.drawCount || 40));
+          }
           updateEventHUD();
           updateWwsAndShopHUD();
           if (!document.getElementById('modal-gold-shop')?.classList.contains('hidden')) {
@@ -3945,7 +3954,10 @@
           syncAllBoards();
           renderHand();
           applyCameraTransform();
-          checkVictory();
+          const ended = checkVictory();
+          if (becameHost && !ended && snap.needsTurnResume) {
+            startTurnPhase();
+          }
         }
       }
 
@@ -3980,6 +3992,26 @@
     }
 
     async function processGuestActionOnHost(act) {
+      if (act.type === 'LEAVE_DEATH') {
+        const leaver = G.players[act.seat];
+        if (leaver && leaver.isAlive) {
+          const wasTheirTurn = G.turnIndex === act.seat;
+          leaver.hp = 0;
+          leaver.leftGame = true;
+          logBattle(`🚪 ${leaver.name}이(가) 게임 중 퇴장하여 사망 처리되었습니다.`);
+          handlePlayerDeath(leaver, null);
+          syncAllBoards();
+          renderHand();
+          if (wasTheirTurn && document.getElementById('modal-game-over').classList.contains('hidden')) {
+            G.isBusy = false;
+            G.isAdvancingTurn = false;
+            nextTurn();
+          } else {
+            broadcastGameState(true);
+          }
+        }
+        return;
+      }
       if (G.isBusy || G.isAdvancingTurn) return;
       if (act.seat !== G.turnIndex) return;
       if (act.turnSeq !== undefined && act.turnSeq !== G.turnSeq) return;
@@ -7547,21 +7579,149 @@
     function openExitConfirm() { document.getElementById('modal-exit-confirm').classList.remove('hidden'); }
     function closeExitConfirm() { document.getElementById('modal-exit-confirm').classList.add('hidden'); }
 
+    async function settleEarlyExitForPlayer() {
+      if (G.isSpectator || G.gameOverRecorded || G.players.length === 0) return;
+      const me = G.players[G.mySeatIndex];
+      if (!me) return;
+      G.gameOverRecorded = true;
+
+      const N = G.players.length;
+      const elimIdx = G.eliminationOrder.indexOf(me.id);
+      let rank;
+      if (elimIdx >= 0) {
+        rank = Math.max(1, Math.min(N, N - elimIdx));
+      } else {
+        const aliveNow = G.players.filter(p => p.isAlive).length;
+        rank = Math.max(1, Math.min(N, aliveNow));
+      }
+
+      if (G.settings.practiceMode) {
+        showToast('🚪 중도 퇴장: 사망 처리되었습니다. (🧪 연습 모드: 점수·보상 변동 없음)');
+        return;
+      }
+
+      const scores = RANK_SCORE_TABLE[N] || RANK_SCORE_TABLE[4];
+      const scoreDelta = scores[rank - 1] ?? -2;
+      const pointsEarned = Math.max(5, Math.max(0, scoreDelta) * 10 + 10);
+      const scoreStr = scoreDelta >= 0 ? `+${scoreDelta}점` : `${scoreDelta}점`;
+
+      const summary = {
+        id: `mh_exit_${Date.now()}`,
+        date: new Date().toLocaleString('ko-KR'),
+        title: '중도 퇴장 결산',
+        players: [{ name: me.name, role: me.role?.name || '-', rank, scoreDelta, pointsEarned }],
+        logCount: G.battleLogs.length,
+        logs: G.battleLogs.slice(-20)
+      };
+      const localHist = JSON.parse(localStorage.getItem('bang_match_history') || '[]');
+      localHist.unshift(summary);
+      localStorage.setItem('bang_match_history', JSON.stringify(localHist.slice(0, 20)));
+
+      if (Account.user) {
+        Account.user.score = (Account.user.score || 0) + scoreDelta;
+        Account.user.points = (Account.user.points || 0) + pointsEarned;
+        Account.user.games = (Account.user.games || 0) + 1;
+        await saveAccountToCloud();
+      }
+      showToast(`🚪 중도 퇴장 사망 처리 & 먼저 결산 완료! (${rank}등 · ${scoreStr} · +${pointsEarned}P)`);
+    }
+
     async function executeExitToLobby(remoteDeleted = false) {
       closeExitConfirm();
       stopHostHeartbeat();
       const roomId = lobby.activeRoomId;
       const room = lobby.rooms.find(r => r.id === roomId);
+      const isPlayingMidGame = !remoteDeleted && !G.isSpectator && G.players.length > 0 && !G.gameOverRecorded;
+
+      if (isPlayingMidGame) {
+        await settleEarlyExitForPlayer();
+      }
+
       if (Net.roomUnsub) { Net.roomUnsub(); Net.roomUnsub = null; }
 
       if (!remoteDeleted && !G.isSpectator && Net.online && Net.db && roomId && room) {
-        if (room.hostClientId === Net.clientId) {
-          await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
+        const isInMatch = room.status === 'PLAYING' && G.players.length > 0;
+        if (isInMatch) {
+          const remainingHumans = (room.slots || []).filter(s => s && !s.isAI && !s.left && s.clientId !== Net.clientId);
+          if (remainingHumans.length === 0) {
+            await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
+          } else if (room.hostClientId === Net.clientId) {
+            // Host leaving mid-game: mark host dead, advance turn if needed, and migrate host to next human!
+            const me = G.players[G.mySeatIndex];
+            const wasMyTurn = G.turnIndex === G.mySeatIndex;
+            if (me && me.isAlive) {
+              me.hp = 0;
+              me.leftGame = true;
+              logBattle(`🚪 ${me.name}이(가) 게임 중 퇴장하여 사망 처리되었습니다.`);
+              handlePlayerDeath(me, null);
+            }
+            let needsTurnResume = false;
+            const alivePlayers = G.players.filter(p => p.isAlive);
+            if (wasMyTurn && alivePlayers.length > 1) {
+              let nextIdx = G.turnIndex;
+              for (let step = 1; step <= G.players.length; step++) {
+                const cand = (G.turnIndex + step) % G.players.length;
+                if (G.players[cand].isAlive) { nextIdx = cand; break; }
+              }
+              G.turnIndex = nextIdx;
+              G.turnSeq = (G.turnSeq || 0) + 1;
+              G.bangsPlayedThisTurn = 0;
+              needsTurnResume = true;
+            }
+            const nextHost = remainingHumans[0];
+            const newSlots = (room.slots || []).map(s => {
+              if (!s) return null;
+              if (s.clientId === Net.clientId) return { ...s, isHost: false, left: true };
+              if (s.clientId === nextHost.clientId) return { ...s, isHost: true };
+              return s;
+            });
+            const snap = {
+              players: G.players,
+              drawCount: G.drawPile.length,
+              discardPile: G.discardPile,
+              turnIndex: G.turnIndex,
+              turnSeq: G.turnSeq,
+              bangsPlayedThisTurn: G.bangsPlayedThisTurn,
+              isBusy: false,
+              autoTargetIndex: null,
+              settings: G.settings,
+              activeEvent: G.activeEvent,
+              activeWwsEvent: G.activeWwsEvent,
+              shopDisplay: G.shopDisplay,
+              battleLogs: G.battleLogs.slice(-60),
+              eliminationOrder: G.eliminationOrder,
+              roundNumber: G.roundNumber,
+              needsTurnResume
+            };
+            await patchRoom(roomId, {
+              hostClientId: nextHost.clientId,
+              slots: newSlots,
+              stateJson: JSON.stringify(snap),
+              updatedAt: Date.now(),
+              lastHeartbeat: Date.now()
+            });
+          } else {
+            // Guest leaving mid-game: notify host to mark guest dead & continue match
+            const newSlots = (room.slots || []).map(s => (s && s.clientId === Net.clientId) ? { ...s, left: true } : s);
+            await patchRoom(roomId, {
+              slots: newSlots,
+              guestAction: {
+                id: `leave_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
+                type: 'LEAVE_DEATH',
+                seat: G.mySeatIndex
+              },
+              updatedAt: Date.now()
+            });
+          }
         } else {
-          const newSlots = (room.slots || []).map(s => (s && s.clientId === Net.clientId) ? null : s);
-          const humansLeft = newSlots.filter(s => s && !s.isAI).length;
-          if (humansLeft === 0) await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
-          else await patchRoom(roomId, { slots: newSlots, updatedAt: Date.now() });
+          if (room.hostClientId === Net.clientId) {
+            await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
+          } else {
+            const newSlots = (room.slots || []).map(s => (s && s.clientId === Net.clientId) ? null : s);
+            const humansLeft = newSlots.filter(s => s && !s.isAI).length;
+            if (humansLeft === 0) await deleteDoc(doc(Net.db, APP_COL, roomId)).catch(() => {});
+            else await patchRoom(roomId, { slots: newSlots, updatedAt: Date.now() });
+          }
         }
       }
 

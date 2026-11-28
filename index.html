@@ -12,6 +12,8 @@
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
     input, textarea, select { user-select: text; -webkit-user-select: text; }
+    html, body, #screen-game { height: 100vh; height: 100dvh; }
+    #hand-rail { touch-action: pan-x; }
     button, .hand-card-item, .parchment-board { touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; }
     #screen-game header { padding-top: env(safe-area-inset-top, 0px); position: relative; z-index: 50; }
     #screen-game header button { min-height: 32px; -webkit-touch-callout: none; }
@@ -594,8 +596,8 @@
   </section>
 
   <!-- ==================== 3. OPENING CEREMONY (ROLE FLIP + 2-PICK-1 CHAR) ==================== -->
-  <section id="screen-ceremony" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-    <div class="max-w-2xl w-full bg-stone-950 border-2 border-amber-600 rounded-3xl p-6 sm:p-8 text-center shadow-2xl">
+  <section id="screen-ceremony" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
+    <div class="max-w-2xl w-full my-auto max-h-[92dvh] overflow-y-auto thin-scroll bg-stone-950 border-2 border-amber-600 rounded-3xl p-5 sm:p-8 text-center shadow-2xl">
       <!-- Step 1: Role Draw -->
       <div id="ceremony-step-role">
         <h2 class="text-2xl sm:text-3xl font-black text-amber-400 mb-2">🃏 1단계: 비밀 직업 카드 뽑기</h2>
@@ -623,7 +625,7 @@
       <div id="ceremony-step-char" class="hidden">
         <h2 class="text-2xl sm:text-3xl font-black text-amber-400 mb-2">🤠 2단계: 인물 카드 선택</h2>
         <p class="text-sm text-stone-300 mb-6">2명의 인물 중 1명을 선택하세요. 체력만큼 뒤편 총알 카드가 세팅됩니다.</p>
-        <div id="ceremony-char-choices" class="flex flex-wrap justify-center gap-6 mb-4"></div>
+        <div id="ceremony-char-choices" class="flex flex-wrap justify-center gap-3 sm:gap-6 mb-4"></div>
         <div id="ceremony-wait-others" class="hidden text-sm font-bold text-amber-300 mt-4 animate-pulse">
           ⏳ 다른 플레이어들이 인물을 선택할 때까지 대기 중...
         </div>
@@ -708,7 +710,7 @@
       </div>
 
       <!-- Left-Top Vertical Camera & View Bar (PC: Always Open / Mobile: Collapsible) -->
-      <nav id="left-camera-bar" class="absolute top-2.5 left-2.5 z-35 w-[92px] bg-stone-950/92 border border-amber-700/80 rounded-2xl p-1.5 shadow-2xl backdrop-blur-sm flex flex-col gap-1 max-h-[calc(100%-20px)] overflow-y-auto thin-scroll">
+      <nav id="left-camera-bar" class="absolute top-2.5 left-2.5 z-[35] w-[92px] bg-stone-950/92 border border-amber-700/80 rounded-2xl p-1.5 shadow-2xl backdrop-blur-sm flex flex-col gap-1 max-h-[calc(100%-20px)] overflow-y-auto thin-scroll">
         <button id="btn-cam-bar-toggle" onclick="toggleCameraBar()" class="md:hidden w-full py-1 px-1.5 bg-amber-600/90 text-stone-950 text-[11px] font-black rounded-xl flex items-center justify-between gap-1">
           <span>🎥 화면</span>
           <span id="cam-bar-arrow">▾</span>
@@ -729,7 +731,7 @@
       </nav>
 
       <!-- Blurred Full-Grid Overview Overlay -->
-      <div id="overview-grid-overlay" class="hidden absolute inset-0 z-45 backdrop-blur-md bg-black/75 flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
+      <div id="overview-grid-overlay" class="hidden absolute inset-0 z-[45] backdrop-blur-md bg-black/75 flex flex-col justify-between p-3 sm:p-5 overflow-hidden">
         <div class="flex items-center justify-between max-w-6xl w-full mx-auto mb-2 flex-shrink-0">
           <div class="text-sm sm:text-base font-black text-amber-300">🗺️ 전체 플레이어 현황 <span class="text-xs font-bold text-stone-300 ml-1">(판을 클릭하면 확대됩니다)</span></div>
           <span id="overview-count-badge" class="text-xs font-bold text-amber-200 bg-stone-900/90 border border-amber-700/60 px-2.5 py-0.5 rounded-full">0명</span>
@@ -765,10 +767,10 @@
       </aside>
 
       <!-- Speech Bubbles Overlay Layer (On-Screen & Off-Screen Edge Indicators) -->
-      <div id="speech-bubble-layer" class="absolute inset-0 pointer-events-none z-45 overflow-hidden"></div>
+      <div id="speech-bubble-layer" class="absolute inset-0 pointer-events-none z-[45] overflow-hidden"></div>
 
       <!-- Compact Chat & Emoticon Bar (Bottom-Right to balance Left Camera Bar) -->
-      <div id="dock-chat-widget" class="absolute bottom-2 right-3 z-35 flex flex-col items-end gap-1.5 max-w-[calc(100vw-24px)]">
+      <div id="dock-chat-widget" class="absolute bottom-2 right-3 z-[35] flex flex-col items-end gap-1.5 max-w-[calc(100vw-24px)]">
         <!-- Expandable Chat History Popup -->
         <div id="chat-history-popup" class="hidden w-72 sm:w-80 h-52 bg-stone-950/95 border-2 border-emerald-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden backdrop-blur-sm">
           <div class="px-3 py-1.5 bg-emerald-950/80 border-b border-emerald-800/60 flex items-center justify-between">
@@ -815,7 +817,7 @@
     <!-- BOTTOM MAHOGANY HAND DOCK (Mobile: 168px / PC: 212px, Zero Clipping!) -->
     <footer class="h-[168px] md:h-[212px] flex-shrink-0 bg-gradient-to-b from-[#2a1509] to-[#160a04] border-t-2 border-amber-800/75 px-2.5 md:px-4 pt-1.5 pb-1.5 flex flex-col justify-between z-30 shadow-[0_-8px_24px_rgba(0,0,0,0.75)] relative overflow-visible">
       <!-- Floating Quick-Action Pill for Selected Card -->
-      <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-45 bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2 whitespace-nowrap">
+      <div id="card-action-pill" class="hidden absolute -top-11 left-1/2 -translate-x-1/2 z-[45] bg-stone-950/95 border-2 border-amber-400 px-3 py-1.5 rounded-full shadow-2xl flex items-center gap-2 whitespace-nowrap">
         <span id="pill-card-name" class="text-xs font-black text-amber-200">카드</span>
         <button id="pill-btn-play" onclick="playSelectedHandCard()" class="px-3.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-black rounded-full transition">사용하기</button>
         <button onclick="clearSelectedHandCard()" class="text-stone-400 hover:text-white text-xs font-bold px-1">✕</button>
@@ -972,7 +974,7 @@
   </div>
 
   <!-- Create Room Modal (With 6 Custom Settings + Expansion Packs) -->
-  <div id="modal-create-room" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+  <div id="modal-create-room" class="hidden fixed inset-0 z-[62] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-stone-950 border-2 border-amber-600 rounded-2xl p-6 max-w-lg w-full shadow-2xl my-auto max-h-[92vh] overflow-y-auto thin-scroll">
       <h3 class="text-xl font-black text-amber-400 mb-4">🏠 새 살롱 방 만들기</h3>
       <div class="space-y-3.5 mb-5">
@@ -1226,8 +1228,8 @@
   </div>
 
   <!-- Gold Rush Shop Modal -->
-  <div id="modal-gold-shop" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-2 border-yellow-500 rounded-2xl p-5 sm:p-6 max-w-xl w-full shadow-2xl">
+  <div id="modal-gold-shop" class="hidden fixed inset-0 z-[62] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-yellow-500 rounded-2xl p-5 sm:p-6 max-w-xl w-full max-h-[90dvh] overflow-y-auto thin-scroll shadow-2xl">
       <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
         <div>
           <h3 class="text-lg font-black text-yellow-300">🏪 골드러쉬 장비 상점</h3>
@@ -1258,11 +1260,11 @@
   </div>
 
   <!-- Password Entry Modal -->
-  <div id="modal-pw" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modal-pw" class="hidden fixed inset-0 z-[62] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-amber-600 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
       <h3 class="text-lg font-black text-amber-400 mb-3">🔒 비밀번호 입력</h3>
       <input id="input-join-pw" type="password" placeholder="비밀번호"
-        class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2.5 text-sm text-amber-100 mb-4 focus:outline-none focus:border-amber-500" />
+        class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2.5 text-base sm:text-sm text-amber-100 mb-4 focus:outline-none focus:border-amber-500" />
       <div class="flex gap-2">
         <button onclick="closePwModal()" class="flex-1 py-2 bg-stone-800 text-stone-300 font-bold rounded-xl text-sm">취소</button>
         <button onclick="confirmJoinWithPw()" class="flex-1 py-2 bg-amber-500 text-stone-950 font-black rounded-xl text-sm">입장</button>
@@ -1271,8 +1273,8 @@
   </div>
 
   <!-- 10-Second Reaction Modal -->
-  <div id="modal-reaction" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-2 border-amber-400 rounded-2xl p-6 max-w-md w-full shadow-2xl text-center">
+  <div id="modal-reaction" class="hidden fixed inset-0 z-[64] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-amber-400 rounded-2xl p-5 sm:p-6 max-w-md w-full max-h-[90dvh] overflow-y-auto thin-scroll shadow-2xl text-center">
       <h3 class="text-xl font-black text-amber-400 mb-2">🚨 긴급 대응!</h3>
       <p id="reaction-desc" class="text-sm text-stone-200 mb-4"></p>
       <div class="w-full h-2.5 bg-stone-800 rounded-full overflow-hidden mb-1.5">
@@ -1288,8 +1290,8 @@
   </div>
 
   <!-- Generic Choice Modal -->
-  <div id="modal-choice" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-6 max-w-2xl w-full shadow-2xl text-center">
+  <div id="modal-choice" class="hidden fixed inset-0 z-[64] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-5 sm:p-6 max-w-2xl w-full max-h-[90dvh] overflow-y-auto thin-scroll shadow-2xl text-center">
       <h3 id="choice-modal-title" class="text-xl font-black text-amber-400 mb-1">선택하세요</h3>
       <p id="choice-modal-desc" class="text-xs text-stone-300 mb-5">원하는 옵션을 클릭하세요.</p>
       <div id="choice-modal-options" class="flex flex-wrap justify-center gap-3 max-h-[60vh] overflow-y-auto p-1"></div>
@@ -1297,7 +1299,7 @@
   </div>
 
   <!-- Exit Confirmation Modal -->
-  <div id="modal-exit-confirm" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modal-exit-confirm" class="hidden fixed inset-0 z-[66] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-red-700 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl">
       <h3 class="text-lg font-black text-amber-300 mb-2">로비로 나가시겠습니까?</h3>
       <p class="text-xs text-stone-400 mb-5">진행 중인 게임에서 퇴장하고 살롱 방 목록으로 돌아갑니다.</p>
@@ -1330,7 +1332,7 @@
 
   <!-- Login / Account Modal -->
   <div id="modal-auth" class="hidden fixed inset-0 z-[65] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-stone-950 border-2 border-emerald-500 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+    <div class="bg-stone-950 border-2 border-emerald-500 rounded-2xl p-5 sm:p-6 max-w-sm w-full max-h-[92dvh] overflow-y-auto thin-scroll shadow-2xl">
       <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
         <h3 class="text-lg font-black text-emerald-300">👤 계정 로그인 / 가입</h3>
         <button onclick="closeAuthModal()" class="text-stone-400 hover:text-white font-bold">✕</button>
@@ -1781,14 +1783,12 @@
       _superTapTimer = setTimeout(() => { _superTitleTaps = 0; }, 1800);
       if (_superTitleTaps >= 5) {
         _superTitleTaps = 0;
-        document.getElementById('super-code-section')?.classList.remove('hidden');
+        switchSettingsTab('code');
         document.getElementById('input-super-code')?.focus();
       }
     }
 
     function updateSuperStatusBadge() {
-      const sec = document.getElementById('super-code-section');
-      if (sec) sec.classList.toggle('hidden', !Prefs.superUnlocked);
       const b = document.getElementById('super-status-badge');
       if (!b) return;
       if (Prefs.superUnlocked) {
@@ -3524,7 +3524,12 @@
           </div>
         </div>`;
       document.getElementById('ceremony-role-flipper').classList.remove('flipped');
-      document.getElementById('btn-to-char-step').classList.add('hidden');
+      const toCharBtn = document.getElementById('btn-to-char-step');
+      if (toCharBtn) {
+        const pc = ceremony.settings.charPickCount || 1;
+        toCharBtn.innerText = `다음: 인물 카드 선택 (${pc + 1}장 중 택 ${pc}) →`;
+        toCharBtn.classList.add('hidden');
+      }
       document.getElementById('ceremony-wait-others').classList.add('hidden');
       document.getElementById('ceremony-step-role').classList.remove('hidden');
       document.getElementById('ceremony-step-char').classList.add('hidden');
@@ -3581,7 +3586,7 @@
         const finalHp = ch.hp + s.bonusHp + (isSheriff ? s.sheriffBonusHp : 0);
         const btn = document.createElement('button');
         btn.id = `ceremony-char-btn-${idx}`;
-        btn.className = 'bang-card card-char w-44 sm:w-48 h-60 sm:h-64 text-left hover:-translate-y-2 hover:ring-4 hover:ring-amber-400 transition shadow-2xl';
+        btn.className = 'bang-card card-char w-36 sm:w-48 h-52 sm:h-64 text-left hover:-translate-y-2 hover:ring-4 hover:ring-amber-400 transition shadow-2xl';
         btn.onclick = () => selectMyCharacter(idx);
         btn.innerHTML = `
           <div class="bang-card-inner p-3 justify-between">
@@ -4117,7 +4122,7 @@
               <div class="flex items-center gap-1 min-w-0">
                 <span id="p-turn-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black whitespace-nowrap">▶ 턴</span>
                 <span class="text-xs font-black text-stone-950 truncate">${idx + 1}P · ${p.name}</span>
-                <span id="p-team-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>
+                <span id="p-team-tag-${idx}" class="hidden text-[9px] px-1.5 py-0.5 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>
               </div>
               <div class="flex items-center gap-1 flex-shrink-0">
                 <span id="p-range-badge-${idx}" class="text-[10px] px-1.5 py-0.5 rounded bg-stone-900 text-amber-200 font-bold">사거리 1</span>
@@ -4359,7 +4364,7 @@
       else if (N <= 4) colsCls = 'grid-cols-1 sm:grid-cols-2';
       else if (N <= 6) colsCls = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
       else colsCls = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
-      grid.className = `flex-1 max-w-6xl w-full mx-auto grid ${colsCls} gap-3 overflow-y-auto thin-scroll items-stretch content-center py-1`;
+      grid.className = `flex-1 max-w-6xl w-full mx-auto grid ${colsCls} gap-3 overflow-y-auto thin-scroll items-stretch content-start lg:content-center py-1`;
 
       const me = G.players[G.mySeatIndex];
       grid.innerHTML = '';
@@ -4397,7 +4402,7 @@
             <div class="flex items-center gap-1 min-w-0">
               ${isActiveTurn ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-stone-950 font-black whitespace-nowrap">▶ 턴</span>' : ''}
               <span class="text-xs font-black text-stone-950 truncate">${idx + 1}P · ${p.name}${idx === G.mySeatIndex ? ' (나)' : ''}</span>
-              ${isSameTeam ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>' : ''}
+              ${isSameTeam ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-700 text-white font-bold whitespace-nowrap">🤝 팀</span>' : ''}
             </div>
             <div class="flex items-center gap-1 flex-shrink-0">
               <span class="text-[10px] px-1.5 py-0.5 rounded bg-stone-900 text-amber-200 font-bold">${distTag}</span>
@@ -4918,7 +4923,7 @@
         _finalePickerResolver = resolve;
         const grid = document.getElementById('finale-picker-grid');
         if (!grid) { resolve(null); return; }
-        const templates = getAllCatalogCardTemplates().filter(t => t.code !== 'FINALE');
+        const templates = getAllCatalogCardTemplates().filter(t => t.code !== 'FINALE' && !['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(t.code));
         grid.innerHTML = templates.map((t, idx) => {
           const tone = t.type === 'blue'
             ? 'border-blue-600/80 bg-blue-950/40 hover:border-blue-400'
@@ -5204,7 +5209,7 @@
       }
       if (card.code === 'PUNCH' || card.code === 'DERRINGER' || card.code === 'KNIFE') return dist <= 1;
       if (card.code === 'SPRINGFIELD' || card.code === 'BUFFALO_RIFLE' || card.code === 'DUEL') return true;
-      if (card.code === 'JAIL') return (!G.settings.useRoles || p.role.id !== 'SHERIFF') && !p.equipment.some(e => e.code === 'JAIL');
+      if (card.code === 'JAIL') return (!G.settings.useRoles || G.settings.superBullyMode || p.role.id !== 'SHERIFF') && !p.equipment.some(e => e.code === 'JAIL');
       if (card.code === 'RATTLESNAKE') return !p.equipment.some(e => e.code === 'RATTLESNAKE');
       if (card.code === 'BOUNTY') return !p.equipment.some(e => e.code === 'BOUNTY');
       return true;
@@ -6803,6 +6808,7 @@
             if (ai.role.team === 'OUT' && p.role.team === 'OUT') return false;
             return true;
           });
+          if (G.settings.superBullyMode && ai.role.team === 'LAW' && enemies.length === 0) break;
           const pool = enemies.length > 0 ? enemies : inRange;
           if (pool.length === 0) break;
 
@@ -6943,7 +6949,12 @@
       for (let i = 0; i < count; i++) {
         if (G.drawPile.length === 0) {
           if (G.discardPile.length === 0) break;
-          G.drawPile = G.discardPile.sort(() => Math.random() - 0.5);
+          G.drawPile = G.discardPile.map(c => c._fromFinale ? ({
+            id: c.id, code: 'FINALE', name: '종결', type: 'mythic', icon: '🌌',
+            desc: '모든 카드 중 1장을 골라 그 효과로 즉시 사용',
+            range: null, volcanic: false, shotgun: false, lemat: false, ready: false,
+            suit: c.suit, rank: c.rank
+          }) : c).sort(() => Math.random() - 0.5);
           G.discardPile = [];
           logBattle(`🔄 덱이 소진되어 버림 더미를 다시 섞었습니다.`);
         }
@@ -7571,6 +7582,16 @@
       G.activeWwsEvent = null;
       G.shopDisplay = [];
       G.roundNumber = 0;
+      G.isBusy = false;
+      G.isAdvancingTurn = false;
+      G.selectionMode = null;
+      G.selectedHandCardId = null;
+      G.selectedCardIds.clear();
+      G.glowHandCardIds.clear();
+      cancelFinalePicker();
+      clearTargetHighlights();
+      document.getElementById('card-action-pill')?.classList.add('hidden');
+      document.getElementById('overview-grid-overlay')?.classList.add('hidden');
       document.getElementById('modal-gold-shop')?.classList.add('hidden');
 
       document.getElementById('modal-game-over').classList.add('hidden');

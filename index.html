@@ -832,7 +832,7 @@
   <div id="modal-settings" class="hidden fixed inset-0 z-[65] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-stone-950 border-2 border-amber-500 rounded-2xl p-5 sm:p-6 max-w-md w-full shadow-2xl max-h-[90vh] flex flex-col">
       <div class="flex items-center justify-between border-b border-stone-800 pb-3 mb-3 flex-shrink-0">
-        <h3 class="text-lg font-black text-amber-400">⚙️ 게임 환경 설정</h3>
+        <h3 onclick="tapSettingsTitleForSuper()" class="text-lg font-black text-amber-400 cursor-pointer select-none">⚙️ 게임 환경 설정</h3>
         <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-white font-bold px-1">✕</button>
       </div>
       <!-- Settings Main Tabs: General vs Cosmetics Equip -->
@@ -886,8 +886,8 @@
           </div>
         </div>
 
-        <!-- SUPER Code Unlock -->
-        <div class="pt-3 border-t border-stone-800">
+        <!-- SUPER Code Unlock (Hidden until unlocked or 5x secret title tap) -->
+        <div id="super-code-section" class="hidden pt-3 border-t border-stone-800">
           <div class="flex items-center justify-between mb-1.5">
             <label class="font-black text-amber-300 tracking-wider">⚡ SUPER</label>
             <span id="super-status-badge" class="text-[10px] font-bold text-stone-400">잠김</span>
@@ -1412,6 +1412,7 @@
       onSnapshot(collection(Net.db, APP_COL), (snap) => {
         const list = [];
         snap.forEach(d => {
+          if (d.id.startsWith('acc_') || d.id.startsWith('mh_')) return;
           const data = { id: d.id, ...d.data() };
           if (isRoomStaleOrEmpty(data)) {
             deleteDoc(doc(Net.db, APP_COL, d.id)).catch(() => {});
@@ -1521,6 +1522,8 @@
       }
     }
 
+    const _fxRing = [];
+    const _seenFxIds = new Set();
     function broadcastFxEvent(type, payload = {}) {
       if (!Net.online || !Net.isHost || !lobby.activeRoomId || FX._isRemote) return;
       const fxEvent = {
@@ -1529,7 +1532,10 @@
         payload
       };
       Net.lastFxId = fxEvent.id;
-      patchRoom(lobby.activeRoomId, { fxEvent });
+      _seenFxIds.add(fxEvent.id);
+      _fxRing.push(fxEvent);
+      if (_fxRing.length > 6) _fxRing.shift();
+      patchRoom(lobby.activeRoomId, { fxEvent, fxEvents: [..._fxRing] });
     }
 
     async function playRemoteFxEvent(evt) {
@@ -1593,7 +1599,22 @@
       document.getElementById('modal-settings').classList.remove('hidden');
     }
 
+    let _superTitleTaps = 0;
+    let _superTapTimer = null;
+    function tapSettingsTitleForSuper() {
+      _superTitleTaps++;
+      clearTimeout(_superTapTimer);
+      _superTapTimer = setTimeout(() => { _superTitleTaps = 0; }, 1800);
+      if (_superTitleTaps >= 5) {
+        _superTitleTaps = 0;
+        document.getElementById('super-code-section')?.classList.remove('hidden');
+        document.getElementById('input-super-code')?.focus();
+      }
+    }
+
     function updateSuperStatusBadge() {
+      const sec = document.getElementById('super-code-section');
+      if (sec) sec.classList.toggle('hidden', !Prefs.superUnlocked);
       const b = document.getElementById('super-status-badge');
       if (!b) return;
       if (Prefs.superUnlocked) {
@@ -3522,9 +3543,15 @@
         }
       }
 
-      if (!Net.isHost && room.fxEvent && room.fxEvent.id && room.fxEvent.id !== Net.lastFxId) {
-        Net.lastFxId = room.fxEvent.id;
-        playRemoteFxEvent(room.fxEvent);
+      if (!Net.isHost) {
+        const fxList = Array.isArray(room.fxEvents) ? room.fxEvents : (room.fxEvent ? [room.fxEvent] : []);
+        fxList.forEach(evt => {
+          if (evt && evt.id && !_seenFxIds.has(evt.id)) {
+            _seenFxIds.add(evt.id);
+            if (_seenFxIds.size > 120) _seenFxIds.clear();
+            playRemoteFxEvent(evt);
+          }
+        });
       }
 
       if (Net.isHost && room.guestAction && room.guestAction.id !== Net.lastActionId) {
@@ -5727,7 +5754,7 @@
 
     function checkVictory() {
       const alive = G.players.filter(p => p.isAlive);
-      if (!G.settings.useRoles) {
+      if (!G.settings.useRoles || G.activeWwsEvent?.id === 'WWS_FINALE') {
         if (alive.length <= 1) {
           const champ = alive[0];
           showGameOver(
@@ -6008,7 +6035,8 @@
             if (!curP.isAlive) { G.isBusy = false; nextTurn(); return; }
           } else {
             let nxt = (G.turnIndex + 1) % G.players.length;
-            while (!G.players[nxt].isAlive) nxt = (nxt + 1) % G.players.length;
+            let dynGuard = 0;
+            while (!G.players[nxt].isAlive && dynGuard++ < G.players.length) nxt = (nxt + 1) % G.players.length;
             G.players[nxt].equipment.push(dynCard);
             await FX.flyCard(dynCard, curP.id, nxt, 400);
             logBattle(`🧨 불발! 다이너마이트가 ${G.players[nxt].name}에게 전달되었습니다.`);
@@ -6239,13 +6267,16 @@
           G.discardPile.push(drawAct);
           drawCards(ai, drawAct.code === 'WELLS_FARGO' ? 3 : 2, true);
           logBattle(`🐴 ${ai.name}(AI) [${drawAct.name}] 사용.`);
+          await triggerWwsEventIfNeeded();
           syncAllBoards(); broadcastGameState();
           await sleep(420);
         }
 
-        const aiBaseLimit = G.activeEvent?.id === 'SHOOTOUT' ? 2 : 1;
-        const maxBangs = (ai.equipment.some(e => e.volcanic) || hasChar(ai, 'WILLY_THE_KID')) ? 99 : aiBaseLimit;
-        while (G.bangsPlayedThisTurn < maxBangs && ai.isAlive) {
+        const aiBaseLimit = (G.activeEvent?.id === 'SHOOTOUT' || G.activeWwsEvent?.id === 'WWS_SHOWDOWN') ? 2 : 1;
+        const maxBangs = (ai.equipment.some(e => e.volcanic) || hasChar(ai, 'WILLY_THE_KID') || hasChar(ai, 'LEG_WILLY_THE_KID')) ? 99 : aiBaseLimit;
+        let aiBangGuard = 0;
+        while (G.bangsPlayedThisTurn < maxBangs && ai.isAlive && aiBangGuard++ < 12) {
+          if (!document.getElementById('modal-game-over').classList.contains('hidden')) break;
           let bang = ai.hand.find(c => c.code === 'BANG');
           if (!bang && hasChar(ai, 'CALAMITY_JANET')) {
             const missedList = ai.hand.filter(c => c.code === 'MISSED');
@@ -7344,18 +7375,58 @@
       syncEmotePickerWithCosmetics();
     }
 
+    function getLocalAccountsMap() {
+      try { return JSON.parse(localStorage.getItem('bang_local_accounts') || '{}'); } catch (e) { return {}; }
+    }
+    function saveLocalAccount(acc) {
+      const map = getLocalAccountsMap();
+      map[acc.id] = acc;
+      localStorage.setItem('bang_local_accounts', JSON.stringify(map));
+    }
+
+    async function waitAuthReady(maxMs = 2500) {
+      const start = Date.now();
+      while (!Net.online && Date.now() - start < maxMs) {
+        await sleep(120);
+      }
+      return Net.online && !!Net.db;
+    }
+
+    async function cloudGetAccount(accId) {
+      if (!Net.online || !Net.db) return null;
+      try {
+        const s1 = await getDoc(doc(Net.db, ACCOUNTS_COL, accId));
+        if (s1.exists()) return { col: ACCOUNTS_COL, data: s1.data() };
+      } catch (e) {}
+      try {
+        const s2 = await getDoc(doc(Net.db, APP_COL, accId));
+        if (s2.exists()) return { col: APP_COL, data: s2.data() };
+      } catch (e) {}
+      return null;
+    }
+
+    async function cloudSaveAccount(acc) {
+      if (!Net.online || !Net.db) return false;
+      try {
+        await setDoc(doc(Net.db, ACCOUNTS_COL, acc.id), acc, { merge: true });
+        return true;
+      } catch (e) {}
+      try {
+        await setDoc(doc(Net.db, APP_COL, acc.id), { ...acc, _isAccount: true }, { merge: true });
+        return true;
+      } catch (e) {
+        console.warn('cloudSaveAccount fallback failed:', e);
+        return false;
+      }
+    }
+
     async function saveAccountToCloud() {
       if (!Account.user) return;
       Account.user.updatedAt = Date.now();
       localStorage.setItem('bang_account_user', JSON.stringify(Account.user));
+      saveLocalAccount(Account.user);
       refreshAccountUI();
-      if (Net.online && Net.db) {
-        try {
-          await setDoc(doc(Net.db, ACCOUNTS_COL, Account.user.id), Account.user, { merge: true });
-        } catch (e) {
-          console.warn('Account cloud sync skipped (check Firestore rules for bang_accounts_v1):', e);
-        }
-      }
+      await cloudSaveAccount(Account.user);
     }
 
     function openAuthModal() {
@@ -7396,42 +7467,44 @@
       const pw = (overridePw !== null ? overridePw : (document.getElementById('auth-input-pw')?.value || '')).trim();
       if (!username) { showToast('아이디를 입력해 주세요.'); return false; }
       if (pw.length < 4) { showToast('비밀번호는 4자 이상 입력해 주세요.'); return false; }
-      const accId = 'u_' + username.toLowerCase().replace(/[^a-z0-9가-힣_]/g, '');
+      const accId = 'acc_' + simpleHash(username.toLowerCase());
       const pwHash = simpleHash(pw);
 
       try {
-        if (Net.online && Net.db) {
-          const ref = doc(Net.db, ACCOUNTS_COL, accId);
-          const snap = await getDoc(ref);
-          if (mode === 'register') {
-            if (snap.exists()) { showToast('이미 존재하는 아이디입니다.'); return false; }
-            Account.user = {
-              id: accId, username, passwordHash: pwHash,
-              score: 0, points: 50, wins: 0, games: 0,
-              ownedItems: ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default'],
-              equipped: { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' },
-              updatedAt: Date.now()
-            };
-            await setDoc(ref, Account.user);
-            showToast(`🎉 회원가입 완료! 환영합니다 ${username}님 (+50P 지급)`);
-          } else {
-            if (!snap.exists()) { showToast('존재하지 않는 아이디입니다. 회원가입을 해주세요.'); return false; }
-            const data = snap.data();
-            if (data.passwordHash !== pwHash) { showToast('비밀번호가 일치하지 않습니다.'); return false; }
-            Account.user = data;
-            showToast(`👋 ${username}님 환영합니다!`);
+        const isOnline = await waitAuthReady(2200);
+        const localMap = getLocalAccountsMap();
+        const cloudRes = isOnline ? await cloudGetAccount(accId) : null;
+        const existing = cloudRes?.data || localMap[accId] || null;
+
+        if (mode === 'register') {
+          if (existing) {
+            showToast('이미 존재하는 아이디입니다. 로그인을 눌러주세요.');
+            return false;
           }
-        } else {
           Account.user = {
             id: accId, username, passwordHash: pwHash,
-            score: Account.user?.score || 0, points: Account.user?.points ?? 50,
-            wins: Account.user?.wins || 0, games: Account.user?.games || 0,
-            ownedItems: Account.user?.ownedItems || ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default'],
-            equipped: Account.user?.equipped || { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' },
+            score: 0, points: 50, wins: 0, games: 0,
+            ownedItems: ['emojiSet:default', 'chatColor:default', 'avatar:default', 'frame:default'],
+            equipped: { emojiSet: 'default', chatColor: 'default', avatar: 'default', frame: 'default' },
             updatedAt: Date.now()
           };
-          showToast(`👋 로컬 계정 [${username}] 로그인 완료!`);
+          saveLocalAccount(Account.user);
+          if (isOnline) await cloudSaveAccount(Account.user);
+          showToast(`🎉 회원가입 완료! 환영합니다 ${username}님 (+50P 지급)`);
+        } else {
+          if (!existing) {
+            showToast('존재하지 않는 아이디입니다. 회원가입을 먼저 해주세요.');
+            return false;
+          }
+          if (existing.passwordHash !== pwHash) {
+            showToast('비밀번호가 일치하지 않습니다.');
+            return false;
+          }
+          Account.user = existing;
+          saveLocalAccount(Account.user);
+          showToast(`👋 ${username}님 환영합니다!`);
         }
+
         localStorage.setItem('bang_account_user', JSON.stringify(Account.user));
         const nickEl = document.getElementById('lobby-nickname');
         if (nickEl) nickEl.value = Account.user.username;
@@ -7441,7 +7514,7 @@
         return true;
       } catch (e) {
         console.warn('Auth error:', e);
-        showToast('계정 처리 중 오류가 발생했습니다. Firestore 규칙에 bang_accounts_v1을 허용해 주세요.');
+        showToast('계정 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
         return false;
       }
     }
@@ -7519,13 +7592,20 @@
       if (tab === 'rank') {
         body.innerHTML = '<div class="text-center text-stone-400 py-8">⏳ 랭킹 불러오는 중...</div>';
         let list = [];
+        const seen = new Set();
         if (Net.online && Net.db) {
           try {
             const snap = await getDocs(collection(Net.db, ACCOUNTS_COL));
-            snap.forEach(d => list.push(d.data()));
+            snap.forEach(d => { const u = d.data(); if (u?.username && !seen.has(u.id)) { seen.add(u.id); list.push(u); } });
+          } catch (e) {}
+          try {
+            const snap2 = await getDocs(collection(Net.db, APP_COL));
+            snap2.forEach(d => { if (d.id.startsWith('acc_')) { const u = d.data(); if (u?.username && !seen.has(u.id)) { seen.add(u.id); list.push(u); } } });
           } catch (e) {}
         }
-        if (list.length === 0 && Account.user) list = [Account.user];
+        Object.values(getLocalAccountsMap()).forEach(u => {
+          if (u?.username && !seen.has(u.id)) { seen.add(u.id); list.push(u); }
+        });
         list.sort((a, b) => (b.score || 0) - (a.score || 0));
         if (list.length === 0) {
           body.innerHTML = '<div class="text-center text-stone-400 py-8">등록된 랭커가 아직 없습니다. 로그인 후 대결해 보세요!</div>';
@@ -7711,6 +7791,7 @@
       selectCodexExp,
       openSettingsModal,
       closeSettingsModal,
+      tapSettingsTitleForSuper,
       unlockSuperMode,
       onVolumeSliderChange,
       setCardPlayMode,

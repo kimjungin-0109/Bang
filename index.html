@@ -406,48 +406,83 @@
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col">
 
-  <!-- ==================== 0. ENTRY AUTH GATE (FIREBASE GOOGLE / EMAIL / GUEST) ==================== -->
-  <section id="screen-auth-gate" class="hidden fixed inset-0 z-[68] flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_#3b1f0d_0%,_#180c06_65%,_#0a0502_100%)] p-4 overflow-y-auto">
+  <!-- ==================== 0. ENTRY AUTH GATE (STEP 1: CHOICE -> STEP 2: LOGIN / REGISTER) ==================== -->
+  <section id="screen-auth-gate" class="fixed inset-0 z-[68] flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_#3b1f0d_0%,_#180c06_65%,_#0a0502_100%)] p-4 overflow-y-auto">
     <div class="max-w-md w-full bg-stone-950/95 border-2 border-amber-600/85 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
       <div class="text-4xl mb-1">🤠</div>
       <h1 class="font-western text-4xl text-amber-400 tracking-wider drop-shadow mb-1">BANG!</h1>
-      <p class="text-xs text-stone-400 mb-5">Firebase 계정으로 로그인해 랭킹·포인트·꾸미기를 저장하거나 게스트로 입장하세요.</p>
+      <p class="text-xs text-stone-400 mb-6">서부 살롱에 오신 것을 환영합니다. 입장 방식을 선택하세요.</p>
 
-      <button onclick="loginWithGoogle()"
-        class="w-full py-3 mb-4 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow-lg flex items-center justify-center gap-2 transition active:scale-95">
-        <span class="text-base">🔵</span> Google 계정으로 시작하기
-      </button>
-
-      <div class="relative flex items-center justify-center my-3">
-        <div class="border-t border-stone-800 w-full"></div>
-        <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">또는 이메일 로그인</span>
-        <div class="border-t border-stone-800 w-full"></div>
+      <!-- Step 1: Main Choice (로그인 / 회원가입 / 게스트) -->
+      <div id="gate-step-menu" class="space-y-3">
+        <button onclick="switchGateStep('login')"
+          class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-stone-950 font-black rounded-2xl text-base shadow-lg transition active:scale-95">
+          🔑 로그인
+        </button>
+        <button onclick="switchGateStep('register')"
+          class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-black rounded-2xl text-base shadow-lg transition active:scale-95">
+          ✨ 회원가입
+        </button>
+        <button onclick="enterAsGuest()"
+          class="w-full py-3 bg-stone-900 hover:bg-stone-800 text-amber-200 border border-amber-700/70 font-bold rounded-2xl text-sm transition active:scale-95">
+          🌵 게스트로 바로 입장하기
+        </button>
+        <p class="text-[10px] text-stone-500 pt-1">게스트는 랭킹 점수와 포인트가 저장되지 않습니다.</p>
       </div>
 
-      <div class="space-y-2 text-left mb-3">
-        <input id="gate-input-id" type="email" maxlength="60" placeholder="이메일 주소 (예: user@gmail.com)"
-          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
-        <input id="gate-input-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
+      <!-- Step 2A: Login View (NO nickname field) -->
+      <div id="gate-step-login" class="hidden space-y-3 text-left">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm font-black text-emerald-300">🔑 로그인</span>
+          <button onclick="switchGateStep('menu')" class="text-xs text-stone-400 hover:text-amber-200 font-bold">← 뒤로</button>
+        </div>
+        <button onclick="loginWithGoogle()"
+          class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition active:scale-95">
+          <span>🔵</span> Google 계정으로 로그인
+        </button>
+        <div class="relative flex items-center justify-center my-2">
+          <div class="border-t border-stone-800 w-full"></div>
+          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">이메일 로그인</span>
+          <div class="border-t border-stone-800 w-full"></div>
+        </div>
+        <input id="gate-login-email" type="email" maxlength="60" placeholder="이메일 주소"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
+        <input id="gate-login-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
           onkeydown="if(event.key==='Enter'){event.preventDefault();submitGateAuth('login');}"
-          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
-      </div>
-
-      <div class="grid grid-cols-2 gap-2.5 mb-4">
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <button onclick="submitGateAuth('login')"
-          class="py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
-          🔑 이메일 로그인
-        </button>
-        <button onclick="submitGateAuth('register')"
-          class="py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
-          ✨ 이메일 가입
+          class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
+          이메일로 로그인하기
         </button>
       </div>
 
-      <button onclick="enterAsGuest()"
-        class="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-200 border border-amber-700/70 font-bold rounded-xl text-sm transition active:scale-95">
-        🌵 게스트로 바로 입장하기
-      </button>
-      <p class="text-[10px] text-stone-500 mt-2">게스트는 익명 인증으로 입장하며 랭킹 점수와 포인트가 저장되지 않습니다.</p>
+      <!-- Step 2B: Register View (Nickname field ONLY here) -->
+      <div id="gate-step-register" class="hidden space-y-3 text-left">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-sm font-black text-amber-300">✨ 회원가입</span>
+          <button onclick="switchGateStep('menu')" class="text-xs text-stone-400 hover:text-amber-200 font-bold">← 뒤로</button>
+        </div>
+        <button onclick="loginWithGoogle()"
+          class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition active:scale-95">
+          <span>🔵</span> Google 계정으로 간편 가입
+        </button>
+        <div class="relative flex items-center justify-center my-2">
+          <div class="border-t border-stone-800 w-full"></div>
+          <span class="bg-stone-950 px-3 text-[11px] text-stone-500 whitespace-nowrap">이메일 회원가입</span>
+          <div class="border-t border-stone-800 w-full"></div>
+        </div>
+        <input id="gate-reg-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
+          class="w-full bg-stone-900 border border-amber-700/90 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <input id="gate-reg-email" type="email" maxlength="60" placeholder="이메일 주소 *"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <input id="gate-reg-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상) *"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();submitGateAuth('register');}"
+          class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3.5 py-2.5 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
+        <button onclick="submitGateAuth('register')"
+          class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm shadow-lg transition active:scale-95">
+          회원가입 완료 (+50P 지급)
+        </button>
+      </div>
     </div>
   </section>
 
@@ -1229,20 +1264,23 @@
         </div>
         <button onclick="logoutAccount()" class="w-full py-2.5 bg-red-900 hover:bg-red-800 text-red-100 font-black rounded-xl text-xs">로그아웃</button>
       </div>
-      <div id="auth-form-view" class="space-y-3">
+      <div id="auth-form-view" class="space-y-2.5">
+        <div class="grid grid-cols-2 gap-2 mb-1">
+          <button id="auth-tab-login" onclick="switchAuthModalTab('login')" class="py-1.5 rounded-xl text-xs font-black bg-emerald-500 text-stone-950">🔑 로그인</button>
+          <button id="auth-tab-register" onclick="switchAuthModalTab('register')" class="py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700">✨ 회원가입</button>
+        </div>
         <button onclick="loginWithGoogle()"
           class="w-full py-2.5 bg-white hover:bg-stone-100 text-stone-900 font-black rounded-xl text-sm shadow flex items-center justify-center gap-2 transition">
           <span>🔵</span> Google 계정으로 로그인
         </button>
+        <input id="auth-input-nick" type="text" maxlength="12" placeholder="사용할 닉네임 *"
+          class="hidden w-full bg-stone-900 border border-amber-800/80 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-amber-400" />
         <input id="auth-input-id" type="email" maxlength="60" placeholder="이메일 주소"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
         <input id="auth-input-pw" type="password" maxlength="32" placeholder="비밀번호 (6자 이상)"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();submitAuth('login');}"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();submitAuth(Account.authModalMode||'login');}"
           class="w-full bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-sm text-amber-100 focus:outline-none focus:border-emerald-400" />
-        <div class="flex gap-2 pt-1">
-          <button onclick="submitAuth('login')" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm">로그인</button>
-          <button onclick="submitAuth('register')" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm">회원가입</button>
-        </div>
+        <button id="auth-submit-btn" onclick="submitAuth(Account.authModalMode||'login')" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm">로그인</button>
         <p class="text-[11px] text-stone-400 text-center">Firebase 계정으로 로그인하면 랭킹·포인트·꾸미기가 영구 저장됩니다.</p>
       </div>
     </div>
@@ -1293,7 +1331,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import {
       getAuth, signInAnonymously, onAuthStateChanged, setPersistence, inMemoryPersistence,
-      GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut
+      GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+      signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut
     } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
     import {
       getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs,
@@ -1352,6 +1391,31 @@
         Net.auth = getAuth(app);
         Net.db = getFirestore(app);
 
+        // One-time Season v2 Reset: clears old login sessions & local rankings once
+        const DATA_RESET_VER = 'bang_season_reset_v2';
+        if (localStorage.getItem('bang_data_ver') !== DATA_RESET_VER) {
+          localStorage.removeItem('bang_account_user');
+          localStorage.removeItem('bang_local_accounts');
+          localStorage.removeItem('bang_match_history');
+          localStorage.removeItem('bang_super_unlocked');
+          sessionStorage.removeItem('bang_guest_entered');
+          Account.user = null;
+          try { await signOut(Net.auth); } catch (e) {}
+          localStorage.setItem('bang_data_ver', DATA_RESET_VER);
+        }
+
+        // Complete Google Redirect sign-in if returning from redirect
+        try {
+          const redir = await getRedirectResult(Net.auth);
+          if (redir && redir.user) {
+            await loadOrCreateFirebaseProfile(redir.user);
+            hideAuthGateAndProceed();
+          }
+        } catch (redirErr) {
+          console.warn('Redirect result error:', redirErr);
+          if (redirErr.code) showToast(`Google 로그인 오류: ${redirErr.code}`);
+        }
+
         onAuthStateChanged(Net.auth, async (user) => {
           if (user) {
             Net.uid = user.uid;
@@ -1360,7 +1424,7 @@
             subscribeRoomList();
             if (!user.isAnonymous) {
               await loadOrCreateFirebaseProfile(user);
-              document.getElementById('screen-auth-gate')?.classList.add('hidden');
+              hideAuthGateAndProceed();
             }
             if (!Net.reconnectChecked) {
               Net.reconnectChecked = true;
@@ -1373,15 +1437,6 @@
             document.getElementById('screen-auth-gate')?.classList.remove('hidden');
           }
         });
-        // If user already chose Guest in this session, auto-connect anonymously
-        if (sessionStorage.getItem('bang_guest_entered') === '1') {
-          try {
-            await signInAnonymously(Net.auth);
-          } catch (authErr) {
-            await setPersistence(Net.auth, inMemoryPersistence);
-            await signInAnonymously(Net.auth);
-          }
-        }
       } catch (err) {
         console.warn('Firebase init fallback:', err);
         Net.online = false;
@@ -1435,7 +1490,7 @@
       onSnapshot(collection(Net.db, APP_COL), (snap) => {
         const list = [];
         snap.forEach(d => {
-          if (d.id.startsWith('acc_') || d.id.startsWith('mh_')) return;
+          if (d.id.startsWith('acc_') || d.id.startsWith('acc2_') || d.id.startsWith('mh_')) return;
           const data = { id: d.id, ...d.data() };
           if (isRoomStaleOrEmpty(data)) {
             deleteDoc(doc(Net.db, APP_COL, d.id)).catch(() => {});
@@ -1608,8 +1663,19 @@
       volume: parseInt(localStorage.getItem('bang_volume') ?? '100', 10),
       playMode: localStorage.getItem('bang_play_mode'), // null (first visit) | 'drag' | 'select'
       overviewStyle: localStorage.getItem('bang_overview_style') || 'grid', // 'grid' | 'table'
-      superUnlocked: localStorage.getItem('bang_super_unlocked') === '1'
+      superUnlocked: false // Resets on reconnect or after each game
     };
+
+    function resetSuperMode() {
+      Prefs.superUnlocked = false;
+      SuperDraft.bannedIds.clear();
+      SuperDraft.fixedIds = [];
+      const chk = document.getElementById('opt-super-all-blue');
+      if (chk) chk.checked = false;
+      const inp = document.getElementById('input-super-code');
+      if (inp) inp.value = '';
+      updateSuperStatusBadge();
+    }
 
     function openSettingsModal() {
       const slider = document.getElementById('settings-volume-slider');
@@ -1654,10 +1720,9 @@
       const code = (input?.value || '').trim();
       if (code === 'toatoto') {
         Prefs.superUnlocked = true;
-        localStorage.setItem('bang_super_unlocked', '1');
         if (input) input.value = '';
         updateSuperStatusBadge();
-        showToast('⚡ SUPER 설정이 해금되었습니다! 방 만들기 화면 하단을 확인하세요.');
+        showToast('⚡ SUPER 설정이 해금되었습니다! (1판 종료 또는 재접속 시 초기화)');
       } else {
         showToast('코드가 올바르지 않습니다.');
       }
@@ -4172,14 +4237,6 @@
       renderRoomList();
       initRealtimeBackend();
 
-      if (!Account.user && sessionStorage.getItem('bang_guest_entered') !== '1') {
-        document.getElementById('screen-auth-gate')?.classList.remove('hidden');
-      }
-
-      if (!Prefs.playMode) {
-        document.getElementById('modal-first-playmode')?.classList.remove('hidden');
-      }
-
       const muteBtn = document.getElementById('btn-mute');
       if (muteBtn) muteBtn.innerText = SFX.muted ? '🔇' : '🔊';
 
@@ -5877,6 +5934,7 @@
 
       if (!G.gameOverRecorded) {
         G.gameOverRecorded = true;
+        resetSuperMode();
         recordMatchResultAndRewards(title, rankings);
       }
     }
@@ -7069,6 +7127,7 @@
       lobby.activeRoomId = null;
       localStorage.removeItem('bang_active_room');
       G.isSpectator = false;
+      resetSuperMode();
       document.getElementById('spectator-badge')?.classList.add('hidden');
       document.querySelector('#screen-game footer')?.classList.remove('hidden');
       Net.isHost = false;
@@ -7313,8 +7372,8 @@
     /* ===================================================================
        17. ACCOUNTS, RANKING LEADERBOARD, POINTS SHOP & COSMETICS EQUIP
        =================================================================== */
-    const ACCOUNTS_COL = 'bang_accounts_v1';
-    const HISTORY_COL = 'bang_match_history_v1';
+    const ACCOUNTS_COL = 'bang_accounts_v2';
+    const HISTORY_COL = 'bang_match_history_v2';
 
     const COSMETIC_CATALOG = {
       emojiSet: [
@@ -7470,10 +7529,17 @@
       document.getElementById('modal-auth')?.classList.add('hidden');
     }
 
-    async function loadOrCreateFirebaseProfile(fbUser) {
+    function hideAuthGateAndProceed() {
+      document.getElementById('screen-auth-gate')?.classList.add('hidden');
+      if (!Prefs.playMode) {
+        document.getElementById('modal-first-playmode')?.classList.remove('hidden');
+      }
+    }
+
+    async function loadOrCreateFirebaseProfile(fbUser, customNick = '') {
       if (!fbUser || fbUser.isAnonymous) return;
-      const accId = 'acc_' + fbUser.uid;
-      const defaultName = (fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '총잡이')).slice(0, 12);
+      const accId = 'acc2_' + fbUser.uid;
+      const fallbackName = (customNick || fbUser.displayName || (fbUser.email ? fbUser.email.split('@')[0] : '총잡이')).slice(0, 12);
       const cloudRes = await cloudGetAccount(accId);
       const localMap = getLocalAccountsMap();
       let profile = cloudRes?.data || localMap[accId];
@@ -7481,7 +7547,7 @@
         profile = {
           id: accId,
           uid: fbUser.uid,
-          username: defaultName,
+          username: fallbackName,
           email: fbUser.email || '',
           score: 0,
           points: 50,
@@ -7492,31 +7558,47 @@
           updatedAt: Date.now()
         };
         await cloudSaveAccount(profile);
+      } else if (customNick && customNick !== profile.username) {
+        profile.username = customNick.slice(0, 12);
+        await cloudSaveAccount(profile);
       }
       Account.user = profile;
       localStorage.setItem('bang_account_user', JSON.stringify(profile));
       saveLocalAccount(profile);
       const nickEl = document.getElementById('lobby-nickname');
-      if (nickEl && !nickEl.value.trim()) nickEl.value = profile.username;
+      if (nickEl) nickEl.value = profile.username;
       refreshAccountUI();
     }
 
     async function loginWithGoogle() {
       if (!Net.auth) { showToast('Firebase 초기화 중입니다. 잠시 후 다시 눌러주세요.'); return; }
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      if (isMobileLayout()) {
+        try {
+          await signInWithRedirect(Net.auth, provider);
+          return;
+        } catch (err) {
+          showToast(`Google 로그인 오류: ${err.code || err.message}`);
+          return;
+        }
+      }
       try {
-        const provider = new GoogleAuthProvider();
         const res = await signInWithPopup(Net.auth, provider);
         await loadOrCreateFirebaseProfile(res.user);
         closeAuthModal();
-        document.getElementById('screen-auth-gate')?.classList.add('hidden');
+        hideAuthGateAndProceed();
         showToast(`👋 ${Account.user?.username || '총잡이'}님 Google 로그인 완료!`);
       } catch (err) {
-        console.warn('Google signIn error:', err);
-        if (err.code === 'auth/operation-not-allowed') {
-          showToast('Firebase 콘솔 → Authentication → Sign-in method에서 [Google]을 먼저 켜주세요!');
-        } else if (err.code === 'auth/popup-blocked') {
-          showToast('브라우저 팝업 차단을 해제해 주세요.');
-        } else if (err.code !== 'auth/popup-closed-by-user') {
+        console.warn('Google popup signIn error:', err);
+        if (err.code === 'auth/unauthorized-domain') {
+          showToast('Firebase → Authentication → 설정 → 승인된 도메인에 현재 주소를 추가해 주세요!');
+        } else if (err.code === 'auth/operation-not-allowed') {
+          showToast('Firebase 콘솔 → Authentication → Sign-in method에서 [Google]을 켜주세요!');
+        } else if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/internal-error', 'auth/popup-closed-by-user'].includes(err.code)) {
+          showToast('팝업이 닫혀 리다이렉트 방식으로 다시 연결합니다...');
+          try { await signInWithRedirect(Net.auth, provider); } catch (e2) { showToast(`Google 로그인 오류: ${e2.code || e2.message}`); }
+        } else {
           showToast(`Google 로그인 오류: ${err.code || err.message}`);
         }
       }
@@ -7527,7 +7609,7 @@
       Account.user = null;
       localStorage.removeItem('bang_account_user');
       refreshAccountUI();
-      document.getElementById('screen-auth-gate')?.classList.add('hidden');
+      hideAuthGateAndProceed();
       if (Net.auth && !Net.auth.currentUser) {
         try {
           await signInAnonymously(Net.auth);
@@ -7543,19 +7625,50 @@
       showToast('🌵 게스트(익명)로 살롱에 입장했습니다.');
     }
 
-    async function submitGateAuth(mode) {
-      const idEl = document.getElementById('gate-input-id');
-      const pwEl = document.getElementById('gate-input-pw');
-      const ok = await submitAuth(mode, idEl?.value || '', pwEl?.value || '');
-      if (ok) {
-        document.getElementById('screen-auth-gate')?.classList.add('hidden');
+    function switchGateStep(step) {
+      document.getElementById('gate-step-menu')?.classList.toggle('hidden', step !== 'menu');
+      document.getElementById('gate-step-login')?.classList.toggle('hidden', step !== 'login');
+      document.getElementById('gate-step-register')?.classList.toggle('hidden', step !== 'register');
+    }
+
+    function switchAuthModalTab(mode) {
+      Account.authModalMode = mode === 'register' ? 'register' : 'login';
+      const isReg = Account.authModalMode === 'register';
+      document.getElementById('auth-input-nick')?.classList.toggle('hidden', !isReg);
+      const tLogin = document.getElementById('auth-tab-login');
+      const tReg = document.getElementById('auth-tab-register');
+      const subBtn = document.getElementById('auth-submit-btn');
+      if (tLogin) tLogin.className = !isReg ? 'py-1.5 rounded-xl text-xs font-black bg-emerald-500 text-stone-950' : 'py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      if (tReg) tReg.className = isReg ? 'py-1.5 rounded-xl text-xs font-black bg-amber-500 text-stone-950' : 'py-1.5 rounded-xl text-xs font-bold bg-stone-900 text-stone-300 border border-stone-700';
+      if (subBtn) {
+        subBtn.innerText = isReg ? '회원가입 (+50P 지급)' : '로그인';
+        subBtn.className = isReg
+          ? 'w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm'
+          : 'w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl text-sm';
       }
     }
 
-    async function submitAuth(mode, overrideId = null, overridePw = null) {
+    async function submitGateAuth(mode) {
+      const isReg = mode === 'register';
+      const nick = isReg ? (document.getElementById('gate-reg-nick')?.value || '') : '';
+      const email = isReg
+        ? (document.getElementById('gate-reg-email')?.value || '')
+        : (document.getElementById('gate-login-email')?.value || '');
+      const pw = isReg
+        ? (document.getElementById('gate-reg-pw')?.value || '')
+        : (document.getElementById('gate-login-pw')?.value || '');
+      const ok = await submitAuth(mode, email, pw, nick);
+      if (ok) {
+        hideAuthGateAndProceed();
+      }
+    }
+
+    async function submitAuth(mode, overrideId = null, overridePw = null, overrideNick = null) {
       if (!Net.auth) { showToast('Firebase 초기화 중입니다. 잠시 후 다시 시도해 주세요.'); return false; }
+      const nick = (overrideNick !== null ? overrideNick : (document.getElementById('auth-input-nick')?.value || '')).trim();
       const email = (overrideId !== null ? overrideId : (document.getElementById('auth-input-id')?.value || '')).trim();
       const pw = (overridePw !== null ? overridePw : (document.getElementById('auth-input-pw')?.value || '')).trim();
+      if (mode === 'register' && !nick) { showToast('사용할 닉네임을 입력해 주세요.'); return false; }
       if (!email || !email.includes('@')) { showToast('올바른 이메일 주소를 입력해 주세요.'); return false; }
       if (pw.length < 6) { showToast('Firebase 비밀번호는 6자 이상 입력해 주세요.'); return false; }
 
@@ -7563,9 +7676,12 @@
         const res = mode === 'register'
           ? await createUserWithEmailAndPassword(Net.auth, email, pw)
           : await signInWithEmailAndPassword(Net.auth, email, pw);
-        await loadOrCreateFirebaseProfile(res.user);
+        if (nick) {
+          try { await updateProfile(res.user, { displayName: nick }); } catch (e) {}
+        }
+        await loadOrCreateFirebaseProfile(res.user, nick);
         closeAuthModal();
-        document.getElementById('screen-auth-gate')?.classList.add('hidden');
+        hideAuthGateAndProceed();
         showToast(mode === 'register'
           ? `🎉 회원가입 완료! 환영합니다 ${Account.user?.username}님 (+50P 지급)`
           : `👋 ${Account.user?.username}님 로그인 완료!`);
@@ -7596,6 +7712,7 @@
       }
       refreshAccountUI();
       closeAuthModal();
+      switchGateStep('menu');
       document.getElementById('screen-auth-gate')?.classList.remove('hidden');
       showToast('로그아웃되었습니다.');
     }
@@ -7669,7 +7786,7 @@
           } catch (e) {}
           try {
             const snap2 = await getDocs(collection(Net.db, APP_COL));
-            snap2.forEach(d => { if (d.id.startsWith('acc_')) { const u = d.data(); if (u?.username && !seen.has(u.id)) { seen.add(u.id); list.push(u); } } });
+            snap2.forEach(d => { if (d.id.startsWith('acc2_')) { const u = d.data(); if (u?.username && !seen.has(u.id)) { seen.add(u.id); list.push(u); } } });
           } catch (e) {}
         }
         Object.values(getLocalAccountsMap()).forEach(u => {
@@ -7838,6 +7955,8 @@
     // Expose inline HTML onclick/oninput/onchange handlers from ES module scope
     Object.assign(window, {
       loginWithGoogle,
+      switchGateStep,
+      switchAuthModalTab,
       enterAsGuest,
       submitGateAuth,
       openAuthModal,

@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Rye&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+    input, textarea, select { user-select: text; -webkit-user-select: text; }
     button, .hand-card-item, .parchment-board { touch-action: manipulation; -webkit-tap-highlight-color: transparent; cursor: pointer; }
     #screen-game header { padding-top: env(safe-area-inset-top, 0px); position: relative; z-index: 50; }
     #screen-game header button { min-height: 32px; -webkit-touch-callout: none; }
@@ -954,14 +955,16 @@
             <span id="super-status-badge" class="text-[10px] font-bold text-stone-400"></span>
           </div>
           <p class="text-[11px] text-stone-400">코드는 영어 대문자만 입력할 수 있습니다.</p>
-          <div class="flex gap-2">
+          <form onsubmit="event.preventDefault(); unlockSuperMode();" class="flex gap-2">
             <input id="input-super-code" type="text" maxlength="20" placeholder="CODE (영문 대문자)"
-              oninput="this.value=this.value.replace(/[^a-zA-Z]/g,'').toUpperCase();"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();unlockSuperMode();}"
+              inputmode="latin" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"
+              oninput="onCodeInput(event, this)"
+              oncompositionend="onCodeInput(event, this, true)"
+              onblur="onCodeInput(event, this, true)"
               style="text-transform: uppercase;"
-              class="flex-1 bg-stone-950 border border-amber-700/80 rounded-xl px-3 py-2.5 text-sm font-black tracking-widest text-amber-200 focus:outline-none focus:border-amber-400" />
-            <button onclick="unlockSuperMode()" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-xs whitespace-nowrap">적용</button>
-          </div>
+              class="flex-1 min-w-0 bg-stone-950 border border-amber-700/80 rounded-xl px-3 py-2.5 text-base font-black tracking-widest text-amber-200 focus:outline-none focus:border-amber-400" />
+            <button type="submit" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-xs whitespace-nowrap flex-shrink-0">적용</button>
+          </form>
         </div>
       </div>
       <button onclick="closeSettingsModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black rounded-xl text-sm flex-shrink-0">확인</button>
@@ -1794,6 +1797,22 @@
       } else {
         b.innerText = '잠김';
         b.className = 'text-[10px] font-bold text-stone-400';
+      }
+    }
+
+    function onCodeInput(ev, el, forceClean = false) {
+      if (!el) return;
+      if (!forceClean && ev && ev.isComposing) return;
+      const cleaned = (el.value || '').replace(/[^a-zA-Z]/g, '').toUpperCase();
+      if (el.value !== cleaned) {
+        const pos = el.selectionStart;
+        el.value = cleaned;
+        try {
+          if (typeof pos === 'number') {
+            const nextPos = Math.min(pos, cleaned.length);
+            el.setSelectionRange(nextPos, nextPos);
+          }
+        } catch (e) {}
       }
     }
 
@@ -8447,6 +8466,7 @@
       openSettingsModal,
       closeSettingsModal,
       tapSettingsTitleForSuper,
+      onCodeInput,
       unlockSuperMode,
       onVolumeSliderChange,
       setCardPlayMode,

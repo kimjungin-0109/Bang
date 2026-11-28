@@ -203,6 +203,12 @@
       border-color: #16a34a;
       background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
     }
+    .bang-card.card-mythic .bang-card-inner {
+      border-color: #c026d3;
+      border-width: 2.5px;
+      background: linear-gradient(160deg, #fdf4ff 0%, #f5d0fe 45%, #fef08a 100%);
+      box-shadow: inset 0 0 12px rgba(192, 38, 211, 0.35);
+    }
     .bang-card.card-char .bang-card-inner {
       border-color: #78716c;
       border-style: double;
@@ -1046,6 +1052,13 @@
               <span class="font-bold text-stone-200">🚫 기본 캐릭터 빼기</span>
               <input id="opt-exclude-base-chars" type="checkbox" disabled onchange="onExpansionSelectionChange()" class="accent-amber-500 w-4 h-4" />
             </label>
+            <label class="flex items-center justify-between bg-stone-950/80 border border-cyan-800/70 rounded-lg px-3 py-2 cursor-pointer sm:col-span-2" title="점수가 오르거나 내려가지 않고 포인트 보상도 지급되지 않습니다">
+              <div>
+                <span class="font-bold text-cyan-200">🧪 연습 모드</span>
+                <span class="text-[10px] text-stone-400 ml-1.5">점수 변동 없음 · 보상 없음</span>
+              </div>
+              <input id="opt-practice-mode" type="checkbox" class="accent-cyan-400 w-4 h-4" />
+            </label>
           </div>
         </div>
 
@@ -1127,11 +1140,54 @@
             <div id="super-fixed-char-list" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-36 overflow-y-auto thin-scroll p-1 bg-stone-950/70 rounded-lg border border-stone-800"></div>
           </div>
 
-          <!-- 2-3. Start hand all blue cards -->
-          <label class="flex items-center justify-between bg-stone-950/80 border border-blue-700/70 rounded-lg px-3 py-2 cursor-pointer">
-            <span class="font-bold text-blue-200">🛡️ 내 모든 시작 패를 전부 파란카드로 시작</span>
-            <input id="opt-super-all-blue" type="checkbox" class="accent-blue-500 w-4 h-4" />
-          </label>
+          <!-- 2-3. Start hand all blue cards & Special SUPER Rules -->
+          <div class="space-y-1.5">
+            <label class="flex items-center justify-between bg-stone-950/80 border border-blue-700/70 rounded-lg px-3 py-2 cursor-pointer">
+              <span class="font-bold text-blue-200">🛡️ 내 모든 시작 패를 전부 파란카드로 시작</span>
+              <input id="opt-super-all-blue" type="checkbox" class="accent-blue-500 w-4 h-4" />
+            </label>
+            <label class="flex items-center justify-between bg-stone-950/80 border border-fuchsia-600/80 rounded-lg px-3 py-2 cursor-pointer">
+              <div>
+                <span class="font-bold text-fuchsia-200">🌌 카드 '종결' 추가</span>
+                <span class="block text-[10px] text-stone-400">사용 시 모든 카드 중 1장을 골라 그 효과로 발동</span>
+              </div>
+              <input id="opt-super-finale" type="checkbox" onchange="onSuperFinaleToggle()" class="accent-fuchsia-500 w-4 h-4 flex-shrink-0" />
+            </label>
+            <label class="flex items-center justify-between bg-stone-950/80 border border-amber-600/70 rounded-lg px-3 py-2 cursor-pointer">
+              <div>
+                <span class="font-bold text-amber-200">🪞 도플갱어 룰</span>
+                <span class="block text-[10px] text-stone-400">인물 카드가 중복으로 등장하고 사용할 수 있음</span>
+              </div>
+              <input id="opt-super-doppelganger" type="checkbox" onchange="updateCharPoolAvailabilityUI()" class="accent-amber-500 w-4 h-4 flex-shrink-0" />
+            </label>
+            <label class="flex items-center justify-between bg-stone-950/80 border border-stone-600/80 rounded-lg px-3 py-2 cursor-pointer">
+              <div>
+                <span class="font-bold text-stone-200">🎭 익명 룰</span>
+                <span class="block text-[10px] text-stone-400">게임 중 모든 플레이어 이름과 채팅이 '익명'으로 고정</span>
+              </div>
+              <input id="opt-super-anonymous" type="checkbox" class="accent-stone-400 w-4 h-4 flex-shrink-0" />
+            </label>
+            <label class="flex items-center justify-between bg-stone-950/80 border border-red-600/80 rounded-lg px-3 py-2 cursor-pointer">
+              <div>
+                <span class="font-bold text-red-200">😈 왕따 모드</span>
+                <span class="block text-[10px] text-stone-400">1명만 무법자, 나머지 전원이 보안관이 되어 대결</span>
+              </div>
+              <input id="opt-super-bully" type="checkbox" class="accent-red-500 w-4 h-4 flex-shrink-0" />
+            </label>
+          </div>
+
+          <!-- 2-4. Custom Deck Builder -->
+          <div class="border-t border-amber-800/60 pt-2.5">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div>
+                <span class="font-bold text-amber-200">🃏 덱 만들기 (카드 수량 자유 편집)</span>
+                <span id="super-deck-total-badge" class="ml-1.5 text-[10px] font-black text-emerald-300">총 80장</span>
+              </div>
+              <button type="button" onclick="resetSuperDeckDraft()" class="px-2 py-0.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded text-[10px] font-bold">🔄 초기화</button>
+            </div>
+            <p class="text-[10px] text-stone-400 mb-1.5">확장판이나 '종결' 카드를 체크하면 해당 카드도 목록에 자동 추가됩니다.</p>
+            <div id="super-deck-builder-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto thin-scroll p-1.5 bg-stone-950/80 rounded-lg border border-stone-800"></div>
+          </div>
         </div>
       </div>
 
@@ -1181,6 +1237,20 @@
       </div>
       <div id="gold-shop-items" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"></div>
       <button onclick="closeGoldShopModal()" class="w-full py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold rounded-xl text-xs">닫기</button>
+    </div>
+  </div>
+
+  <!-- Finale ('종결') Wild Card Picker Modal -->
+  <div id="modal-finale-picker" class="hidden fixed inset-0 z-[75] bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-stone-950 border-2 border-fuchsia-500 rounded-3xl p-4 sm:p-5 max-w-3xl w-full max-h-[86vh] flex flex-col shadow-2xl">
+      <div class="flex items-center justify-between border-b border-fuchsia-900/60 pb-2.5 mb-3 flex-shrink-0">
+        <div>
+          <h3 class="text-lg font-black text-fuchsia-300">🌌 종결 — 발동할 카드 효과 선택</h3>
+          <p class="text-[11px] text-stone-400 mt-0.5">모든 카드 중 1장을 고르면 즉시 해당 카드의 효과로 사용됩니다.</p>
+        </div>
+        <button onclick="cancelFinalePicker()" class="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-lg text-xs font-bold">취소 ✕</button>
+      </div>
+      <div id="finale-picker-grid" class="flex-1 overflow-y-auto thin-scroll grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pr-1"></div>
     </div>
   </div>
 
@@ -1678,8 +1748,12 @@
       Prefs.superUnlocked = false;
       SuperDraft.bannedIds.clear();
       SuperDraft.fixedIds = [];
-      const chk = document.getElementById('opt-super-all-blue');
-      if (chk) chk.checked = false;
+      SuperDraft.deckCounts = {};
+      SuperDraft.deckCustomized = false;
+      ['opt-super-all-blue', 'opt-super-finale', 'opt-super-doppelganger', 'opt-super-anonymous', 'opt-super-bully'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = false;
+      });
       const inp = document.getElementById('input-super-code');
       if (inp) inp.value = '';
       updateSuperStatusBadge();
@@ -2134,7 +2208,11 @@
       return pool;
     }
 
-    function buildOfficial80Deck(expansions = []) {
+    function getDeckCardKey(sp) {
+      return sp.code === 'WEAPON' ? `WEAPON:${sp.name}` : sp.code;
+    }
+
+    function getOfficialDeckSpecs(expansions = [], includeFinale = false) {
       const specs = [
         // 25 BANG!
         ...['♠A','♦A','♦2','♦3','♦4','♦5','♦6','♦7','♦8','♦9','♦10','♦J','♦Q','♦K','♣2','♣3','♣4','♣5','♣6','♣7','♣8','♣9','♥Q','♥K','♥A'].map(sr => ({
@@ -2237,7 +2315,55 @@
         );
       }
 
-      return specs.map((sp, i) => ({
+      if (includeFinale) {
+        specs.push(
+          { code: 'FINALE', name: '종결', type: 'mythic', icon: '🌌', desc: '모든 카드 중 1장을 골라 그 효과로 즉시 사용', sr: '♠A' },
+          { code: 'FINALE', name: '종결', type: 'mythic', icon: '🌌', desc: '모든 카드 중 1장을 골라 그 효과로 즉시 사용', sr: '♥A' }
+        );
+      }
+
+      return specs;
+    }
+
+    function getDeckTemplateGroups(expansions = [], includeFinale = false) {
+      const specs = getOfficialDeckSpecs(expansions, includeFinale);
+      const map = new Map();
+      specs.forEach(sp => {
+        const key = getDeckCardKey(sp);
+        if (!map.has(key)) {
+          map.set(key, { key, template: sp, defaultCount: 0, srs: [] });
+        }
+        const entry = map.get(key);
+        entry.defaultCount += 1;
+        entry.srs.push(sp.sr);
+      });
+      return Array.from(map.values());
+    }
+
+    function getAllCatalogCardTemplates() {
+      const allGroups = getDeckTemplateGroups(['DODGE_CITY', 'SHADOW_VALLEY'], false);
+      return allGroups.map(g => ({ ...g.template, cardKey: g.key }));
+    }
+
+    function buildOfficial80Deck(expansions = [], customDeckCounts = null, includeFinale = false) {
+      const defaultSpecs = getOfficialDeckSpecs(expansions, includeFinale);
+      let finalSpecs = defaultSpecs;
+
+      if (customDeckCounts && typeof customDeckCounts === 'object' && Object.keys(customDeckCounts).length > 0) {
+        const groups = getDeckTemplateGroups(expansions, includeFinale || (Number(customDeckCounts['FINALE']) > 0));
+        const fallbackSrs = ['♠A','♥A','♦A','♣A','♠K','♥K','♦K','♣K','♠Q','♥Q','♦Q','♣Q','♠J','♥J','♦J','♣J','♠10','♥10','♦10','♣10','♠9','♥9','♦9','♣9','♠8','♥8','♦8','♣8','♠7','♥7','♦7','♣7','♠6','♥6','♦6','♣6','♠5','♥5','♦5','♣5','♠4','♥4','♦4','♣4','♠3','♥3','♦3','♣3','♠2','♥2','♦2','♣2'];
+        const built = [];
+        groups.forEach(g => {
+          const cnt = customDeckCounts[g.key] !== undefined ? Math.max(0, Math.min(40, parseInt(customDeckCounts[g.key], 10) || 0)) : g.defaultCount;
+          for (let i = 0; i < cnt; i++) {
+            const sr = g.srs[i % g.srs.length] || fallbackSrs[i % fallbackSrs.length];
+            built.push({ ...g.template, sr });
+          }
+        });
+        if (built.length >= 10) finalSpecs = built;
+      }
+
+      return finalSpecs.map((sp, i) => ({
         id: `c_${i}_${Math.random().toString(36).slice(2, 6)}`,
         code: sp.code, name: sp.name, type: sp.type, icon: sp.icon, desc: sp.desc,
         range: sp.range || null, volcanic: !!sp.volcanic, shotgun: !!sp.shotgun, lemat: !!sp.lemat, ready: false,
@@ -2545,15 +2671,23 @@
       excludeBaseChars: false,
       useRoles: true,
       expansions: [],
+      practiceMode: false,
       excludedCharIds: [],
       superFixedCharIds: [],
-      superAllBlueStart: false
+      superAllBlueStart: false,
+      superIncludeFinale: false,
+      superDoppelganger: false,
+      superAnonymous: false,
+      superBullyMode: false,
+      superCustomDeck: null
     };
 
     const SuperDraft = {
       activeBanPack: 'BASE',
       bannedIds: new Set(),
-      fixedIds: []
+      fixedIds: [],
+      deckCounts: {},
+      deckCustomized: false
     };
 
     const lobby = { rooms: [], activeRoomId: null, pendingJoinId: null };
@@ -2565,13 +2699,21 @@
       s.charPickCount = Math.max(1, Math.min(3, parseInt(s.charPickCount, 10) || 1));
       s.allowDuplicateBlue = !!s.allowDuplicateBlue;
       s.allowBeerAtTwo = !!s.allowBeerAtTwo;
+      s.practiceMode = !!raw?.practiceMode;
+      s.superBullyMode = !!raw?.superBullyMode;
       const count = playerCount !== null ? parseInt(playerCount, 10) : (raw?.maxPlayers ? parseInt(raw.maxPlayers, 10) : null);
-      s.useRoles = count === 2 ? false : (raw && raw.useRoles !== undefined ? !!raw.useRoles : true);
+      s.useRoles = s.superBullyMode ? true : (count === 2 ? false : (raw && raw.useRoles !== undefined ? !!raw.useRoles : true));
       s.expansions = Array.isArray(raw?.expansions) ? [...new Set(raw.expansions)] : [];
       s.excludeBaseChars = hasCharacterExpansion(s.expansions) ? !!s.excludeBaseChars : false;
       s.excludedCharIds = Array.isArray(raw?.excludedCharIds) ? [...new Set(raw.excludedCharIds)] : [];
       s.superFixedCharIds = Array.isArray(raw?.superFixedCharIds) ? [...new Set(raw.superFixedCharIds)] : [];
       s.superAllBlueStart = !!raw?.superAllBlueStart;
+      s.superIncludeFinale = !!raw?.superIncludeFinale;
+      s.superDoppelganger = !!raw?.superDoppelganger;
+      s.superAnonymous = !!raw?.superAnonymous;
+      s.superCustomDeck = (raw?.superCustomDeck && typeof raw.superCustomDeck === 'object' && Object.keys(raw.superCustomDeck).length > 0)
+        ? { ...raw.superCustomDeck }
+        : null;
       return s;
     }
 
@@ -2583,9 +2725,15 @@
       } else {
         tags.push('기본판');
       }
+      if (s.practiceMode) tags.push('🧪연습모드');
       if (s.excludeBaseChars) tags.push('🚫기본캐제외');
       if (s.charPickCount > 1) tags.push(`🎭인물${s.charPickCount}명선택`);
       if (s.superAllBlueStart) tags.push('⚡SUPER');
+      if (s.superIncludeFinale) tags.push('🌌종결');
+      if (s.superDoppelganger) tags.push('🪞도플갱어');
+      if (s.superAnonymous) tags.push('🎭익명');
+      if (s.superBullyMode) tags.push('😈왕따모드');
+      if (s.superCustomDeck) tags.push('🃏커스텀덱');
       if (!s.useRoles) tags.push('🎭직업OFF');
       if (s.bonusHp > 0) tags.push(`❤️기본HP+${s.bonusHp}`);
       if (s.useRoles && s.sheriffBonusHp !== 1) tags.push(`⭐보안관HP+${s.sheriffBonusHp}`);
@@ -2596,6 +2744,7 @@
 
     function getRoleBreakdownText(n, rawSettings) {
       const s = normalizeSettings(rawSettings, n);
+      if (s.superBullyMode) return `😈 왕따 모드: 보안관 ${Math.max(1, n - 1)}명 vs 무법자 1명`;
       if (n === 2) return '2인 1대1 결투: 직업 없이 최후의 1인 승부';
       if (!s.useRoles) return `${n}인 자유 난투전: 직업 없이 최후의 1인 승부`;
       const map = {
@@ -2696,15 +2845,16 @@
       const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
       const excludeBase = document.getElementById('opt-exclude-base-chars')?.checked || false;
       const banned = Prefs.superUnlocked ? [...SuperDraft.bannedIds] : [];
+      const doppel = Prefs.superUnlocked ? (document.getElementById('opt-super-doppelganger')?.checked || false) : false;
       const pool = getCharacterPool(exps, excludeBase, 0, banned);
-      const needed = maxPlayers * (pickCount + 1);
+      const needed = doppel ? 1 : maxPlayers * (pickCount + 1);
       const msg = document.getElementById('char-pool-check-msg');
       const btn = document.getElementById('btn-create-room-submit');
       const ok = pool.length >= needed;
       if (msg) {
-        msg.innerText = ok
-          ? `가능 (사용 가능 ${pool.length}명 / 필요 ${needed}명)`
-          : `인물 부족! (${pool.length}명 / 필요 ${needed}명)`;
+        msg.innerText = doppel
+          ? (ok ? `🪞 도플갱어 ON (중복 허용 · ${pool.length}명 풀)` : '인물 카드가 1명 이상 필요합니다!')
+          : (ok ? `가능 (사용 가능 ${pool.length}명 / 필요 ${needed}명)` : `인물 부족! (${pool.length}명 / 필요 ${needed}명)`);
         msg.className = ok ? 'text-[10px] font-bold text-emerald-400' : 'text-[10px] font-black text-red-400';
       }
       if (btn) btn.disabled = !ok;
@@ -2771,6 +2921,67 @@
             <span class="font-black flex-shrink-0">${isFixed ? '★' : ''}</span>
           </button>`;
       }).join('');
+
+      renderSuperDeckBuilderUI();
+    }
+
+    function renderSuperDeckBuilderUI() {
+      const listEl = document.getElementById('super-deck-builder-list');
+      if (!listEl) return;
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const includeFinale = document.getElementById('opt-super-finale')?.checked || false;
+      const groups = getDeckTemplateGroups(exps, includeFinale);
+
+      let total = 0;
+      listEl.innerHTML = groups.map(g => {
+        const cnt = SuperDraft.deckCounts[g.key] !== undefined ? SuperDraft.deckCounts[g.key] : g.defaultCount;
+        total += cnt;
+        const typeTone = g.template.type === 'mythic'
+          ? 'border-fuchsia-600/80 text-fuchsia-200'
+          : (g.template.type === 'blue' ? 'border-blue-800/80 text-blue-200' : (g.template.type === 'green' ? 'border-emerald-800/80 text-emerald-200' : 'border-stone-700 text-amber-100'));
+        const safeKey = g.key.replace(/'/g, "\\'");
+        return `
+          <div class="flex items-center justify-between gap-1.5 bg-stone-900/90 border ${typeTone} rounded-lg px-2 py-1 text-[10px]">
+            <span class="truncate font-bold" title="${g.template.desc}">${g.template.icon} ${g.template.name}</span>
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <button type="button" onclick="adjustSuperDeckCard('${safeKey}', -1)" class="w-5 h-5 rounded bg-stone-800 hover:bg-red-900 text-stone-200 font-black leading-none">−</button>
+              <span class="w-5 text-center font-black ${cnt === 0 ? 'text-stone-500' : 'text-amber-300'}">${cnt}</span>
+              <button type="button" onclick="adjustSuperDeckCard('${safeKey}', 1)" class="w-5 h-5 rounded bg-stone-800 hover:bg-emerald-900 text-stone-200 font-black leading-none">+</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      const badge = document.getElementById('super-deck-total-badge');
+      if (badge) {
+        badge.innerText = `총 ${total}장${SuperDraft.deckCustomized ? ' (커스텀)' : ''}`;
+        badge.className = total < 10 ? 'ml-1.5 text-[10px] font-black text-red-400' : 'ml-1.5 text-[10px] font-black text-emerald-300';
+      }
+    }
+
+    function adjustSuperDeckCard(cardKey, delta) {
+      const exps = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const includeFinale = document.getElementById('opt-super-finale')?.checked || false;
+      const groups = getDeckTemplateGroups(exps, includeFinale);
+      const g = groups.find(x => x.key === cardKey);
+      if (!g) return;
+      const cur = SuperDraft.deckCounts[cardKey] !== undefined ? SuperDraft.deckCounts[cardKey] : g.defaultCount;
+      SuperDraft.deckCounts[cardKey] = Math.max(0, Math.min(40, cur + delta));
+      SuperDraft.deckCustomized = true;
+      renderSuperDeckBuilderUI();
+    }
+
+    function resetSuperDeckDraft() {
+      SuperDraft.deckCounts = {};
+      SuperDraft.deckCustomized = false;
+      renderSuperDeckBuilderUI();
+      showToast('🃏 덱 구성을 기본 수량으로 초기화했습니다.');
+    }
+
+    function onSuperFinaleToggle() {
+      const on = document.getElementById('opt-super-finale')?.checked || false;
+      if (!on) delete SuperDraft.deckCounts['FINALE'];
+      else if (SuperDraft.deckCounts['FINALE'] === 0) SuperDraft.deckCounts['FINALE'] = 2;
+      renderSuperDeckBuilderUI();
     }
 
     function selectSuperBanPack(packId) {
@@ -2835,6 +3046,24 @@
       const password = document.getElementById('input-room-pw').value.trim();
 
       const expansions = Array.from(document.querySelectorAll('.exp-pack-checkbox:checked')).map(el => el.value);
+      const includeFinale = Prefs.superUnlocked ? (document.getElementById('opt-super-finale')?.checked || false) : false;
+      let customDeckPayload = null;
+      if (Prefs.superUnlocked && SuperDraft.deckCustomized) {
+        const groups = getDeckTemplateGroups(expansions, includeFinale);
+        const builtCounts = {};
+        let totalCards = 0;
+        groups.forEach(g => {
+          const cnt = SuperDraft.deckCounts[g.key] !== undefined ? SuperDraft.deckCounts[g.key] : g.defaultCount;
+          builtCounts[g.key] = cnt;
+          totalCards += cnt;
+        });
+        if (totalCards < 10) {
+          showToast('커스텀 덱은 최소 10장 이상이어야 합니다!');
+          return;
+        }
+        customDeckPayload = builtCounts;
+      }
+
       const settings = normalizeSettings({
         bonusHp: document.getElementById('opt-bonus-hp').value,
         sheriffBonusHp: document.getElementById('opt-sheriff-hp').value,
@@ -2843,9 +3072,15 @@
         allowDuplicateBlue: document.getElementById('opt-dup-blue').checked,
         allowBeerAtTwo: document.getElementById('opt-beer-two').checked,
         excludeBaseChars: document.getElementById('opt-exclude-base-chars')?.checked || false,
+        practiceMode: document.getElementById('opt-practice-mode')?.checked || false,
         excludedCharIds: Prefs.superUnlocked ? [...SuperDraft.bannedIds] : [],
         superFixedCharIds: Prefs.superUnlocked ? [...SuperDraft.fixedIds] : [],
         superAllBlueStart: Prefs.superUnlocked ? (document.getElementById('opt-super-all-blue')?.checked || false) : false,
+        superIncludeFinale: includeFinale,
+        superDoppelganger: Prefs.superUnlocked ? (document.getElementById('opt-super-doppelganger')?.checked || false) : false,
+        superAnonymous: Prefs.superUnlocked ? (document.getElementById('opt-super-anonymous')?.checked || false) : false,
+        superBullyMode: Prefs.superUnlocked ? (document.getElementById('opt-super-bully')?.checked || false) : false,
+        superCustomDeck: customDeckPayload,
         expansions
       }, maxPlayers);
 
@@ -3136,13 +3371,16 @@
       const dealCount = pickCount + 1;
 
       const charPool = getCharacterPool(s.expansions, s.excludeBaseChars, 0, s.excludedCharIds);
-      if (charPool.length < N * dealCount) {
-        showToast(`인물 카드가 부족합니다! (사용 가능 ${charPool.length}명 / 필요 ${N * dealCount}명)`);
+      if (s.superDoppelganger ? charPool.length < 1 : charPool.length < N * dealCount) {
+        showToast(`인물 카드가 부족합니다! (사용 가능 ${charPool.length}명 / 필요 ${s.superDoppelganger ? 1 : N * dealCount}명)`);
         return;
       }
 
       let roles;
-      if (!s.useRoles || N === 2) {
+      if (s.superBullyMode) {
+        const outlawIdx = Math.floor(Math.random() * N);
+        roles = Array.from({ length: N }, (_, idx) => (idx === outlawIdx ? ROLES.OUTLAW : ROLES.SHERIFF));
+      } else if (!s.useRoles || N === 2) {
         roles = Array(N).fill(ROLES.FREE);
       } else if (N === 3) {
         roles = [ROLES.SHERIFF, ROLES.RENEGADE, ROLES.OUTLAW].sort(() => Math.random() - 0.5);
@@ -3154,7 +3392,7 @@
         roles = rolePool.sort(() => Math.random() - 0.5);
       }
 
-      // Apply SUPER fixed characters for host seat without duplicates
+      // Apply SUPER fixed characters for host seat (with or without duplicates depending on Doppelganger rule)
       const hostSeat = Math.max(0, activeSlots.findIndex(sl => sl.isHost));
       const fixedChars = (s.superFixedCharIds || [])
         .map(id => charPool.find(c => c.id === id))
@@ -3166,26 +3404,54 @@
       const charOptionsBySeat = {};
       const initialPicks = {};
 
-      // Deal host seat first (guaranteed fixed chars + random fill up to dealCount)
-      const hostOpts = [...fixedChars];
-      while (hostOpts.length < dealCount && remainingPool.length > 0) {
-        hostOpts.push(remainingPool.pop());
-      }
-      charOptionsBySeat[String(hostSeat)] = hostOpts;
-      if (activeSlots[hostSeat]?.isAI) {
-        initialPicks[String(hostSeat)] = hostOpts.slice(0, pickCount).map(c => c.id).join(',');
-      }
-
-      // Deal other seats without duplicates
-      for (let i = 0; i < N; i++) {
-        if (i === hostSeat) continue;
-        const opts = [];
-        for (let k = 0; k < dealCount && remainingPool.length > 0; k++) {
-          opts.push(remainingPool.pop());
+      if (s.superDoppelganger) {
+        const pickDoppelOpts = (initialList = []) => {
+          const opts = [...initialList];
+          const shuffled = [...charPool].sort(() => Math.random() - 0.5);
+          for (const c of shuffled) {
+            if (opts.length >= dealCount) break;
+            if (!opts.some(o => o.id === c.id) || charPool.length < dealCount) opts.push(c);
+          }
+          while (opts.length < dealCount && charPool.length > 0) {
+            opts.push(charPool[Math.floor(Math.random() * charPool.length)]);
+          }
+          return opts;
+        };
+        const hostOpts = pickDoppelOpts(fixedChars);
+        charOptionsBySeat[String(hostSeat)] = hostOpts;
+        if (activeSlots[hostSeat]?.isAI) {
+          initialPicks[String(hostSeat)] = hostOpts.slice(0, pickCount).map(c => c.id).join(',');
         }
-        charOptionsBySeat[String(i)] = opts;
-        if (activeSlots[i].isAI) {
-          initialPicks[String(i)] = opts.slice(0, pickCount).map(c => c.id).join(',');
+        for (let i = 0; i < N; i++) {
+          if (i === hostSeat) continue;
+          const opts = pickDoppelOpts([]);
+          charOptionsBySeat[String(i)] = opts;
+          if (activeSlots[i].isAI) {
+            initialPicks[String(i)] = opts.slice(0, pickCount).map(c => c.id).join(',');
+          }
+        }
+      } else {
+        // Deal host seat first (guaranteed fixed chars + random fill up to dealCount)
+        const hostOpts = [...fixedChars];
+        while (hostOpts.length < dealCount && remainingPool.length > 0) {
+          hostOpts.push(remainingPool.pop());
+        }
+        charOptionsBySeat[String(hostSeat)] = hostOpts;
+        if (activeSlots[hostSeat]?.isAI) {
+          initialPicks[String(hostSeat)] = hostOpts.slice(0, pickCount).map(c => c.id).join(',');
+        }
+
+        // Deal other seats without duplicates
+        for (let i = 0; i < N; i++) {
+          if (i === hostSeat) continue;
+          const opts = [];
+          for (let k = 0; k < dealCount && remainingPool.length > 0; k++) {
+            opts.push(remainingPool.pop());
+          }
+          charOptionsBySeat[String(i)] = opts;
+          if (activeSlots[i].isAI) {
+            initialPicks[String(i)] = opts.slice(0, pickCount).map(c => c.id).join(',');
+          }
         }
       }
 
@@ -3421,7 +3687,7 @@
       G.settings = normalizeSettings(ceremony.settings);
       const pickCount = G.settings.charPickCount || 1;
       const p0List = Array.isArray(p0Chars) ? p0Chars : [p0Chars];
-      G.drawPile = buildOfficial80Deck(G.settings.expansions);
+      G.drawPile = buildOfficial80Deck(G.settings.expansions, G.settings.superCustomDeck, G.settings.superIncludeFinale);
       G.discardPile = [];
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
@@ -3460,7 +3726,7 @@
         const hand = drawStartingHandForSeat(startDraw, idx === 0 && G.settings.superAllBlueStart);
         return {
           id: idx,
-          name: slot.name,
+          name: G.settings.superAnonymous ? '익명' : slot.name,
           isAI: slot.isAI,
           clientId: slot.clientId,
           role,
@@ -3497,7 +3763,7 @@
 
     async function initGameBoardOnline(cData, picksMap) {
       G.settings = normalizeSettings(cData.settings);
-      G.drawPile = buildOfficial80Deck(G.settings.expansions);
+      G.drawPile = buildOfficial80Deck(G.settings.expansions, G.settings.superCustomDeck, G.settings.superIncludeFinale);
       G.discardPile = [];
       G.eventDeck = G.settings.expansions.includes('HIGH_NOON_SET') ? buildEventDeck() : [];
       G.activeEvent = null;
@@ -3532,7 +3798,7 @@
         const hand = drawStartingHandForSeat(startDraw, idx === hostSeat && G.settings.superAllBlueStart);
         return {
           id: idx,
-          name: slot.name,
+          name: G.settings.superAnonymous ? '익명' : slot.name,
           isAI: slot.isAI,
           clientId: slot.clientId,
           role,
@@ -3698,7 +3964,15 @@
       if (act.type === 'PLAY_CARD') {
         const card = actor.hand.find(c => c.id === act.cardId);
         if (card) {
-          await playCardAction(actor, card, act.targetSeat ?? null);
+          let playCard = card;
+          if (card.code === 'FINALE' && act.finaleKey) {
+            const tpl = getAllCatalogCardTemplates().find(t => t.cardKey === act.finaleKey);
+            if (tpl) {
+              playCard = morphFinaleCard(card, tpl);
+              logBattle(`🌌 ${actor.name}이(가) [종결] 카드로 [${playCard.name}] 효과를 발동합니다!`);
+            }
+          }
+          await playCardAction(actor, playCard, act.targetSeat ?? null);
           broadcastGameState(true);
         }
       } else if (act.type === 'PLAY_GREEN') {
@@ -3890,7 +4164,7 @@
       const topDiscard = G.discardPile[G.discardPile.length - 1];
       const discSlot = document.getElementById('discard-top-slot');
       if (topDiscard) {
-        const typeCls = topDiscard.type === 'blue' ? 'card-blue' : (topDiscard.type === 'green' ? 'card-green' : '');
+        const typeCls = topDiscard.type === 'mythic' ? 'card-mythic' : (topDiscard.type === 'blue' ? 'card-blue' : (topDiscard.type === 'green' ? 'card-green' : ''));
         discSlot.className = `bang-card ${typeCls} w-24 h-36`;
         discSlot.innerHTML = `
           <div class="bang-card-inner items-center justify-between text-center">
@@ -4382,18 +4656,19 @@
       me.hand.forEach(card => {
         const isBlue = card.type === 'blue';
         const isGreen = card.type === 'green';
+        const isMythic = card.type === 'mythic';
         const isSel = G.selectedHandCardId === card.id;
         const isDiscSel = G.selectedCardIds.has(card.id);
         const isGlowing = G.glowHandCardIds.has(card.id);
         const canDrag = isMyTurn && !G.selectionMode && Prefs.playMode === 'drag';
 
         const el = document.createElement('div');
-        const typeCls = isBlue ? 'card-blue' : (isGreen ? 'card-green' : '');
+        const typeCls = isMythic ? 'card-mythic' : (isBlue ? 'card-blue' : (isGreen ? 'card-green' : ''));
         el.className = `bang-card hand-card-item ${typeCls} ${isSel ? 'card-selected' : ''} ${isDiscSel ? 'discard-selected' : ''} ${isGlowing ? 'glow-playable' : ''}`;
         el.draggable = canDrag;
 
         const isRedSuit = card.suit === '♥' || card.suit === '♦';
-        const typeLabel = isBlue ? '장비' : (isGreen ? '초록' : '액션');
+        const typeLabel = isMythic ? '종결' : (isBlue ? '장비' : (isGreen ? '초록' : '액션'));
         el.innerHTML = `
           <div class="bang-card-inner justify-between">
             <div class="flex items-center justify-between gap-0.5">
@@ -4598,16 +4873,87 @@
       if (card) dispatchOrPlayCard(me, card);
     }
 
+    let _finalePickerResolver = null;
+
+    function morphFinaleCard(finaleCard, tpl) {
+      return {
+        id: finaleCard.id,
+        code: tpl.code,
+        name: tpl.name,
+        type: tpl.type,
+        icon: tpl.icon,
+        desc: tpl.desc,
+        range: tpl.range || null,
+        volcanic: !!tpl.volcanic,
+        shotgun: !!tpl.shotgun,
+        lemat: !!tpl.lemat,
+        ready: false,
+        suit: finaleCard.suit,
+        rank: finaleCard.rank,
+        _fromFinale: true
+      };
+    }
+
+    function openFinaleCardPicker() {
+      return new Promise(resolve => {
+        _finalePickerResolver = resolve;
+        const grid = document.getElementById('finale-picker-grid');
+        if (!grid) { resolve(null); return; }
+        const templates = getAllCatalogCardTemplates().filter(t => t.code !== 'FINALE');
+        grid.innerHTML = templates.map((t, idx) => {
+          const tone = t.type === 'blue'
+            ? 'border-blue-600/80 bg-blue-950/40 hover:border-blue-400'
+            : (t.type === 'green' ? 'border-emerald-600/80 bg-emerald-950/40 hover:border-emerald-400' : 'border-amber-700/70 bg-stone-900 hover:border-fuchsia-400');
+          const badge = t.type === 'blue' ? '파랑' : (t.type === 'green' ? '초록' : '갈색');
+          const safeKey = t.cardKey.replace(/'/g, "\\'");
+          return `
+            <button type="button" onclick="pickFinaleCard('${safeKey}')"
+              class="text-left p-2.5 rounded-xl border ${tone} transition flex flex-col justify-between gap-1 active:scale-95">
+              <div class="flex items-center justify-between gap-1">
+                <span class="text-xs font-black text-amber-100 truncate">${t.icon} ${t.name}</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-stone-950/80 text-stone-300 flex-shrink-0">${badge}</span>
+              </div>
+              <div class="text-[10px] text-stone-300 leading-snug line-clamp-2">${t.desc}</div>
+            </button>`;
+        }).join('');
+        document.getElementById('modal-finale-picker')?.classList.remove('hidden');
+      });
+    }
+
+    function pickFinaleCard(cardKey) {
+      document.getElementById('modal-finale-picker')?.classList.add('hidden');
+      const tpl = getAllCatalogCardTemplates().find(t => t.cardKey === cardKey) || null;
+      const res = _finalePickerResolver;
+      _finalePickerResolver = null;
+      if (res) res(tpl);
+    }
+
+    function cancelFinalePicker() {
+      document.getElementById('modal-finale-picker')?.classList.add('hidden');
+      const res = _finalePickerResolver;
+      _finalePickerResolver = null;
+      if (res) res(null);
+    }
+
     async function dispatchOrPlayCard(player, card) {
+      let effectiveCard = card;
+      let finaleKey = null;
+      if (card.code === 'FINALE') {
+        const pickedTpl = await openFinaleCardPicker();
+        if (!pickedTpl) return;
+        finaleKey = pickedTpl.cardKey;
+        effectiveCard = morphFinaleCard(card, pickedTpl);
+      }
+
       if (Net.online && !Net.isHost) {
         const hasLemat = player.equipment.some(e => e.lemat) && !isEquipmentNegatedByBelleStar(player);
-        const isEffectiveBang = card.code === 'BANG'
-          || (card.code === 'MISSED' && hasChar(player, 'CALAMITY_JANET'))
-          || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(card.code));
-        const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME', 'TOMAHAWK', 'AIM', 'RATTLESNAKE', 'BOUNTY'].includes(card.code);
+        const isEffectiveBang = effectiveCard.code === 'BANG'
+          || (effectiveCard.code === 'MISSED' && hasChar(player, 'CALAMITY_JANET'))
+          || (hasLemat && ['MISSED', 'DODGE', 'BACKFIRE', 'ESCAPE'].includes(effectiveCard.code));
+        const needsTarget = isEffectiveBang || ['PANIC', 'CAT_BALOU', 'DUEL', 'JAIL', 'PUNCH', 'SPRINGFIELD', 'TEQUILA', 'RAG_TIME', 'TOMAHAWK', 'AIM', 'RATTLESNAKE', 'BOUNTY'].includes(effectiveCard.code);
         let targetSeat = null;
         if (needsTarget) {
-          const target = await selectTargetPlayer(player, card, isEffectiveBang);
+          const target = await selectTargetPlayer(player, effectiveCard, isEffectiveBang);
           if (!target) return;
           targetSeat = target.id;
         }
@@ -4617,12 +4963,16 @@
             type: 'PLAY_CARD',
             seat: G.mySeatIndex,
             cardId: card.id,
-            targetSeat
+            targetSeat,
+            finaleKey
           }
         });
         return;
       }
-      await playCardAction(player, card);
+      if (finaleKey) {
+        logBattle(`🌌 ${player.name}이(가) [종결] 카드로 [${effectiveCard.name}] 효과를 발동합니다!`);
+      }
+      await playCardAction(player, effectiveCard);
       broadcastGameState(true);
     }
 
@@ -5879,7 +6229,9 @@
       const renegadeAlive = alive.some(p => p.role.id === 'RENEGADE');
 
       if (!sheriffAlive) {
-        if (alive.length === 1 && alive[0].role.id === 'RENEGADE') {
+        if (G.settings.superBullyMode) {
+          showGameOver('무법자 단독 승리!', '혼자서 모든 보안관을 쓰러뜨렸습니다! 전설적인 무법자의 승리입니다.');
+        } else if (alive.length === 1 && alive[0].role.id === 'RENEGADE') {
           showGameOver('배신자 단독 승리!', '배신자가 최후의 1인으로 살아남아 서부를 지배했습니다.');
         } else {
           showGameOver('무법자 진영 승리!', '보안관이 쓰러졌습니다! 무법자들의 승리입니다.');
@@ -5887,7 +6239,11 @@
         return true;
       }
       if (!outlawsAlive && !renegadeAlive) {
-        showGameOver('보안관 & 부관 진영 승리!', '모든 무법자와 배신자가 소탕되었습니다.');
+        if (G.settings.superBullyMode) {
+          showGameOver('보안관 진영 승리!', '무법자(왕따)가 쓰러졌습니다! 보안관들의 승리입니다.');
+        } else {
+          showGameOver('보안관 & 부관 진영 승리!', '모든 무법자와 배신자가 소탕되었습니다.');
+        }
         return true;
       }
       return false;
@@ -5924,6 +6280,9 @@
       });
 
       return ranked.map((p, idx) => {
+        if (G.settings.practiceMode) {
+          return { player: p, rank: idx + 1, scoreDelta: 0, pointsEarned: 0 };
+        }
         const scoreDelta = scores[idx] ?? -2;
         const pointsEarned = Math.max(5, Math.max(0, scoreDelta) * 10 + 10);
         return { player: p, rank: idx + 1, scoreDelta, pointsEarned };
@@ -5932,12 +6291,17 @@
 
     function showGameOver(title, desc) {
       document.getElementById('gameover-title').innerText = title;
-      document.getElementById('gameover-desc').innerText = desc;
+      document.getElementById('gameover-desc').innerText = G.settings.practiceMode
+        ? `${desc} (🧪 연습 모드: 점수·보상 변동 없음)`
+        : desc;
       const rankings = computeFinalRankings(title);
       const roster = document.getElementById('gameover-roster');
-      roster.innerHTML = rankings.map(({ player: p, rank, scoreDelta, pointsEarned }) => {
-        const scoreStr = scoreDelta >= 0 ? `+${scoreDelta}점` : `${scoreDelta}점`;
-        const scoreCls = scoreDelta > 0 ? 'text-emerald-300' : (scoreDelta < 0 ? 'text-red-400' : 'text-stone-300');
+      const practiceBanner = G.settings.practiceMode
+        ? `<div class="mb-2 px-2.5 py-1.5 rounded-xl bg-cyan-950/80 border border-cyan-500/60 text-cyan-200 text-[11px] font-black text-center">🧪 연습 모드 — 랭킹 점수 변동 및 포인트 보상이 적용되지 않습니다.</div>`
+        : '';
+      roster.innerHTML = practiceBanner + rankings.map(({ player: p, rank, scoreDelta, pointsEarned }) => {
+        const scoreStr = G.settings.practiceMode ? '변동없음' : (scoreDelta >= 0 ? `+${scoreDelta}점` : `${scoreDelta}점`);
+        const scoreCls = G.settings.practiceMode ? 'text-cyan-300' : (scoreDelta > 0 ? 'text-emerald-300' : (scoreDelta < 0 ? 'text-red-400' : 'text-stone-300'));
         return `
         <div class="flex items-center justify-between gap-2 border-b border-stone-800 pb-1.5">
           <div class="min-w-0 truncate">
@@ -5947,7 +6311,7 @@
           </div>
           <div class="flex items-center gap-1.5 flex-shrink-0">
             <span class="font-black ${scoreCls}">${scoreStr}</span>
-            <span class="text-fuchsia-300 font-bold">+${pointsEarned}P</span>
+            ${G.settings.practiceMode ? '' : `<span class="text-fuchsia-300 font-bold">+${pointsEarned}P</span>`}
             <span class="px-1.5 py-0.5 rounded bg-amber-900/50 text-amber-300 font-bold">${p.role.icon} ${p.role.name}</span>
           </div>
         </div>`;
@@ -6335,6 +6699,25 @@
           checkSuzyLafayette(ai);
           syncAllBoards(); broadcastGameState();
           await sleep(420);
+        }
+
+        // AI plays Finale ('종결') wild card smartly
+        const finaleCard = ai.hand.find(c => c.code === 'FINALE');
+        if (finaleCard) {
+          const allTpl = getAllCatalogCardTemplates();
+          const wantCode = (ai.hp < ai.maxHp && (aliveCount > 2 || G.settings.allowBeerAtTwo))
+            ? 'BEER'
+            : (ai.hand.length <= 2 ? 'WELLS_FARGO' : 'GATLING');
+          const tpl = allTpl.find(t => t.code === wantCode) || allTpl.find(t => t.code === 'WELLS_FARGO');
+          if (tpl) {
+            const morphed = morphFinaleCard(finaleCard, tpl);
+            logBattle(`🌌 ${ai.name}(AI)가 [종결] 카드로 [${morphed.name}] 효과를 발동합니다!`);
+            G.isBusy = false;
+            await playCardAction(ai, morphed);
+            G.isBusy = true;
+            broadcastGameState();
+            await sleep(450);
+          }
         }
 
         // Activate Ready Green Cards (Dodge City)
@@ -6812,7 +7195,7 @@
 
       const mePlayer = G.isSpectator ? null : G.players[G.mySeatIndex];
       const baseNick = Account.user?.username || document.getElementById('lobby-nickname')?.value.trim() || '관전자';
-      const sender = G.isSpectator ? `👁️ ${baseNick}` : (mePlayer ? mePlayer.name : baseNick);
+      const sender = G.isSpectator ? `👁️ ${baseNick}` : (G.settings.superAnonymous ? '익명' : (mePlayer ? mePlayer.name : baseNick));
       const chatColor = getEquippedChatColorHex();
       const now = new Date();
       const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -6860,7 +7243,7 @@
           el.className = 'bang-card card-role-back w-24 h-36 absolute shadow-2xl pointer-events-none';
           el.innerHTML = `<div class="bang-card-inner items-center justify-center"><span class="text-2xl">🤠</span><span class="font-western text-xs">BANG!</span></div>`;
         } else {
-          const typeCls = card.type === 'blue' ? 'card-blue' : (card.type === 'green' ? 'card-green' : '');
+          const typeCls = card.type === 'mythic' ? 'card-mythic' : (card.type === 'blue' ? 'card-blue' : (card.type === 'green' ? 'card-green' : ''));
           el.className = `bang-card ${typeCls} w-24 h-36 absolute shadow-2xl pointer-events-none`;
           el.innerHTML = `
             <div class="bang-card-inner justify-between text-center">
@@ -7792,6 +8175,9 @@
     }
 
     async function recordMatchResultAndRewards(title, rankings) {
+      if (G.settings.practiceMode) {
+        return;
+      }
       const summary = {
         id: `mh_${Date.now()}`,
         date: new Date().toLocaleString('ko-KR'),
@@ -8070,9 +8456,15 @@
       closeCreateRoomModal,
       onRoomMaxChange,
       onExpansionSelectionChange,
+      updateCharPoolAvailabilityUI,
       selectSuperBanPack,
       toggleSuperBanChar,
       toggleSuperFixedChar,
+      adjustSuperDeckCard,
+      resetSuperDeckDraft,
+      onSuperFinaleToggle,
+      pickFinaleCard,
+      cancelFinalePicker,
       createRoomSubmit,
       attemptJoinRoom,
       spectateRoom,
